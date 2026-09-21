@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOOKFORGE // MULTIPLATFORM VENUE & SPACE RESERVATION ENGINE</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Minimalist Vintage Header -->
+  <header class="vintage-nav">
+    <div class="container nav-inner">
+      
+      <!-- Center-Left: Elegant Serif Brand Logo -->
+      <a href="index.html" class="brand-logo">
+        BOOK<span class="logo-accent">FORGE</span>
+      </a>
+
+      <!-- Right: Minimalist Links -->
+      <div class="nav-links" id="nav-links">
+        <a href="#collection-section" class="nav-link-item">Venues</a>
+        <a href="#capabilities-section" class="nav-link-item">Capabilities</a>
+        <a href="#categories-section" class="nav-link-item">Disciplines</a>
+        <a href="login.html" class="nav-link-item">Sign In</a>
+        <a href="dashboard.html" class="btn btn-sm btn-rust btn-pill">Console</a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Editorial Vintage Hero -->
+  <section class="editorial-hero">
+    <div class="container">
+      <div class="hero-grid-layout">
+        
+        <!-- Left Column: Typography & Geometric Accent -->
+        <div class="hero-title-wrap">
+          
+          <!-- Terracotta Geometric Accent Circle -->
+          <div class="hero-circle-shape"></div>
+
+          <h1 class="hero-main-title">
+            <span>BOOKFORGE</span>
+            <span class="hero-word-offset">VENUE & SPACE</span>
+            <span class="hero-word-indent">RESERVATION ENGINE</span>
+          </h1>
+
+          <div class="hero-description-block">
+            <p>
+              A multiplatform reservation engine engineered for discovering, provisioning, and booking architectural venues, media production studios, event halls, and specialized equipment with real-time dynamic pricing.
+            </p>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 1.5rem; margin-top: 2.25rem; flex-wrap: wrap;">
+            <a href="#collection-section" class="btn btn-rust btn-pill" style="padding: 0.85rem 2rem;">
+              Explore Inventory ➔
+            </a>
+            <a href="login.html" class="btn btn-outline btn-pill" style="padding: 0.85rem 1.75rem;">
+              Sign In to Console
+            </a>
+            
+            <!-- Circular Rotating Badge Mechanism -->
+            <div class="retro-stamp" onclick="document.getElementById('collection-section').scrollIntoView({behavior: 'smooth'})" title="Explore Venues">
+              <div class="retro-stamp-play"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Editorial Architectural & Space Montage -->
+        <div class="hero-image-gallery">
+          
+          <div class="hero-portrait-card card-primary">
+            <img class="hero-portrait-img" src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80" alt="Executive Studio & Space">
+            <div style="padding: 1rem 1.25rem; background: #fff; border-top: var(--border-light);">
+              <span class="badge badge-rust">CURATED VENUE // 01</span>
+              <h4 style="margin-top: 0.35rem; font-size: 1.05rem; font-family: var(--font-serif);">The Architectural Loft Suite</h4>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.2rem;">Natural north illumination & acoustic insulation.</p>
+            </div>
+          </div>
+
+          <div class="hero-portrait-card card-secondary">
+            <img class="hero-portrait-img" src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80" alt="Media & Broadcast Control Room">
+            <div style="padding: 1rem 1.25rem; background: #fff; border-top: var(--border-light);">
+              <span class="badge badge-approved">LIVE AVAILABILITY</span>
+              <h4 style="margin-top: 0.35rem; font-size: 1.05rem; font-family: var(--font-serif);">Monolith Sound Studio</h4>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.2rem;">Calibrated for master tracking & broadcasting.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Curated Collection Section -->
+  <main class="container mt-4 mb-4" id="collection-section">
+
+    <!-- Section Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.25rem; flex-wrap: wrap; gap: 1rem; border-bottom: var(--border-light); padding-bottom: 1.25rem;">
+      <div>
+        <span class="badge badge-rust mb-1">INVENTORY CATALOG</span>
+        <h2 style="font-family: var(--font-serif);">FEATURED VENUES & SPACES</h2>
+        <p>Curated architectural inventory with transparent hourly rates and instant scheduling.</p>
+      </div>
+      <a href="dashboard.html" class="btn btn-outline btn-sm btn-pill">Open Console Inventory</a>
+    </div>
+
+    <!-- Collection Grid with High-Res Architecture & Space Photography -->
+    <div class="grid mb-4">
+      
+      <!-- Space 1 -->
+      <div class="card">
+        <div style="height: 240px; overflow: hidden; border-radius: var(--radius-xs); margin-bottom: 1.25rem; background: var(--bg-warm);">
+          <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80" alt="Executive Workspace Loft" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span class="badge">COWORKING & SUITES</span>
+          <span class="mono" style="font-size: 0.88rem; color: var(--accent-rust); font-weight: 700;">$65.00 / HR</span>
+        </div>
+        <h3 style="font-family: var(--font-serif);">Grand Atelier Office</h3>
+        <p class="mt-1 mb-2">Dedicated executive suites with minimalist timber furnishings, ultra-high-speed fiber, and private meeting nooks.</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 1rem; margin-top: 1rem;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">📍 Berlin Mitte</span>
+          <a href="login.html" class="btn btn-sm btn-rust btn-pill">Reserve ➔</a>
+        </div>
+      </div>
+
+      <!-- Space 2 -->
+      <div class="card">
+        <div style="height: 240px; overflow: hidden; border-radius: var(--radius-xs); margin-bottom: 1.25rem; background: var(--bg-warm);">
+          <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80" alt="Broadcast Sound Studio" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span class="badge">AUDIO & BROADCAST</span>
+          <span class="mono" style="font-size: 0.88rem; color: var(--accent-rust); font-weight: 700;">$90.00 / HR</span>
+        </div>
+        <h3 style="font-family: var(--font-serif);">Monolith Sound Studio</h3>
+        <p class="mt-1 mb-2">Acoustically isolated mixing control room and live tracking booth equipped for vinyl mastering and podcasts.</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 1rem; margin-top: 1rem;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">📍 London Shoreditch</span>
+          <a href="login.html" class="btn btn-sm btn-rust btn-pill">Reserve ➔</a>
+        </div>
+      </div>
+
+      <!-- Space 3 -->
+      <div class="card">
+        <div style="height: 240px; overflow: hidden; border-radius: var(--radius-xs); margin-bottom: 1.25rem; background: var(--bg-warm);">
+          <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80" alt="Heritage Auditorium Space" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span class="badge">EVENT HALLS</span>
+          <span class="mono" style="font-size: 0.88rem; color: var(--accent-rust); font-weight: 700;">$180.00 / HR</span>
+        </div>
+        <h3 style="font-family: var(--font-serif);">The Heritage Auditorium</h3>
+        <p class="mt-1 mb-2">Double-height timber vaulted ceiling with 180-guest tiered seating, proscenium stage, and intelligent lighting array.</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 1rem; margin-top: 1rem;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">📍 San Francisco</span>
+          <a href="login.html" class="btn btn-sm btn-rust btn-pill">Reserve ➔</a>
+        </div>
+      </div>
+
+      <!-- Space 4 -->
+      <div class="card">
+        <div style="height: 240px; overflow: hidden; border-radius: var(--radius-xs); margin-bottom: 1.25rem; background: var(--bg-warm);">
+          <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80" alt="Daylight Photography Bay" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span class="badge">MEDIA & PHOTO</span>
+          <span class="mono" style="font-size: 0.88rem; color: var(--accent-rust); font-weight: 700;">$110.00 / HR</span>
+        </div>
+        <h3 style="font-family: var(--font-serif);">Solarium Daylight Bay</h3>
+        <p class="mt-1 mb-2">Industrial floor-to-ceiling glass wall, motorized cyclorama wall, and overhead strobe mounting system.</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 1rem; margin-top: 1rem;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">📍 New York Brooklyn</span>
+          <a href="login.html" class="btn btn-sm btn-rust btn-pill">Reserve ➔</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Platform Capabilities Showcase Section -->
+    <section class="mt-4 mb-4" id="capabilities-section">
+      <div style="border-top: var(--border-light); padding-top: 3.5rem; margin-top: 3.5rem;">
+        <div style="text-align: center; max-width: 680px; margin: 0 auto 3rem auto;">
+          <span class="badge badge-rust mb-1">PLATFORM ENGINE</span>
+          <h2 style="font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3.2rem);">WHAT BOOKFORGE DELIVERS</h2>
+          <p style="font-size: 1.02rem; margin-top: 0.5rem;">
+            An end-to-end multiplatform venue ecosystem designed for providers to manage space taxonomy and customers to book seamlessly.
+          </p>
+        </div>
+
+        <div class="grid">
+          
+          <div class="card">
+            <span class="mono" style="color: var(--accent-rust); font-size: 0.85rem; font-weight: 700;">01 / TAXONOMY & VENUES</span>
+            <h3 style="margin-top: 0.5rem; font-family: var(--font-serif);">Multi-Venue Management</h3>
+            <p style="font-size: 0.92rem; margin-top: 0.5rem;">Organize properties by categories, detailed physical addresses, contact channels, and approval workflows.</p>
+          </div>
+
+          <div class="card">
+            <span class="mono" style="color: var(--accent-rust); font-size: 0.85rem; font-weight: 700;">02 / SPACES & MULTIMEDIA</span>
+            <h3 style="margin-top: 0.5rem; font-family: var(--font-serif);">Space & Image Portfolios</h3>
+            <p style="font-size: 0.92rem; margin-top: 0.5rem;">Provision individual sub-spaces with capacity thresholds, base hourly pricing, and high-definition image galleries.</p>
+          </div>
+
+          <div class="card">
+            <span class="mono" style="color: var(--accent-rust); font-size: 0.85rem; font-weight: 700;">03 / AVAILABILITY ENGINE</span>
+            <h3 style="margin-top: 0.5rem; font-family: var(--font-serif);">Precision Slot Schedules</h3>
+            <p style="font-size: 0.92rem; margin-top: 0.5rem;">Set custom opening hours by day of the week, define slot granularity, and schedule blackout maintenance windows.</p>
+          </div>
+
+          <div class="card">
+            <span class="mono" style="color: var(--accent-rust); font-size: 0.85rem; font-weight: 700;">04 / DYNAMIC PRICING</span>
+            <h3 style="margin-top: 0.5rem; font-family: var(--font-serif);">Surge & Hardware Matrix</h3>
+            <p style="font-size: 0.92rem; margin-top: 0.5rem;">Configure peak-hour multipliers, weekend rates, and add-on hardware resources with instant automated quotes.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Supported Disciplines & Categories -->
+    <section class="mt-4 mb-4" id="categories-section">
+      <div style="border-top: var(--border-light); padding-top: 3.5rem; margin-top: 3.5rem;">
+        <span class="badge badge-rust mb-1">CATEGORIES</span>
+        <h2 style="font-family: var(--font-serif); margin-bottom: 1.75rem;">DISCIPLINE TAXONOMY</h2>
+        
+        <div class="grid">
+          
+          <div class="card" style="background: var(--bg-warm); border: none;">
+            <span class="mono" style="color: var(--accent-rust); font-size: 0.8rem; font-weight: 700;">CAT-01 // WORKSPACES</span>
+            <h3 style="margin-top: 0.4rem; font-family: var(--font-serif);">Studios & Executive Offices</h3>
+            <p style="font-size: 0.9rem; margin-top: 0.4rem;">Collaborative hubs, boardroom suites, and private offices tailored for modern remote teams and creators.</p>
+          </div>
+
+          <div class="card" style="background: var(--bg-warm); border: none;">
+            <span class="mono" style="color: var(--accent-rust); font-size: 0.8rem; font-weight: 700;">CAT-02 // PRODUCTION</span>
+            <h3 style="margin-top: 0.4rem; font-family: var(--font-serif);">Audio & Media Suites</h3>
+            <p style="font-size: 0.9rem; margin-top: 0.4rem;">Acoustically tuned soundstages, vocal isolation booths, broadcast rooms, and video editing suites.</p>
+          </div>
+
+          <div class="card" style="background: var(--bg-warm); border: none;">
+            <span class="mono" style="color: var(--accent-rust); font-size: 0.8rem; font-weight: 700;">CAT-03 // GATHERINGS</span>
+            <h3 style="margin-top: 0.4rem; font-family: var(--font-serif);">Halls & Event Venues</h3>
+            <p style="font-size: 0.9rem; margin-top: 0.4rem;">Architectural banquet halls, presentation theaters, rooftop terraces, and full-scale exhibition spaces.</p>
+          </div>
+
+          <div class="card" style="background: var(--bg-warm); border: none;">
+            <span class="mono" style="color: var(--accent-rust); font-size: 0.8rem; font-weight: 700;">CAT-04 // HARDWARE</span>
+            <h3 style="margin-top: 0.4rem; font-family: var(--font-serif);">Add-on Equipment</h3>
+            <p style="font-size: 0.9rem; margin-top: 0.4rem;">Provision high-end microphones, lighting setups, AV projectors, and staging accessories.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action Vintage Banner -->
+    <section class="mt-4 mb-4">
+      <div class="card" style="background: var(--bg-dark); color: #FAF7F2; padding: 4rem 2.5rem; text-align: center; border-radius: var(--radius-xs);">
+        <span class="badge" style="background: rgba(226, 92, 55, 0.2); color: var(--accent-rust); border-color: rgba(226, 92, 55, 0.4);">ENTER PLATFORM</span>
+        <h2 style="font-family: var(--font-serif); color: #FAF7F2; font-size: clamp(2rem, 4.5vw, 3.4rem); margin-top: 0.75rem; margin-bottom: 1rem;">
+          ELEVATE YOUR SPACE RESERVATIONS
+        </h2>
+        <p style="color: #A8A29A; max-width: 600px; margin: 0 auto 2.25rem auto; font-size: 1.05rem;">
+          Join BookForge to list your venue portfolio, configure custom operating availability, or reserve prime architectural spaces seamlessly.
+        </p>
+        <div style="display: flex; gap: 1.25rem; justify-content: center; flex-wrap: wrap;">
+          <a href="login.html" class="btn btn-rust btn-pill" style="padding: 0.85rem 2.25rem;">
+            Sign In to Console ➔
+          </a>
+          <a href="signup.html" class="btn btn-outline btn-pill" style="border-color: #FAF7F2; color: #FAF7F2; padding: 0.85rem 2rem;">
+            Create Operator Account
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Vintage Footer -->
+  <footer>
+    <div class="container footer-inner" style="display: flex; justify-content: space-between; align-items: center; padding: 2.25rem 0; border-top: var(--border-light); margin-top: 4rem;">
+      <div>
+        <a href="index.html" class="brand-logo" style="font-size: 1.5rem;">
+          BOOK<span class="logo-accent">FORGE</span>
+        </a>
+        <p style="font-size: 0.86rem; color: var(--text-muted); margin-top: 0.35rem;">
+          Multiplatform Venue & Space Reservation Engine
+        </p>
+      </div>
+      <div style="font-size: 0.85rem; color: var(--text-muted); text-align: right; display: flex; flex-direction: column; gap: 0.35rem;">
+        <div>© 2026 BOOKFORGE • All rights reserved</div>
+        <div style="display: flex; gap: 1.25rem; justify-content: flex-end;">
+          <a href="#collection-section" style="color: var(--text-muted); text-decoration: none;">Venues</a>
+          <a href="#capabilities-section" style="color: var(--text-muted); text-decoration: none;">Platform</a>
+          <a href="login.html" style="color: var(--accent-rust); text-decoration: none; font-weight: 600;">Operator Sign In</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

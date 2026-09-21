@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VERIFY OTP // BOOKFORGE PLATFORM</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: var(--bg-warm);">
+
+  <!-- Global Loader -->
+  <div id="global-loader" class="loader-overlay">
+    <div class="vintage-spinner"></div>
+    <div class="loader-text" id="loader-text">VERIFYING OTP...</div>
+  </div>
+
+  <header class="vintage-nav">
+    <div class="container nav-inner">
+      <a href="index.html" class="brand-logo">
+        BOOK<span class="logo-accent">FORGE</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link-item">Home</a>
+        <a href="login.html" class="btn btn-sm btn-outline btn-pill">Sign In</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="max-width: 520px; margin-top: 3.5rem; margin-bottom: 4rem;">
+    
+    <div class="card" style="padding: 2.5rem; border-radius: var(--radius-xs); border: var(--border-light); box-shadow: var(--shadow-hover);">
+      
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <span class="badge badge-rust mb-1">TWO-FACTOR VALIDATION</span>
+        <h1 style="font-size: 2.4rem; font-family: var(--font-serif); margin-top: 0.5rem;">VERIFY CODE</h1>
+        <p style="font-size: 0.92rem;">Enter the verification OTP sent to your registered email.</p>
+      </div>
+
+      <form id="verify-form">
+        <div class="form-group">
+          <label class="form-label">ACCOUNT EMAIL</label>
+          <input type="email" id="verify-email" class="form-input" placeholder="operator@bluewave.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ONE-TIME CODE (OTP)</label>
+          <input type="text" id="verify-otp" class="form-input mono" placeholder="e.g. 123456" maxlength="10" required style="font-size: 1.4rem; letter-spacing: 5px; text-align: center;">
+        </div>
+
+        <button type="submit" class="btn btn-rust btn-block btn-pill mb-3" style="font-size: 0.95rem; padding: 0.85rem;">
+          Validate & Access Console ➔
+        </button>
+      </form>
+
+      <div class="mt-3 text-center" style="font-size: 0.82rem; color: var(--text-muted);">
+        Development tip: Check console logs or mail inbox for generated 6-digit OTP.
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedEmail = localStorage.getItem('pending_verify_email');
+      if (savedEmail) {
+        document.getElementById('verify-email').value = savedEmail;
+      }
+    });
+
+    document.getElementById('verify-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('verify-email').value.trim();
+      const otp = document.getElementById('verify-otp').value.trim();
+
+      try {
+        const res = await AuthAPI.verify({ email, otp });
+        showToast('OTP verified successfully! Access granted.', 'success');
+        
+        // Remove pending verify email
+        localStorage.removeItem('pending_verify_email');
+
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 500);
+      } catch (err) {
+        showToast(err.message || 'Verification failed. Please check OTP.', 'error');
+      }
+    });
+  </script>
+</body>
+</html>
