@@ -747,3 +747,178 @@ footer {
 .mb-4 { margin-bottom: 2.25rem; }
 .text-center { text-align: center; }
 .flex-center { display: flex; align-items: center; justify-content: center; }
+
+/* =============================================================
+   ENHANCED VINTAGE RETRO & MARKETING UTILITIES
+   ============================================================= */
+
+/* Rating & Featured Host Badges */
+.badge-featured {
+  background: #FFF4E5;
+  color: #B45309;
+  border-color: #FCD34D;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.rating-stars {
+  color: #F59E0B;
+  letter-spacing: 2px;
+  font-size: 0.95rem;
+}
+
+/* Step / Flywheel Card */
+.flywheel-step {
+  position: relative;
+  background: var(--bg-card);
+  border: var(--border-light);
+  border-radius: var(--radius-xs);
+  padding: 2rem 1.75rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.flywheel-step:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--accent-rust);
+}
+
+.flywheel-step-number {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent-rust);
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+/* Earnings Calculator Card */
+.calculator-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xs);
+  padding: 2.25rem;
+  box-shadow: var(--shadow-hover);
+}
+
+.earnings-display {
+  font-family: var(--font-serif);
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-weight: 700;
+  color: var(--accent-rust);
+  line-height: 1.1;
+  margin: 0.5rem 0;
+}
+
+/* Image Upload Preview with Cross (✕) Remove Button */
+.image-preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.image-preview-item {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-warm);
+}
+
+.image-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-preview-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  background: rgba(26, 24, 22, 0.85);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.image-preview-remove:hover {
+  background: var(--accent-rust);
+  transform: scale(1.1);
+}
+
+/* Testimonial Quote Card */
+.quote-card {
+  background: var(--bg-card);
+  border: var(--border-light);
+  border-left: 3px solid var(--accent-rust);
+  padding: 1.75rem;
+  border-radius: var(--radius-xs);
+}
+
+/* Mobile-First Navigation & Responsive Rules */
+@media (max-width: 768px) {
+  .nav-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .nav-links {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    justify-content: flex-start;
+  }
+
+  .hero-main-title {
+    font-size: clamp(2.2rem, 9vw, 3.5rem) !important;
+    line-height: 1.05 !important;
+  }
+
+  .hero-main-title .hero-word-offset {
+    margin-left: 0 !important;
+  }
+
+  .hero-grid-layout {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .action-panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .selection-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+}

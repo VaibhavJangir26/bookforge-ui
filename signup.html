@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>REGISTER IDENTITY // BOOKFORGE PLATFORM</title>
+  <title>CREATE ACCOUNT // BOOKFORGE PLATFORM</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body style="background: var(--bg-warm);">
@@ -26,39 +26,39 @@
     </div>
   </header>
 
-  <main class="container" style="max-width: 560px; margin-top: 3.5rem; margin-bottom: 4rem;">
+  <main class="container" style="max-width: 540px; margin-top: 3.5rem; margin-bottom: 4rem;">
     
     <div class="card" style="padding: 2.5rem; border-radius: var(--radius-xs); border: var(--border-light); box-shadow: var(--shadow-hover);">
       
       <div style="text-align: center; margin-bottom: 2rem;">
-        <span class="badge badge-rust mb-1">NEW OPERATOR ONBOARDING</span>
-        <h1 style="font-size: 2.4rem; font-family: var(--font-serif); margin-top: 0.5rem;">REGISTER</h1>
-        <p style="font-size: 0.92rem;">Create your BookForge identity to access the marketplace.</p>
+        <span class="badge badge-rust mb-1">MEMBER REGISTRATION</span>
+        <h1 style="font-size: 2.4rem; font-family: var(--font-serif); margin-top: 0.5rem;">CREATE ACCOUNT</h1>
+        <p style="font-size: 0.92rem;">Register your BookForge member identity to explore spaces or apply as a verified host.</p>
       </div>
 
       <form id="signup-form">
         <div class="form-group">
-          <label class="form-label">OPERATOR USERNAME</label>
-          <input type="text" id="signup-username" class="form-input" placeholder="e.g. vintage_forge" required autofocus>
+          <label class="form-label">USERNAME</label>
+          <input type="text" id="signup-username" class="form-input" placeholder="e.g. creative_host" required autofocus>
         </div>
 
         <div class="form-group">
           <label class="form-label">EMAIL ADDRESS</label>
-          <input type="email" id="signup-email" class="form-input" placeholder="e.g. operator@bluewave.com" required>
+          <input type="email" id="signup-email" class="form-input" placeholder="e.g. member@bluewave.com" required>
         </div>
 
         <div class="form-group">
-          <label class="form-label">PASSPHRASE</label>
-          <input type="password" id="signup-password" class="form-input" placeholder="••••••••••••" required>
+          <label class="form-label">PASSPHRASE (MINIMUM 6 CHARACTERS)</label>
+          <input type="password" id="signup-password" class="form-input" minlength="6" placeholder="••••••••••••" required>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">SYSTEM ROLE</label>
-          <select id="signup-role" class="form-select" required>
-            <option value="ROLE_CUSTOMER">CUSTOMER (BOOK VENUES & SLOTS)</option>
-            <option value="ROLE_PROVIDER">PROVIDER (PUBLISH VENUES & INVENTORY)</option>
-            <option value="ROLE_ADMIN">ADMIN (SYSTEM MODERATION)</option>
-          </select>
+        <div style="background: var(--bg-warm); border: 1px solid var(--border-medium); padding: 1rem 1.25rem; border-radius: var(--radius-xs); margin-bottom: 1.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span class="badge badge-approved" style="font-size: 0.72rem;">STANDARD MEMBER IDENTITY</span>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.5;">
+            All members register with standard access. Once inside your console, you can submit a <strong>Host Application</strong> for Administrator confirmation to unlock space publishing and hourly monetization.
+          </p>
         </div>
 
         <button type="submit" class="btn btn-rust btn-block btn-pill mb-3" style="font-size: 0.95rem; padding: 0.85rem;">
@@ -74,6 +74,7 @@
 
   </main>
 
+  <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/main.js"></script>
   <script>
@@ -82,10 +83,9 @@
       const username = document.getElementById('signup-username').value.trim();
       const email = document.getElementById('signup-email').value.trim();
       const password = document.getElementById('signup-password').value;
-      const role = document.getElementById('signup-role').value;
 
       try {
-        const res = await AuthAPI.signup({ username, email, password, role });
+        const res = await AuthAPI.signup({ username, email, password });
         showToast((res && res.message) || 'Signup initiated! Please verify your OTP.', 'success');
         localStorage.setItem('pending_verify_email', email);
         setTimeout(() => {

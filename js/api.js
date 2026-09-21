@@ -1,17 +1,32 @@
 /**
- * BookForge API Gateway Client
- * All requests route through API Gateway (default: http://localhost:8900)
+ * BookForge Unified API Client
+ * Uses window.BOOKFORGE_CONFIG with full microservice endpoint synchronization.
  */
+
+const CONFIG = window.BOOKFORGE_CONFIG || {
+  API_BASE_URL: 'http://localhost:8900/api/v1',
+  AUTH_SERVICE_URL: 'http://localhost:8500/api/v1',
+  CATALOG_SERVICE_URL: 'http://localhost:8600/api/v1',
+  ENDPOINTS: {
+    AUTH: { LOGIN: '/auth/login', SIGNUP: '/auth/signup', VERIFY: '/auth/verify', REFRESH: '/auth/refresh', LOGOUT: '/auth/logout', PROFILE_ME: '/profile/me' },
+    CATEGORY: { GET_ALL: '/category', CREATE: '/category', UPDATE: '/category', DELETE: (id) => `/category/${id}` },
+    VENUE: { GET_ALL: '/venues', GET_DETAILS: (id) => `/venues/${id}`, CREATE: '/venues', UPDATE_DETAILS: (id) => `/venues/${id}/details`, UPDATE_STATUS: (id) => `/venues/${id}/status`, DELETE: (id) => `/venues/${id}` },
+    SPACE: { GET_ALL: '/spaces', GET_BY_VENUE: (id) => `/spaces/venue/${id}`, GET_DETAILS: (id) => `/spaces/${id}`, CREATE: '/spaces', UPDATE: (id) => `/spaces/${id}`, DELETE: (id) => `/spaces/${id}` },
+    RESOURCE: { GET_ALL: '/resources', GET_BY_SPACE: (id) => `/resources/space/${id}`, GET_DETAILS: (id) => `/resources/${id}`, CREATE: '/resources', UPDATE: (id) => `/resources/${id}`, DELETE: (id) => `/resources/${id}` },
+    AVAILABILITY: { RULES_BY_SPACE: (id) => `/availability/rules/space/${id}`, RULES: '/availability/rules', DELETE_RULE: (id) => `/availability/rules/${id}`, BLACKOUTS_BY_SPACE: (id) => `/availability/blackouts/space/${id}`, BLACKOUTS: '/availability/blackouts', DELETE_BLACKOUT: (id) => `/availability/blackouts/${id}`, SLOTS: (id) => `/availability/slots/space/${id}` },
+    PRICING: { RULES_BY_SPACE: (id) => `/pricing/rules/space/${id}`, RULES: '/pricing/rules', DELETE_RULE: (id) => `/pricing/rules/${id}`, CALCULATE: '/pricing/calculate' }
+  }
+};
 
 const API_BASE_URL = (function() {
   const custom = localStorage.getItem('api_gateway_url');
   if (custom && custom.includes('8904')) {
     localStorage.removeItem('api_gateway_url');
   }
-  return localStorage.getItem('api_gateway_url') || 'http://localhost:8900/api/v1';
+  return localStorage.getItem('api_gateway_url') || CONFIG.API_BASE_URL;
 })();
 
-// Toast and UI notification helpers
+// UI Toasts and Global Loaders
 function showToast(message, type = 'info') {
   let container = document.getElementById('toast-container');
   if (!container) {
@@ -23,15 +38,15 @@ function showToast(message, type = 'info') {
 
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  toast.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;font-weight:700;cursor:pointer;margin-left:8px;font-size:1.1rem;line-height:1;">✕</button>`;
+  toast.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;font-weight:700;cursor:pointer;margin-left:8px;font-size:1.1rem;line-height:1;color:inherit;">✕</button>`;
   container.appendChild(toast);
 
   setTimeout(() => {
     if (toast.parentElement) toast.remove();
-  }, 4000);
+  }, 4500);
 }
 
-function showLoader(text = 'EXECUTING REQUEST...') {
+function showLoader(text = 'PROCESSING REQUEST...') {
   let overlay = document.getElementById('global-loader');
   if (!overlay) {
     overlay = document.createElement('div');
@@ -51,12 +66,11 @@ function hideLoader() {
   if (overlay) overlay.classList.remove('active');
 }
 
-// Low-level fetch wrapper
+// Low-level fetch wrapper with automatic CommonApiResponse unwrapping
 async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('bookforge_token');
   const headers = { ...options.headers };
 
-  // If body is NOT FormData, default to JSON Content-Type
   if (!(options.body instanceof FormData) && !headers['Content-Type']) {
     headers['Content-Type'] = 'application/json';
   }
@@ -66,27 +80,33 @@ async function apiRequest(endpoint, options = {}) {
   }
 
   try {
-    showLoader(options.loaderText || 'FETCHING DATA...');
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+    showLoader(options.loaderText || 'EXECUTING TRANSACTION...');
+    const url = `${API_BASE_URL}${endpoint}`;
+    const res = await fetch(url, {
       method: options.method || 'GET',
       headers,
       body: options.body
     });
 
     const contentType = res.headers.get('content-type') || '';
-    let data;
+    let responseData;
     if (contentType.includes('application/json')) {
-      data = await res.json();
+      responseData = await res.json();
     } else {
-      data = await res.text();
+      responseData = await res.text();
     }
 
     if (!res.ok) {
-      const errMsg = (data && (data.message || data.error)) || (typeof data === 'string' ? data : `Error ${res.status}: ${res.statusText}`);
+      const errMsg = (responseData && (responseData.message || responseData.error)) || 
+                     (typeof responseData === 'string' ? responseData : `Error ${res.status}: ${res.statusText}`);
       throw new Error(errMsg);
     }
 
-    return data;
+    if (responseData && typeof responseData === 'object' && responseData.data !== undefined) {
+      return responseData.data;
+    }
+
+    return responseData;
   } catch (err) {
     console.error(`API Error [${endpoint}]:`, err);
     throw err;
@@ -96,17 +116,16 @@ async function apiRequest(endpoint, options = {}) {
 }
 
 // -------------------------------------------------------------
-// AUTH SERVICE (auth-service on port 8500 via gateway /api/v1/auth)
+// AUTH & PROFILE SERVICE
 // -------------------------------------------------------------
 const AuthAPI = {
   async login({ username, password }) {
-    const data = await apiRequest('/auth/login', {
+    const data = await apiRequest(CONFIG.ENDPOINTS.AUTH.LOGIN, {
       method: 'POST',
       body: JSON.stringify({ username, password }),
       loaderText: 'AUTHENTICATING USER...'
     });
 
-    // Support accessToken / token / jwt fields from backend AuthResponseDTO
     const token = (data && (data.accessToken || data.token || data.jwt || data.jwtToken)) || '';
     if (token) {
       localStorage.setItem('bookforge_token', token);
@@ -126,7 +145,8 @@ const AuthAPI = {
   },
 
   async signup({ username, email, password }) {
-    return await apiRequest('/auth/signup', {
+    // All users register as standard Customers by default
+    return await apiRequest(CONFIG.ENDPOINTS.AUTH.SIGNUP, {
       method: 'POST',
       body: JSON.stringify({ username, email, password }),
       loaderText: 'REGISTERING ACCOUNT...'
@@ -134,7 +154,7 @@ const AuthAPI = {
   },
 
   async verify({ email, otp }) {
-    const data = await apiRequest('/auth/verify', {
+    const data = await apiRequest(CONFIG.ENDPOINTS.AUTH.VERIFY, {
       method: 'POST',
       body: JSON.stringify({ email, otp }),
       loaderText: 'VERIFYING OTP...'
@@ -158,6 +178,21 @@ const AuthAPI = {
     return data;
   },
 
+  async getProfile() {
+    return await apiRequest(CONFIG.ENDPOINTS.AUTH.PROFILE_ME, {
+      method: 'GET',
+      loaderText: 'FETCHING PROFILE...'
+    });
+  },
+
+  async updateProfile(dto) {
+    return await apiRequest(CONFIG.ENDPOINTS.AUTH.PROFILE_ME, {
+      method: 'PATCH',
+      body: JSON.stringify(dto),
+      loaderText: 'UPDATING PROFILE...'
+    });
+  },
+
   logout() {
     localStorage.removeItem('bookforge_token');
     localStorage.removeItem('bookforge_user');
@@ -166,25 +201,18 @@ const AuthAPI = {
 };
 
 // -------------------------------------------------------------
-// CATEGORY MODULE (Admin & Public)
+// CATEGORY MODULE (Admin Only for Write)
 // -------------------------------------------------------------
 const CategoryAPI = {
   async getAll() {
-    return await apiRequest('/categories', {
+    return await apiRequest(CONFIG.ENDPOINTS.CATEGORY.GET_ALL, {
       method: 'GET',
       loaderText: 'LOADING CATEGORIES...'
     });
   },
 
-  async getById(id) {
-    return await apiRequest(`/categories/${id}`, {
-      method: 'GET',
-      loaderText: 'FETCHING CATEGORY...'
-    });
-  },
-
   async create({ name, slug, description }) {
-    return await apiRequest('/categories', {
+    return await apiRequest(CONFIG.ENDPOINTS.CATEGORY.CREATE, {
       method: 'POST',
       body: JSON.stringify({ name, slug, description }),
       loaderText: 'CREATING CATEGORY...'
@@ -192,15 +220,15 @@ const CategoryAPI = {
   },
 
   async update({ id, name, slug, description }) {
-    return await apiRequest(`/categories`, {
-      method: 'PUT',
+    return await apiRequest(CONFIG.ENDPOINTS.CATEGORY.UPDATE, {
+      method: 'PATCH',
       body: JSON.stringify({ id, name, slug, description }),
       loaderText: 'UPDATING CATEGORY...'
     });
   },
 
   async delete(id) {
-    return await apiRequest(`/categories/${id}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.CATEGORY.DELETE(id), {
       method: 'DELETE',
       loaderText: 'DELETING CATEGORY...'
     });
@@ -208,41 +236,25 @@ const CategoryAPI = {
 };
 
 // -------------------------------------------------------------
-// VENUE MODULE (Provider, Admin, Customer)
+// VENUE MODULE (Provider Only for Create/Edit)
 // -------------------------------------------------------------
 const VenueAPI = {
-  async getPublished(params = {}) {
-    const qs = new URLSearchParams(params).toString();
-    return await apiRequest(`/venues?${qs}`, {
+  async getAll() {
+    return await apiRequest(CONFIG.ENDPOINTS.VENUE.GET_ALL, {
       method: 'GET',
-      loaderText: 'FETCHING PUBLISHED VENUES...'
-    });
-  },
-
-  async getProviderVenues() {
-    return await apiRequest('/venues/provider', {
-      method: 'GET',
-      loaderText: 'FETCHING YOUR VENUES...'
-    });
-  },
-
-  async getAllForAdmin(params = {}) {
-    const qs = new URLSearchParams(params).toString();
-    return await apiRequest(`/venues/admin?${qs}`, {
-      method: 'GET',
-      loaderText: 'FETCHING ALL VENUES (ADMIN)...'
+      loaderText: 'FETCHING VENUES...'
     });
   },
 
   async getById(id) {
-    return await apiRequest(`/venues/${id}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.VENUE.GET_DETAILS(id), {
       method: 'GET',
       loaderText: 'FETCHING VENUE DETAILS...'
     });
   },
 
   async create({ name, slug, description, contactEmail, contactPhone, categoryId, address }) {
-    return await apiRequest('/venues', {
+    return await apiRequest(CONFIG.ENDPOINTS.VENUE.CREATE, {
       method: 'POST',
       body: JSON.stringify({
         name,
@@ -251,22 +263,27 @@ const VenueAPI = {
         contactEmail,
         contactPhone,
         categoryId,
-        address
+        address: {
+          addressLine: address.addressLine,
+          city: address.city,
+          state: address.state,
+          postalCode: parseInt(address.postalCode, 10) || 0
+        }
       }),
-      loaderText: 'CREATING VENUE...'
+      loaderText: 'PUBLISHING VENUE...'
     });
   },
 
-  async update(id, data) {
-    return await apiRequest(`/venues/${id}`, {
-      method: 'PUT',
+  async updateDetails(id, data) {
+    return await apiRequest(CONFIG.ENDPOINTS.VENUE.UPDATE_DETAILS(id), {
+      method: 'PATCH',
       body: JSON.stringify(data),
-      loaderText: 'UPDATING VENUE...'
+      loaderText: 'UPDATING VENUE DETAILS...'
     });
   },
 
   async updateStatus(id, venueStatus) {
-    return await apiRequest(`/venues/${id}/status`, {
+    return await apiRequest(CONFIG.ENDPOINTS.VENUE.UPDATE_STATUS(id), {
       method: 'PATCH',
       body: JSON.stringify({ venueStatus }),
       loaderText: 'UPDATING VENUE STATUS...'
@@ -274,7 +291,7 @@ const VenueAPI = {
   },
 
   async delete(id) {
-    return await apiRequest(`/venues/${id}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.VENUE.DELETE(id), {
       method: 'DELETE',
       loaderText: 'DELETING VENUE...'
     });
@@ -282,20 +299,27 @@ const VenueAPI = {
 };
 
 // -------------------------------------------------------------
-// SPACE MODULE (Multipart: JSON request + images)
+// SPACE MODULE (Provider Only)
 // -------------------------------------------------------------
 const SpaceAPI = {
-  async getByVenue(venueId) {
-    return await apiRequest(`/spaces/venue/${venueId}`, {
+  async getAll() {
+    return await apiRequest(CONFIG.ENDPOINTS.SPACE.GET_ALL, {
       method: 'GET',
-      loaderText: 'FETCHING SPACES FOR VENUE...'
+      loaderText: 'LOADING ALL SPACES...'
+    });
+  },
+
+  async getByVenue(venueId) {
+    return await apiRequest(CONFIG.ENDPOINTS.SPACE.GET_BY_VENUE(venueId), {
+      method: 'GET',
+      loaderText: 'LOADING VENUE SPACES...'
     });
   },
 
   async getById(id) {
-    return await apiRequest(`/spaces/${id}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.SPACE.GET_DETAILS(id), {
       method: 'GET',
-      loaderText: 'FETCHING SPACE DETAILS...'
+      loaderText: 'FETCHING SPACE SPECIFICATIONS...'
     });
   },
 
@@ -310,10 +334,10 @@ const SpaceAPI = {
       }
     }
 
-    return await apiRequest('/spaces', {
+    return await apiRequest(CONFIG.ENDPOINTS.SPACE.CREATE, {
       method: 'POST',
       body: formData,
-      loaderText: 'CREATING SPACE WITH IMAGES...'
+      loaderText: 'PROVISIONING SPACE...'
     });
   },
 
@@ -328,15 +352,15 @@ const SpaceAPI = {
       }
     }
 
-    return await apiRequest(`/spaces/${id}`, {
-      method: 'PUT',
+    return await apiRequest(CONFIG.ENDPOINTS.SPACE.UPDATE(id), {
+      method: 'PATCH',
       body: formData,
       loaderText: 'UPDATING SPACE...'
     });
   },
 
   async delete(id) {
-    return await apiRequest(`/spaces/${id}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.SPACE.DELETE(id), {
       method: 'DELETE',
       loaderText: 'DELETING SPACE...'
     });
@@ -344,18 +368,25 @@ const SpaceAPI = {
 };
 
 // -------------------------------------------------------------
-// RESOURCE MODULE (Multipart: JSON request + images)
+// RESOURCE MODULE (Provider Only)
 // -------------------------------------------------------------
 const ResourceAPI = {
+  async getAll() {
+    return await apiRequest(CONFIG.ENDPOINTS.RESOURCE.GET_ALL, {
+      method: 'GET',
+      loaderText: 'LOADING RESOURCES...'
+    });
+  },
+
   async getBySpace(spaceId) {
-    return await apiRequest(`/resources/space/${spaceId}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.RESOURCE.GET_BY_SPACE(spaceId), {
       method: 'GET',
       loaderText: 'FETCHING SPACE RESOURCES...'
     });
   },
 
   async getById(id) {
-    return await apiRequest(`/resources/${id}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.RESOURCE.GET_DETAILS(id), {
       method: 'GET',
       loaderText: 'FETCHING RESOURCE...'
     });
@@ -372,10 +403,10 @@ const ResourceAPI = {
       }
     }
 
-    return await apiRequest('/resources', {
+    return await apiRequest(CONFIG.ENDPOINTS.RESOURCE.CREATE, {
       method: 'POST',
       body: formData,
-      loaderText: 'CREATING RESOURCE...'
+      loaderText: 'ATTACHING RESOURCE HARDWARE...'
     });
   },
 
@@ -390,15 +421,15 @@ const ResourceAPI = {
       }
     }
 
-    return await apiRequest(`/resources/${id}`, {
-      method: 'PUT',
+    return await apiRequest(CONFIG.ENDPOINTS.RESOURCE.UPDATE(id), {
+      method: 'PATCH',
       body: formData,
       loaderText: 'UPDATING RESOURCE...'
     });
   },
 
   async delete(id) {
-    return await apiRequest(`/resources/${id}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.RESOURCE.DELETE(id), {
       method: 'DELETE',
       loaderText: 'DELETING RESOURCE...'
     });
@@ -406,18 +437,18 @@ const ResourceAPI = {
 };
 
 // -------------------------------------------------------------
-// AVAILABILITY MODULE (Rules, Blackouts, Slot Queries)
+// AVAILABILITY MODULE
 // -------------------------------------------------------------
 const AvailabilityAPI = {
   async getRules(spaceId) {
-    return await apiRequest(`/availability/rules/space/${spaceId}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.RULES_BY_SPACE(spaceId), {
       method: 'GET',
-      loaderText: 'FETCHING AVAILABILITY RULES...'
+      loaderText: 'FETCHING OPERATING RULES...'
     });
   },
 
   async createRule({ spaceId, dayOfWeek, openingTime, closingTime, open, slotDurationInMinutes }) {
-    return await apiRequest('/availability/rules', {
+    return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.RULES, {
       method: 'POST',
       body: JSON.stringify({
         spaceId,
@@ -427,26 +458,26 @@ const AvailabilityAPI = {
         open: open !== false,
         slotDurationInMinutes: parseInt(slotDurationInMinutes, 10) || 60
       }),
-      loaderText: 'CONFIGURING AVAILABILITY RULE...'
+      loaderText: 'CONFIGURING SCHEDULE RULE...'
     });
   },
 
   async deleteRule(ruleId) {
-    return await apiRequest(`/availability/rules/${ruleId}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.DELETE_RULE(ruleId), {
       method: 'DELETE',
-      loaderText: 'DELETING AVAILABILITY RULE...'
+      loaderText: 'DELETING SCHEDULE RULE...'
     });
   },
 
   async getBlackouts(spaceId) {
-    return await apiRequest(`/availability/blackouts/space/${spaceId}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.BLACKOUTS_BY_SPACE(spaceId), {
       method: 'GET',
-      loaderText: 'FETCHING BLACKOUT PERIODS...'
+      loaderText: 'FETCHING BLACKOUT WINDOWS...'
     });
   },
 
   async createBlackout({ spaceId, startDateTime, endDateTime, reason }) {
-    return await apiRequest('/availability/blackouts', {
+    return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.BLACKOUTS, {
       method: 'POST',
       body: JSON.stringify({ spaceId, startDateTime, endDateTime, reason }),
       loaderText: 'CONFIGURING BLACKOUT WINDOW...'
@@ -454,62 +485,61 @@ const AvailabilityAPI = {
   },
 
   async deleteBlackout(blackoutId) {
-    return await apiRequest(`/availability/blackouts/${blackoutId}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.DELETE_BLACKOUT(blackoutId), {
       method: 'DELETE',
-      loaderText: 'REMOVING BLACKOUT PERIOD...'
+      loaderText: 'REMOVING BLACKOUT...'
     });
   },
 
-  async getSlots({ spaceId, date, slotDurationInMinutes }) {
-    const qs = new URLSearchParams({
-      spaceId,
-      date,
-      ...(slotDurationInMinutes ? { slotDurationInMinutes } : {})
-    }).toString();
+  async getSlots({ spaceId, startDate, endDate }) {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    const qs = params.toString();
 
-    return await apiRequest(`/availability/slots?${qs}`, {
+    return await apiRequest(`${CONFIG.ENDPOINTS.AVAILABILITY.SLOTS(spaceId)}${qs ? '?' + qs : ''}`, {
       method: 'GET',
-      loaderText: 'CALCULATING OPEN SLOTS...'
+      loaderText: 'QUERYING OPEN SLOTS...'
     });
   }
 };
 
 // -------------------------------------------------------------
-// PRICING MODULE (Rules, Calculations)
+// PRICING MODULE
 // -------------------------------------------------------------
 const PricingAPI = {
   async getRules(spaceId) {
-    return await apiRequest(`/pricing/rules/space/${spaceId}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.PRICING.RULES_BY_SPACE(spaceId), {
       method: 'GET',
       loaderText: 'FETCHING DYNAMIC PRICING RULES...'
     });
   },
 
   async createRule(ruleData) {
-    return await apiRequest('/pricing/rules', {
+    return await apiRequest(CONFIG.ENDPOINTS.PRICING.RULES, {
       method: 'POST',
       body: JSON.stringify(ruleData),
-      loaderText: 'CONFIGURING PRICING RULE...'
+      loaderText: 'SAVING PRICING RULE...'
     });
   },
 
   async deleteRule(ruleId) {
-    return await apiRequest(`/pricing/rules/${ruleId}`, {
+    return await apiRequest(CONFIG.ENDPOINTS.PRICING.DELETE_RULE(ruleId), {
       method: 'DELETE',
       loaderText: 'DELETING PRICING RULE...'
     });
   },
 
   async calculate({ spaceId, slotStartTime, slotEndTime, resourceIds = [] }) {
-    return await apiRequest('/pricing/calculate', {
+    return await apiRequest(CONFIG.ENDPOINTS.PRICING.CALCULATE, {
       method: 'POST',
       body: JSON.stringify({ spaceId, slotStartTime, slotEndTime, resourceIds }),
-      loaderText: 'CALCULATING QUOTE...'
+      loaderText: 'CALCULATING TOTAL QUOTE...'
     });
   }
 };
 
-// Seed credentials matching Java DataInitializer.java
+// Seed credentials helper for developer testing
 const SeedUsers = {
   customer: { username: 'shyam123', password: 'shyam@123', role: 'ROLE_CUSTOMER' },
   provider: { username: 'ram123', password: 'ram@123', role: 'ROLE_PROVIDER' },

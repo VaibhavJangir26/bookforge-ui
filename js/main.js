@@ -17,22 +17,27 @@ function updateNavigation() {
   const navLinks = document.getElementById('nav-links');
   if (!navLinks) return;
 
+  // On dashboard.html, keep its dedicated nav
+  if (window.location.pathname.includes('dashboard.html')) {
+    return;
+  }
+
   if (token && user) {
     const roleBadge = (user.roles && user.roles.includes('ROLE_ADMIN')) || user.role === 'ROLE_ADMIN'
-      ? '<span class="badge badge-admin">ADMIN</span>' 
-      : (((user.roles && user.roles.includes('ROLE_PROVIDER')) || user.role === 'ROLE_PROVIDER') ? '<span class="badge badge-provider">PROVIDER</span>' : '<span class="badge badge-customer">CUSTOMER</span>');
+      ? '<span class="badge badge-rust">ADMIN</span>' 
+      : (((user.roles && user.roles.includes('ROLE_PROVIDER')) || user.role === 'ROLE_PROVIDER') ? '<span class="badge badge-approved">PROVIDER</span>' : '<span class="badge">CUSTOMER</span>');
 
     navLinks.innerHTML = `
-      <a href="index.html" class="nav-link-item">Directory</a>
+      <a href="index.html" class="nav-link-item">Home</a>
       <a href="dashboard.html" class="btn btn-sm btn-rust btn-pill">Console ${roleBadge}</a>
-      <button onclick="AuthAPI.logout()" class="btn btn-sm btn-secondary btn-pill">Logout</button>
+      <button onclick="AuthAPI.logout()" class="btn btn-sm btn-outline btn-pill">Sign Out</button>
     `;
   } else {
     navLinks.innerHTML = `
-      <a href="#collection-section" class="nav-link-item">Venues</a>
-      <a href="#categories-section" class="nav-link-item">Categories</a>
+      <a href="index.html#earnings-calculator" class="nav-link-item">Host Earnings</a>
+      <a href="index.html#rating-engine" class="nav-link-item">Rating Boost</a>
       <a href="login.html" class="nav-link-item">Sign In</a>
-      <a href="dashboard.html" class="btn btn-sm btn-rust btn-pill">Console</a>
+      <a href="signup.html" class="btn btn-sm btn-rust btn-pill">Register Space ➔</a>
     `;
   }
 }
@@ -55,7 +60,7 @@ async function quickLoginAs(roleKey) {
     showLoader(`AUTHENTICATING SEED ACCOUNT (${seed.username})...`);
     await AuthAPI.login({ username: seed.username, password: seed.password });
     showToast(`Authenticated as ${seed.username}! Redirecting...`, 'success');
-    setTimeout(() => { window.location.href = 'dashboard.html'; }, 700);
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
   } catch (err) {
     showToast(`Seed login failed: ${err.message}`, 'error');
   } finally {

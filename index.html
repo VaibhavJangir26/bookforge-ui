@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BOOKFORGE // MULTIPLATFORM VENUE & SPACE RESERVATION ENGINE</title>
+  <title>BOOKFORGE // MONETIZE YOUR VENUES & CREATIVE SPACES</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -12,298 +12,482 @@
   <header class="vintage-nav">
     <div class="container nav-inner">
       
-      <!-- Center-Left: Elegant Serif Brand Logo -->
+      <!-- Brand Logo -->
       <a href="index.html" class="brand-logo">
         BOOK<span class="logo-accent">FORGE</span>
       </a>
 
-      <!-- Right: Minimalist Links -->
+      <!-- Navigation Links -->
       <div class="nav-links" id="nav-links">
-        <a href="#collection-section" class="nav-link-item">Venues</a>
-        <a href="#capabilities-section" class="nav-link-item">Capabilities</a>
+        <a href="#how-it-works" class="nav-link-item">How Hosting Works</a>
+        <a href="#earnings-calculator" class="nav-link-item">Host Earnings</a>
+        <a href="#rating-engine" class="nav-link-item">Rating Flywheel</a>
         <a href="#categories-section" class="nav-link-item">Disciplines</a>
         <a href="login.html" class="nav-link-item">Sign In</a>
-        <a href="dashboard.html" class="btn btn-sm btn-rust btn-pill">Console</a>
+        <a href="signup.html" class="btn btn-sm btn-rust btn-pill">Get Started ➔</a>
       </div>
 
     </div>
   </header>
 
-  <!-- Editorial Vintage Hero -->
+  <!-- Editorial Vintage Hero (No Photos in Hero - Pure Typographic & Value Metric Card) -->
   <section class="editorial-hero">
     <div class="container">
-      <div class="hero-grid-layout">
+      <div class="hero-grid-layout" style="align-items: center;">
         
-        <!-- Left Column: Typography & Geometric Accent -->
+        <!-- Left Column: Typography & Terracotta Circle Cutout -->
         <div class="hero-title-wrap">
           
           <!-- Terracotta Geometric Accent Circle -->
           <div class="hero-circle-shape"></div>
 
           <h1 class="hero-main-title">
-            <span>BOOKFORGE</span>
-            <span class="hero-word-offset">VENUE & SPACE</span>
-            <span class="hero-word-indent">RESERVATION ENGINE</span>
+            <span>MONETIZE</span>
+            <span class="hero-word-offset">YOUR SPACES</span>
+            <span class="hero-word-indent">ON BOOKFORGE</span>
           </h1>
 
           <div class="hero-description-block">
             <p>
-              A multiplatform reservation engine engineered for discovering, provisioning, and booking architectural venues, media production studios, event halls, and specialized equipment with real-time dynamic pricing.
+              Transform underutilized recording studios, photography daylight bays, architectural halls, and team lofts into predictable hourly revenue. All members register easily with a secure customer identity. Submit a host request to unlock provider privileges, configure custom pricing rules, and let high guest ratings automatically elevate your venues into <strong>Prime Featured Placement</strong>.
             </p>
           </div>
 
+          <!-- Key Host Benefits Pills -->
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem;">
+            <span class="badge badge-rust">⚡ ZERO LISTING FEES</span>
+            <span class="badge badge-featured">★ RATING-DRIVEN FEATURED BOOST</span>
+            <span class="badge badge-approved">✓ DYNAMIC PRICING ENGINE</span>
+          </div>
+
           <div style="display: flex; align-items: center; gap: 1.5rem; margin-top: 2.25rem; flex-wrap: wrap;">
-            <a href="#collection-section" class="btn btn-rust btn-pill" style="padding: 0.85rem 2rem;">
-              Explore Inventory ➔
+            <a href="signup.html" class="btn btn-rust btn-pill" style="padding: 0.85rem 2.25rem;">
+              Create Member Account ➔
             </a>
-            <a href="login.html" class="btn btn-outline btn-pill" style="padding: 0.85rem 1.75rem;">
-              Sign In to Console
+            <a href="#earnings-calculator" class="btn btn-outline btn-pill" style="padding: 0.85rem 1.85rem;">
+              Calculate Earnings
             </a>
             
-            <!-- Circular Rotating Badge Mechanism -->
-            <div class="retro-stamp" onclick="document.getElementById('collection-section').scrollIntoView({behavior: 'smooth'})" title="Explore Venues">
+            <!-- Rotating Vintage Stamp -->
+            <div class="retro-stamp" onclick="document.getElementById('earnings-calculator').scrollIntoView({behavior: 'smooth'})" title="Calculate Revenue">
               <div class="retro-stamp-play"></div>
             </div>
           </div>
 
         </div>
 
-        <!-- Right Column: Editorial Architectural & Space Montage -->
-        <div class="hero-image-gallery">
-          
-          <div class="hero-portrait-card card-primary">
-            <img class="hero-portrait-img" src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80" alt="Executive Studio & Space">
-            <div style="padding: 1rem 1.25rem; background: #fff; border-top: var(--border-light);">
-              <span class="badge badge-rust">CURATED VENUE // 01</span>
-              <h4 style="margin-top: 0.35rem; font-size: 1.05rem; font-family: var(--font-serif);">The Architectural Loft Suite</h4>
-              <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.2rem;">Natural north illumination & acoustic insulation.</p>
+        <!-- Right Column: High-End Host Value & Rating Dashboard Card (NO Photos in Hero) -->
+        <div>
+          <div class="card" style="background: #FFFFFF; border: 1px solid var(--border-medium); border-left: 4px solid var(--accent-rust); padding: 2.25rem; box-shadow: var(--shadow-hover);">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: var(--border-light); padding-bottom: 1rem;">
+              <div>
+                <span class="badge badge-featured">★ 4.98 SUPERHOST TIER</span>
+                <h3 style="font-family: var(--font-serif); margin-top: 0.4rem; font-size: 1.35rem;">ALGORITHMIC SPOTLIGHT</h3>
+              </div>
+              <div style="text-align: right;">
+                <span class="mono text-rust" style="font-size: 1.4rem; font-weight: 800;">4.5x</span>
+                <span style="display: block; font-size: 0.75rem; color: var(--text-muted);">MORE INQUIRIES</span>
+              </div>
             </div>
-          </div>
 
-          <div class="hero-portrait-card card-secondary">
-            <img class="hero-portrait-img" src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80" alt="Media & Broadcast Control Room">
-            <div style="padding: 1rem 1.25rem; background: #fff; border-top: var(--border-light);">
-              <span class="badge badge-approved">LIVE AVAILABILITY</span>
-              <h4 style="margin-top: 0.35rem; font-size: 1.05rem; font-family: var(--font-serif);">Monolith Sound Studio</h4>
-              <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.2rem;">Calibrated for master tracking & broadcasting.</p>
+            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem;">
+              Our ranking engine puts top-performing hosts directly in front of thousands of active creators. Maintain 4.8+ ratings from verified guests and receive instant priority placement on the marketplace.
+            </p>
+
+            <div style="background: var(--bg-warm); padding: 1rem 1.25rem; border-radius: var(--radius-xs); margin-bottom: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Provider Monetization Engine</span>
+                <span class="mono text-rust" style="font-weight: 700; font-size: 0.95rem;">SURGE & PEAK RULES</span>
+              </div>
+              <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                Set base rates and dynamic rules (weekend, seasonal, peak-hour) + optional hardware add-on charges.
+              </small>
             </div>
-          </div>
 
+            <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.88rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="text-rust">✓</span> <strong>Hourly Schedule Rules:</strong> Providers configure opening & closing windows.
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="text-rust">✓</span> <strong>Add-on Hardware Fees:</strong> Monetize microphones, cameras, lighting & AV.
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="text-rust">✓</span> <strong>Dynamic Surge Multipliers:</strong> Weekend & peak-hour adjustments.
+              </div>
+            </div>
+
+            <div style="margin-top: 1.75rem; border-top: var(--border-light); padding-top: 1.25rem;">
+              <a href="signup.html" class="btn btn-rust btn-block btn-pill" style="padding: 0.8rem;">
+                Apply to Become a Verified Host ➔
+              </a>
+            </div>
+
+          </div>
         </div>
 
       </div>
     </div>
   </section>
 
-  <!-- Curated Collection Section -->
-  <main class="container mt-4 mb-4" id="collection-section">
-
-    <!-- Section Header -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.25rem; flex-wrap: wrap; gap: 1rem; border-bottom: var(--border-light); padding-bottom: 1.25rem;">
-      <div>
-        <span class="badge badge-rust mb-1">INVENTORY CATALOG</span>
-        <h2 style="font-family: var(--font-serif);">FEATURED VENUES & SPACES</h2>
-        <p>Curated architectural inventory with transparent hourly rates and instant scheduling.</p>
-      </div>
-      <a href="dashboard.html" class="btn btn-outline btn-sm btn-pill">Open Console Inventory</a>
-    </div>
-
-    <!-- Collection Grid with High-Res Architecture & Space Photography -->
-    <div class="grid mb-4">
-      
-      <!-- Space 1 -->
-      <div class="card">
-        <div style="height: 240px; overflow: hidden; border-radius: var(--radius-xs); margin-bottom: 1.25rem; background: var(--bg-warm);">
-          <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80" alt="Executive Workspace Loft" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-          <span class="badge">COWORKING & SUITES</span>
-          <span class="mono" style="font-size: 0.88rem; color: var(--accent-rust); font-weight: 700;">$65.00 / HR</span>
-        </div>
-        <h3 style="font-family: var(--font-serif);">Grand Atelier Office</h3>
-        <p class="mt-1 mb-2">Dedicated executive suites with minimalist timber furnishings, ultra-high-speed fiber, and private meeting nooks.</p>
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 1rem; margin-top: 1rem;">
-          <span style="font-size: 0.8rem; color: var(--text-muted);">📍 Berlin Mitte</span>
-          <a href="login.html" class="btn btn-sm btn-rust btn-pill">Reserve ➔</a>
-        </div>
+  <!-- Section 1: The Rating & Growth Flywheel -->
+  <section class="container mt-4 mb-4" id="rating-engine">
+    <div style="border-top: var(--border-light); padding-top: 3.5rem; margin-top: 3.5rem;">
+      <div style="text-align: center; max-width: 760px; margin: 0 auto 3rem auto;">
+        <span class="badge badge-rust mb-1">THE HOST FLYWHEEL</span>
+        <h2 style="font-family: var(--font-serif); font-size: clamp(2rem, 4.5vw, 3.2rem);">
+          HOW YOUR RATING UNLOCKS GLOBAL FEATURED STATUS
+        </h2>
+        <p style="font-size: 1.05rem; margin-top: 0.75rem;">
+          We reward quality and guest satisfaction. All new accounts register as standard members. Once you apply and are verified as a provider by our administrator, every 5-star review propels your venue higher in our marketplace rankings.
+        </p>
       </div>
 
-      <!-- Space 2 -->
-      <div class="card">
-        <div style="height: 240px; overflow: hidden; border-radius: var(--radius-xs); margin-bottom: 1.25rem; background: var(--bg-warm);">
-          <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80" alt="Broadcast Sound Studio" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-          <span class="badge">AUDIO & BROADCAST</span>
-          <span class="mono" style="font-size: 0.88rem; color: var(--accent-rust); font-weight: 700;">$90.00 / HR</span>
-        </div>
-        <h3 style="font-family: var(--font-serif);">Monolith Sound Studio</h3>
-        <p class="mt-1 mb-2">Acoustically isolated mixing control room and live tracking booth equipped for vinyl mastering and podcasts.</p>
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 1rem; margin-top: 1rem;">
-          <span style="font-size: 0.8rem; color: var(--text-muted);">📍 London Shoreditch</span>
-          <a href="login.html" class="btn btn-sm btn-rust btn-pill">Reserve ➔</a>
-        </div>
-      </div>
-
-      <!-- Space 3 -->
-      <div class="card">
-        <div style="height: 240px; overflow: hidden; border-radius: var(--radius-xs); margin-bottom: 1.25rem; background: var(--bg-warm);">
-          <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80" alt="Heritage Auditorium Space" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-          <span class="badge">EVENT HALLS</span>
-          <span class="mono" style="font-size: 0.88rem; color: var(--accent-rust); font-weight: 700;">$180.00 / HR</span>
-        </div>
-        <h3 style="font-family: var(--font-serif);">The Heritage Auditorium</h3>
-        <p class="mt-1 mb-2">Double-height timber vaulted ceiling with 180-guest tiered seating, proscenium stage, and intelligent lighting array.</p>
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 1rem; margin-top: 1rem;">
-          <span style="font-size: 0.8rem; color: var(--text-muted);">📍 San Francisco</span>
-          <a href="login.html" class="btn btn-sm btn-rust btn-pill">Reserve ➔</a>
-        </div>
-      </div>
-
-      <!-- Space 4 -->
-      <div class="card">
-        <div style="height: 240px; overflow: hidden; border-radius: var(--radius-xs); margin-bottom: 1.25rem; background: var(--bg-warm);">
-          <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80" alt="Daylight Photography Bay" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-          <span class="badge">MEDIA & PHOTO</span>
-          <span class="mono" style="font-size: 0.88rem; color: var(--accent-rust); font-weight: 700;">$110.00 / HR</span>
-        </div>
-        <h3 style="font-family: var(--font-serif);">Solarium Daylight Bay</h3>
-        <p class="mt-1 mb-2">Industrial floor-to-ceiling glass wall, motorized cyclorama wall, and overhead strobe mounting system.</p>
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 1rem; margin-top: 1rem;">
-          <span style="font-size: 0.8rem; color: var(--text-muted);">📍 New York Brooklyn</span>
-          <a href="login.html" class="btn btn-sm btn-rust btn-pill">Reserve ➔</a>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Platform Capabilities Showcase Section -->
-    <section class="mt-4 mb-4" id="capabilities-section">
-      <div style="border-top: var(--border-light); padding-top: 3.5rem; margin-top: 3.5rem;">
-        <div style="text-align: center; max-width: 680px; margin: 0 auto 3rem auto;">
-          <span class="badge badge-rust mb-1">PLATFORM ENGINE</span>
-          <h2 style="font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3.2rem);">WHAT BOOKFORGE DELIVERS</h2>
-          <p style="font-size: 1.02rem; margin-top: 0.5rem;">
-            An end-to-end multiplatform venue ecosystem designed for providers to manage space taxonomy and customers to book seamlessly.
+      <div class="grid">
+        
+        <!-- Step 1 -->
+        <div class="flywheel-step">
+          <div class="flywheel-step-number">01</div>
+          <span class="badge mb-1">STEP 1 // ONBOARDING</span>
+          <h3 style="font-family: var(--font-serif); margin-top: 0.5rem;">Register & Apply</h3>
+          <p style="font-size: 0.92rem; margin-top: 0.5rem;">
+            Create your member account in 60 seconds. Submit your Provider Verification Request in the console for administrator confirmation.
           </p>
         </div>
 
-        <div class="grid">
+        <!-- Step 2 -->
+        <div class="flywheel-step">
+          <div class="flywheel-step-number">02</div>
+          <span class="badge mb-1">STEP 2 // PUBLISHING</span>
+          <h3 style="font-family: var(--font-serif); margin-top: 0.5rem;">Deploy Venue & Spaces</h3>
+          <p style="font-size: 0.92rem; margin-top: 0.5rem;">
+            List venues across disciplines—Sound Studios, Photography Lofts, Auditoriums, Boardrooms. Configure hourly base prices and attach equipment.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="flywheel-step">
+          <div class="flywheel-step-number">03</div>
+          <span class="badge mb-1">STEP 3 // DYNAMIC PRICING</span>
+          <h3 style="font-family: var(--font-serif); margin-top: 0.5rem;">Configure Pricing Rules</h3>
+          <p style="font-size: 0.92rem; margin-top: 0.5rem;">
+            Set dynamic pricing rules for peak hours and weekends. Guests pay exact rates calculated in real time by the engine.
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="flywheel-step" style="border-left: 3px solid var(--accent-rust);">
+          <div class="flywheel-step-number">04</div>
+          <span class="badge badge-featured mb-1">STEP 4 // FEATURED</span>
+          <h3 style="font-family: var(--font-serif); margin-top: 0.5rem;">Automatic Featured Spotlight</h3>
+          <p style="font-size: 0.92rem; margin-top: 0.5rem;">
+            Venues maintaining a <strong>4.8+ rating</strong> are algorithmically featured on the BookForge landing page, unlocking <strong>4.5x more bookings</strong> with zero ad spend.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Interactive Host Earnings Estimator -->
+  <section class="container mt-4 mb-4" id="earnings-calculator">
+    <div style="border-top: var(--border-light); padding-top: 3.5rem;">
+      
+      <div class="calculator-card">
+        <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2.5rem; align-items: center;">
           
-          <div class="card">
-            <span class="mono" style="color: var(--accent-rust); font-size: 0.85rem; font-weight: 700;">01 / TAXONOMY & VENUES</span>
-            <h3 style="margin-top: 0.5rem; font-family: var(--font-serif);">Multi-Venue Management</h3>
-            <p style="font-size: 0.92rem; margin-top: 0.5rem;">Organize properties by categories, detailed physical addresses, contact channels, and approval workflows.</p>
+          <div>
+            <span class="badge badge-rust mb-1">REVENUE PROJECTION</span>
+            <h2 style="font-family: var(--font-serif); margin-top: 0.5rem;">ESTIMATE YOUR MONTHLY HOST INCOME</h2>
+            <p style="margin-top: 0.5rem; font-size: 0.98rem;">
+              See what space operators can earn. Choose your discipline and adjust estimated booked hours to calculate revenue with dynamic pricing rules.
+            </p>
+
+            <div class="form-group mt-3">
+              <label class="form-label">SELECT SPACE DISCIPLINE</label>
+              <select id="calc-type" class="form-select" onchange="recalculateEarnings()">
+                <option value="85">Photography / Film Daylight Loft ($85 / hr benchmark)</option>
+                <option value="95">Acoustic Audio & Podcast Suite ($95 / hr benchmark)</option>
+                <option value="160">Architectural Event Auditorium ($160 / hr benchmark)</option>
+                <option value="60">Executive Coworking & Team Suite ($60 / hr benchmark)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between;">
+                <label class="form-label">BOOKED HOURS PER WEEK</label>
+                <span class="mono text-rust" id="calc-hours-label" style="font-weight: 700;">18 Hours / Week</span>
+              </div>
+              <input type="range" id="calc-hours" min="5" max="45" value="18" step="1" style="width: 100%; accent-color: var(--accent-rust);" oninput="recalculateEarnings()">
+            </div>
           </div>
 
-          <div class="card">
-            <span class="mono" style="color: var(--accent-rust); font-size: 0.85rem; font-weight: 700;">02 / SPACES & MULTIMEDIA</span>
-            <h3 style="margin-top: 0.5rem; font-family: var(--font-serif);">Space & Image Portfolios</h3>
-            <p style="font-size: 0.92rem; margin-top: 0.5rem;">Provision individual sub-spaces with capacity thresholds, base hourly pricing, and high-definition image galleries.</p>
-          </div>
-
-          <div class="card">
-            <span class="mono" style="color: var(--accent-rust); font-size: 0.85rem; font-weight: 700;">03 / AVAILABILITY ENGINE</span>
-            <h3 style="margin-top: 0.5rem; font-family: var(--font-serif);">Precision Slot Schedules</h3>
-            <p style="font-size: 0.92rem; margin-top: 0.5rem;">Set custom opening hours by day of the week, define slot granularity, and schedule blackout maintenance windows.</p>
-          </div>
-
-          <div class="card">
-            <span class="mono" style="color: var(--accent-rust); font-size: 0.85rem; font-weight: 700;">04 / DYNAMIC PRICING</span>
-            <h3 style="margin-top: 0.5rem; font-family: var(--font-serif);">Surge & Hardware Matrix</h3>
-            <p style="font-size: 0.92rem; margin-top: 0.5rem;">Configure peak-hour multipliers, weekend rates, and add-on hardware resources with instant automated quotes.</p>
+          <div style="background: var(--bg-warm); padding: 2.25rem; border-radius: var(--radius-xs); text-align: center; border: 1px solid var(--border-medium);">
+            <span style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600;">
+              Projected Monthly Host Revenue
+            </span>
+            <div class="earnings-display" id="calc-revenue-result">$6,120</div>
+            <p style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+              Based on base rate + dynamic surge rules and add-on hardware usage.
+            </p>
+            <a href="signup.html" class="btn btn-rust btn-block btn-pill" style="padding: 0.85rem;">
+              Register to Host Your Space ➔
+            </a>
           </div>
 
         </div>
       </div>
-    </section>
 
-    <!-- Supported Disciplines & Categories -->
-    <section class="mt-4 mb-4" id="categories-section">
-      <div style="border-top: var(--border-light); padding-top: 3.5rem; margin-top: 3.5rem;">
-        <span class="badge badge-rust mb-1">CATEGORIES</span>
-        <h2 style="font-family: var(--font-serif); margin-bottom: 1.75rem;">DISCIPLINE TAXONOMY</h2>
+    </div>
+  </section>
+
+  <!-- Section 3: Categories & Disciplines with High-Resolution Network Photography -->
+  <section class="container mt-4 mb-4" id="categories-section">
+    <div style="border-top: var(--border-light); padding-top: 3.5rem; margin-top: 3.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.25rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge badge-rust mb-1">INVENTORY DISCIPLINES</span>
+          <h2 style="font-family: var(--font-serif);">WHAT YOU CAN PUBLISH ON BOOKFORGE</h2>
+          <p>Curated architectural and media categories equipped with live availability and dynamic pricing.</p>
+        </div>
+        <a href="signup.html" class="btn btn-outline btn-sm btn-pill">Publish in Any Category</a>
+      </div>
+
+      <div class="grid">
         
-        <div class="grid">
-          
-          <div class="card" style="background: var(--bg-warm); border: none;">
-            <span class="mono" style="color: var(--accent-rust); font-size: 0.8rem; font-weight: 700;">CAT-01 // WORKSPACES</span>
-            <h3 style="margin-top: 0.4rem; font-family: var(--font-serif);">Studios & Executive Offices</h3>
-            <p style="font-size: 0.9rem; margin-top: 0.4rem;">Collaborative hubs, boardroom suites, and private offices tailored for modern remote teams and creators.</p>
+        <!-- Category 1: Sound & Audio Studios -->
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
+          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
+            <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80" alt="Audio & Sound Production Studio" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+            <div style="position: absolute; top: 12px; left: 12px;">
+              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 01</span>
+            </div>
           </div>
-
-          <div class="card" style="background: var(--bg-warm); border: none;">
-            <span class="mono" style="color: var(--accent-rust); font-size: 0.8rem; font-weight: 700;">CAT-02 // PRODUCTION</span>
-            <h3 style="margin-top: 0.4rem; font-family: var(--font-serif);">Audio & Media Suites</h3>
-            <p style="font-size: 0.9rem; margin-top: 0.4rem;">Acoustically tuned soundstages, vocal isolation booths, broadcast rooms, and video editing suites.</p>
+          <div style="padding: 1.5rem;">
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Sound & Broadcast Studios</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
+              Acoustically isolated tracking control rooms, live broadcast suites, and vocal isolation booths calibrated for vinyl mastering and podcasts.
+            </p>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
+              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">DYNAMIC PRICING RULES</span>
+              <a href="signup.html" class="btn btn-sm btn-outline btn-pill">Publish Studio</a>
+            </div>
           </div>
-
-          <div class="card" style="background: var(--bg-warm); border: none;">
-            <span class="mono" style="color: var(--accent-rust); font-size: 0.8rem; font-weight: 700;">CAT-03 // GATHERINGS</span>
-            <h3 style="margin-top: 0.4rem; font-family: var(--font-serif);">Halls & Event Venues</h3>
-            <p style="font-size: 0.9rem; margin-top: 0.4rem;">Architectural banquet halls, presentation theaters, rooftop terraces, and full-scale exhibition spaces.</p>
-          </div>
-
-          <div class="card" style="background: var(--bg-warm); border: none;">
-            <span class="mono" style="color: var(--accent-rust); font-size: 0.8rem; font-weight: 700;">CAT-04 // HARDWARE</span>
-            <h3 style="margin-top: 0.4rem; font-family: var(--font-serif);">Add-on Equipment</h3>
-            <p style="font-size: 0.9rem; margin-top: 0.4rem;">Provision high-end microphones, lighting setups, AV projectors, and staging accessories.</p>
-          </div>
-
         </div>
-      </div>
-    </section>
 
-    <!-- Call to Action Vintage Banner -->
-    <section class="mt-4 mb-4">
-      <div class="card" style="background: var(--bg-dark); color: #FAF7F2; padding: 4rem 2.5rem; text-align: center; border-radius: var(--radius-xs);">
-        <span class="badge" style="background: rgba(226, 92, 55, 0.2); color: var(--accent-rust); border-color: rgba(226, 92, 55, 0.4);">ENTER PLATFORM</span>
-        <h2 style="font-family: var(--font-serif); color: #FAF7F2; font-size: clamp(2rem, 4.5vw, 3.4rem); margin-top: 0.75rem; margin-bottom: 1rem;">
-          ELEVATE YOUR SPACE RESERVATIONS
-        </h2>
-        <p style="color: #A8A29A; max-width: 600px; margin: 0 auto 2.25rem auto; font-size: 1.05rem;">
-          Join BookForge to list your venue portfolio, configure custom operating availability, or reserve prime architectural spaces seamlessly.
-        </p>
-        <div style="display: flex; gap: 1.25rem; justify-content: center; flex-wrap: wrap;">
-          <a href="login.html" class="btn btn-rust btn-pill" style="padding: 0.85rem 2.25rem;">
-            Sign In to Console ➔
-          </a>
-          <a href="signup.html" class="btn btn-outline btn-pill" style="border-color: #FAF7F2; color: #FAF7F2; padding: 0.85rem 2rem;">
-            Create Operator Account
-          </a>
+        <!-- Category 2: Photography Bays & Daylight Lofts -->
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
+          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
+            <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80" alt="Daylight Photography Studio Loft" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+            <div style="position: absolute; top: 12px; left: 12px;">
+              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 02</span>
+            </div>
+          </div>
+          <div style="padding: 1.5rem;">
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Photography & Daylight Lofts</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
+              High-ceiling daylight spaces with motorized cycloramas, northern exposure glass, and industrial polished concrete backdrops.
+            </p>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
+              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">SLOT GRANULARITY</span>
+              <a href="signup.html" class="btn btn-sm btn-outline btn-pill">Publish Loft</a>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
 
-  </main>
+        <!-- Category 3: Auditoriums, Event Halls & Theaters -->
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
+          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
+            <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80" alt="Heritage Auditorium Hall" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+            <div style="position: absolute; top: 12px; left: 12px;">
+              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 03</span>
+            </div>
+          </div>
+          <div style="padding: 1.5rem;">
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Auditoriums & Event Halls</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
+              Double-height timber vaulted halls, presentation amphitheaters, and full-scale exhibition spaces with stage lighting and tiered seating.
+            </p>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
+              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">CAPACITY MANAGEMENT</span>
+              <a href="signup.html" class="btn btn-sm btn-outline btn-pill">Publish Hall</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category 4: Executive Coworking & Boardrooms -->
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
+          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
+            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80" alt="Executive Workspace Suite" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+            <div style="position: absolute; top: 12px; left: 12px;">
+              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 04</span>
+            </div>
+          </div>
+          <div style="padding: 1.5rem;">
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Executive Boardrooms & Suites</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
+              Collaborative hubs, boardroom suites, and executive workstations tailored for remote tech teams, client presentations, and offsites.
+            </p>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
+              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">HOURLY CALENDAR</span>
+              <a href="signup.html" class="btn btn-sm btn-outline btn-pill">Publish Suite</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category 5: Add-on Equipment & AV Hardware Kits -->
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
+          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
+            <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80" alt="Camera and Sound Equipment" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+            <div style="position: absolute; top: 12px; left: 12px;">
+              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 05</span>
+            </div>
+          </div>
+          <div style="padding: 1.5rem;">
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Add-on Hardware & Equipment</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
+              Provision high-grade studio condenser microphones, strobe power packs, 4K cinema cameras, and motorized projectors as hourly or fixed fees.
+            </p>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
+              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">INVENTORY QUANTITIES</span>
+              <a href="signup.html" class="btn btn-sm btn-outline btn-pill">Attach Gear</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category 6: Unique Architectural Spaces -->
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
+          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
+            <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80" alt="Architectural Commercial Space" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+            <div style="position: absolute; top: 12px; left: 12px;">
+              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 06</span>
+            </div>
+          </div>
+          <div style="padding: 1.5rem;">
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Custom Architectural Venues</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
+              Have an industrial warehouse, rooftop atrium, or bespoke gallery? Our taxonomy accommodates custom space configurations with dynamic pricing.
+            </p>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
+              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">CUSTOM TAXONOMY</span>
+              <a href="signup.html" class="btn btn-sm btn-rust btn-pill">Deploy Space</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: Host Testimonials & Verified Ratings -->
+  <section class="container mt-4 mb-4">
+    <div style="border-top: var(--border-light); padding-top: 3.5rem; margin-top: 3.5rem;">
+      <div style="text-align: center; max-width: 680px; margin: 0 auto 3rem auto;">
+        <span class="badge badge-rust mb-1">COMMUNITY REVIEWS</span>
+        <h2 style="font-family: var(--font-serif);">WHAT OUR SPACE OPERATORS SAY</h2>
+        <p style="margin-top: 0.5rem;">Real feedback from hosts who leveraged our rating algorithm to build full-time venue businesses.</p>
+      </div>
+
+      <div class="grid">
+        
+        <div class="quote-card">
+          <div class="rating-stars mb-1">★★★★★ 5.0</div>
+          <p style="font-style: italic; color: var(--text-main); font-size: 0.95rem;">
+            "We had our sound studio sitting empty on weekdays. Within two weeks on BookForge, our 5-star rating earned us the top featured spot on the homepage. We now average consistent bookings in off-peak hours!"
+          </p>
+          <div style="margin-top: 1.25rem; border-top: var(--border-light); padding-top: 0.75rem;">
+            <strong>Marcus Vance</strong>
+            <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Operator, Monolith Sound Studios • Berlin</span>
+          </div>
+        </div>
+
+        <div class="quote-card">
+          <div class="rating-stars mb-1">★★★★★ 4.9</div>
+          <p style="font-style: italic; color: var(--text-main); font-size: 0.95rem;">
+            "The ability to attach add-on camera and strobe hardware as hourly fees doubled our per-booking revenue. BookForge handles scheduling and dynamic surge flawlessly."
+          </p>
+          <div style="margin-top: 1.25rem; border-top: var(--border-light); padding-top: 0.75rem;">
+            <strong>Elena Rostova</strong>
+            <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Owner, Solarium Daylight Loft • London</span>
+          </div>
+        </div>
+
+        <div class="quote-card">
+          <div class="rating-stars mb-1">★★★★★ 4.95</div>
+          <p style="font-style: italic; color: var(--text-main); font-size: 0.95rem;">
+            "Transparent and seamless. No hidden cuts, clean calendar blackout controls for our maintenance team, and verified guests who respect architectural spaces."
+          </p>
+          <div style="margin-top: 1.25rem; border-top: var(--border-light); padding-top: 0.75rem;">
+            <strong>Julian Croft</strong>
+            <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Director, Heritage Venue Group • San Francisco</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: High-Converting Retro CTA Banner -->
+  <section class="container mt-4 mb-4">
+    <div class="card" style="background: var(--bg-dark); color: #FAF7F2; padding: 4rem 2.5rem; text-align: center; border-radius: var(--radius-xs);">
+      <span class="badge" style="background: rgba(226, 92, 55, 0.2); color: var(--accent-rust); border-color: rgba(226, 92, 55, 0.4);">START TODAY</span>
+      <h2 style="font-family: var(--font-serif); color: #FAF7F2; font-size: clamp(2rem, 4.5vw, 3.4rem); margin-top: 0.75rem; margin-bottom: 1rem;">
+        JOIN 850+ VENUE OPERATORS GROWING ON BOOKFORGE
+      </h2>
+      <p style="color: #A8A29A; max-width: 620px; margin: 0 auto 2.25rem auto; font-size: 1.05rem;">
+        Register your account in 60 seconds, submit your host verification application, and let our rating algorithm put your spaces in front of thousands of active creators.
+      </p>
+      <div style="display: flex; gap: 1.25rem; justify-content: center; flex-wrap: wrap;">
+        <a href="signup.html" class="btn btn-rust btn-pill" style="padding: 0.85rem 2.5rem;">
+          Register as Member ➔
+        </a>
+        <a href="login.html" class="btn btn-outline btn-pill" style="border-color: #FAF7F2; color: #FAF7F2; padding: 0.85rem 2rem;">
+          Operator Sign In
+        </a>
+      </div>
+    </div>
+  </section>
 
   <!-- Vintage Footer -->
   <footer>
-    <div class="container footer-inner" style="display: flex; justify-content: space-between; align-items: center; padding: 2.25rem 0; border-top: var(--border-light); margin-top: 4rem;">
+    <div class="container footer-inner">
       <div>
         <a href="index.html" class="brand-logo" style="font-size: 1.5rem;">
           BOOK<span class="logo-accent">FORGE</span>
         </a>
         <p style="font-size: 0.86rem; color: var(--text-muted); margin-top: 0.35rem;">
-          Multiplatform Venue & Space Reservation Engine
+          The Premier Venue & Creative Space Reservation Engine
         </p>
       </div>
       <div style="font-size: 0.85rem; color: var(--text-muted); text-align: right; display: flex; flex-direction: column; gap: 0.35rem;">
         <div>© 2026 BOOKFORGE • All rights reserved</div>
-        <div style="display: flex; gap: 1.25rem; justify-content: flex-end;">
-          <a href="#collection-section" style="color: var(--text-muted); text-decoration: none;">Venues</a>
-          <a href="#capabilities-section" style="color: var(--text-muted); text-decoration: none;">Platform</a>
-          <a href="login.html" style="color: var(--accent-rust); text-decoration: none; font-weight: 600;">Operator Sign In</a>
+        <div style="display: flex; gap: 1.25rem; justify-content: flex-end; flex-wrap: wrap;">
+          <a href="#how-it-works" style="color: var(--text-muted); text-decoration: none;">How It Works</a>
+          <a href="#rating-engine" style="color: var(--text-muted); text-decoration: none;">Rating Boost</a>
+          <a href="#earnings-calculator" style="color: var(--text-muted); text-decoration: none;">Host Earnings</a>
+          <a href="signup.html" style="color: var(--accent-rust); text-decoration: none; font-weight: 600;">Become a Provider</a>
         </div>
       </div>
     </div>
   </footer>
 
+  <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/main.js"></script>
+  <script>
+    function recalculateEarnings() {
+      const rate = parseFloat(document.getElementById('calc-type').value) || 85;
+      const hours = parseInt(document.getElementById('calc-hours').value, 10) || 18;
+      document.getElementById('calc-hours-label').textContent = `${hours} Hours / Week`;
+      
+      const weekly = rate * hours;
+      const monthly = Math.round(weekly * 4);
+      document.getElementById('calc-revenue-result').textContent = `$${monthly.toLocaleString()}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      recalculateEarnings();
+    });
+  </script>
 </body>
 </html>

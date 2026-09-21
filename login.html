@@ -35,7 +35,7 @@
       <div style="text-align: center; margin-bottom: 2rem;">
         <span class="badge badge-rust mb-1">SECURITY GATEWAY</span>
         <h1 style="font-size: 2.4rem; font-family: var(--font-serif); margin-top: 0.5rem;">SIGN IN</h1>
-        <p style="font-size: 0.92rem;">Enter your operator username to request a JWT session.</p>
+        <p style="font-size: 0.92rem;">Enter your username and passphrase to access your console.</p>
       </div>
 
       <form id="login-form">
@@ -54,36 +54,37 @@
         </button>
       </form>
 
-      <!-- Instant Demo Seeds -->
+      <!-- Instant Demo Seeds (For Developer Testing) -->
       <div style="border-top: var(--border-light); padding-top: 1.5rem; margin-top: 1.5rem;">
         <span style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); display: block; margin-bottom: 0.75rem;">
-          ⚡ 1-Click Instant Seed Accounts:
+          ⚡ Developer 1-Click Role Testing:
         </span>
 
         <div style="display: flex; flex-direction: column; gap: 0.6rem;">
           <button type="button" onclick="fillAndLogin('admin')" class="btn btn-outline btn-sm" style="justify-content: space-between; border-radius: var(--radius-xs); background: #FAF7F2;">
-            <span>👑 <strong>ADMIN:</strong> admin (Pass: admin@123)</span>
+            <span>👑 <strong>ADMIN (Owner):</strong> admin</span>
             <span class="text-rust">LOGIN ↵</span>
           </button>
           <button type="button" onclick="fillAndLogin('provider')" class="btn btn-outline btn-sm" style="justify-content: space-between; border-radius: var(--radius-xs); background: #FAF7F2;">
-            <span>🏢 <strong>PROVIDER:</strong> ram123 (Pass: ram@123)</span>
+            <span>🏢 <strong>PROVIDER (Host):</strong> ram123</span>
             <span class="text-rust">LOGIN ↵</span>
           </button>
           <button type="button" onclick="fillAndLogin('customer')" class="btn btn-outline btn-sm" style="justify-content: space-between; border-radius: var(--radius-xs); background: #FAF7F2;">
-            <span>👤 <strong>CUSTOMER:</strong> shyam123 (Pass: shyam@123)</span>
+            <span>👤 <strong>CUSTOMER (Guest):</strong> shyam123</span>
             <span class="text-rust">LOGIN ↵</span>
           </button>
         </div>
       </div>
 
       <div class="mt-3 text-center" style="font-size: 0.88rem; color: var(--text-muted);">
-        Don't have an operator account? <a href="signup.html" style="color: var(--accent-rust); text-decoration: underline; font-weight: 600;">Register here</a>
+        Don't have an account yet? <a href="signup.html" style="color: var(--accent-rust); text-decoration: underline; font-weight: 600;">Register here</a>
       </div>
 
     </div>
 
   </main>
 
+  <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/main.js"></script>
   <script>

@@ -68,15 +68,144 @@
     .thumb-preview-strip {
       display: flex;
       gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-top: 0.75rem;
+      overflow-x: auto;
+      padding: 0.5rem 0;
     }
     .thumb-preview-strip img {
-      width: 64px;
-      height: 64px;
+      width: 70px;
+      height: 70px;
       object-fit: cover;
       border-radius: var(--radius-xs);
-      border: var(--border-light);
+      border: 1px solid var(--border-medium);
+    }
+    .tabs {
+      display: flex;
+      gap: 0.75rem;
+      border-bottom: var(--border-light);
+      margin-bottom: 1.75rem;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+      color: var(--accent-rust);
+      border-bottom-color: var(--accent-rust);
+      font-weight: 700;
+    }
+    /* Interactive Resource Cart Styles */
+    .resource-cart-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xs);
+      padding: 1.15rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .resource-cart-card:hover {
+      border-color: var(--accent-rust);
+      box-shadow: var(--shadow-subtle);
+    }
+    .qty-stepper {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-pill);
+      background: var(--bg-warm);
+      overflow: hidden;
+    }
+    .qty-btn {
+      background: transparent;
+      border: none;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: background 0.15s ease;
+      font-weight: 700;
+    }
+    .qty-btn:hover:not(:disabled) {
+      background: var(--accent-rust);
+      color: #FFFFFF;
+    }
+    .qty-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .qty-display {
+      min-width: 34px;
+      text-align: center;
+      font-weight: 700;
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+    }
+    /* Multi-Slot Chips with distinct unselected and selected styling */
+    .slot-pill-btn {
+      background: #FFFFFF;
+      border: 1px solid #D9CFC4;
+      color: var(--text-main);
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.85rem;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .slot-pill-btn:hover {
+      border-color: var(--accent-rust);
+      background: #FFF8F5;
+      color: var(--accent-rust);
+      transform: translateY(-1px);
+    }
+    .slot-pill-btn.selected {
+      background: var(--accent-rust) !important;
+      color: #FFFFFF !important;
+      border-color: #C44622 !important;
+      font-weight: 700 !important;
+      box-shadow: 0 3px 8px rgba(226, 92, 55, 0.4) !important;
+    }
+    .quote-breakdown-card {
+      background: #FFFFFF;
+      border-left: 4px solid var(--accent-rust);
+      border-radius: var(--radius-xs);
+      padding: 1.25rem 1.5rem;
+      margin-top: 1rem;
+      box-shadow: var(--shadow-subtle);
+    }
+    .space-gallery-banner {
+      height: 220px;
+      width: 100%;
+      overflow: hidden;
+      border-radius: var(--radius-xs);
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    .space-gallery-banner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
   </style>
 </head>
@@ -95,12 +224,13 @@
         BOOK<span class="logo-accent">FORGE</span>
       </a>
       <div class="nav-links" id="nav-links">
-        <!-- Dynamic -->
+        <a href="index.html" class="nav-link-item">Public Site</a>
+        <button onclick="AuthAPI.logout()" class="btn btn-sm btn-outline btn-pill">Sign Out</button>
       </div>
     </div>
   </header>
 
-  <!-- Operator Profile Card -->
+  <!-- Operator Profile & Host Request Banner -->
   <div class="container mt-3">
     <div class="card" style="background: #FFFFFF; border-left: 4px solid var(--text-main);">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
@@ -110,23 +240,55 @@
           <p class="mono" style="font-size: 0.85rem; color: var(--text-muted);" id="user-display-email">authenticating session...</p>
         </div>
         <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
-          <button onclick="toggleSection('profile-editor-panel')" class="btn btn-outline btn-sm btn-pill">Edit Profile ✎</button>
+          <button id="btn-request-provider" onclick="requestProviderVerification()" class="btn btn-sm btn-rust btn-pill d-none">Request Provider Status ★</button>
+          <button onclick="toggleSection('profile-editor-panel')" class="btn btn-outline btn-sm btn-pill">Edit Profile & Address ✎</button>
           <button onclick="AuthAPI.logout()" class="btn btn-sm btn-rust btn-pill">Disconnect</button>
         </div>
       </div>
 
-      <!-- Collapsible Profile Edit Form -->
+      <!-- Customer-to-Provider Verification Application Box (Shown ONLY for Customers) -->
+      <div id="customer-provider-notice" class="d-none mt-3" style="background: var(--bg-warm); padding: 1.25rem 1.5rem; border-radius: var(--radius-xs); border: 1px solid var(--border-medium);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <span class="badge badge-featured">HOST APPLICATION PIPELINE</span>
+            <h4 style="font-family: var(--font-serif); margin-top: 0.25rem;">Want to monetize your spaces on BookForge?</h4>
+            <p style="font-size: 0.86rem; color: var(--text-muted); margin-top: 0.2rem;">
+              You are currently browsing as a Customer. To register venues, list spaces, and attach equipment, submit a host verification application for admin approval.
+            </p>
+          </div>
+          <button onclick="requestProviderVerification()" class="btn btn-sm btn-rust btn-pill">Submit Host Request ➔</button>
+        </div>
+      </div>
+
+      <!-- Collapsible Profile & Address Edit Form -->
       <div id="profile-editor-panel" class="d-none mt-3" style="border-top: var(--border-light); padding-top: 1.25rem;">
-        <form id="profile-update-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; align-items: flex-end;">
+        <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">OPERATOR PROFILE & REGISTERED ADDRESS</h4>
+        <form id="profile-update-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; align-items: flex-end;">
           <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label">OPERATOR FULL NAME</label>
-            <input type="text" id="prof-full-name" class="form-input" placeholder="e.g. Master Forge">
+            <label class="form-label">FULL NAME</label>
+            <input type="text" id="prof-full-name" class="form-input" placeholder="e.g. Master Forge" required>
           </div>
           <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label">CONTACT PHONE</label>
-            <input type="text" id="prof-phone-num" class="form-input" placeholder="e.g. 9876543210">
+            <label class="form-label">MOBILE PHONE NUMBER</label>
+            <input type="text" id="prof-phone-num" class="form-input" placeholder="e.g. 9876543210" required>
           </div>
-          <button type="submit" class="btn btn-rust btn-pill">Save Changes</button>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">STREET ADDRESS</label>
+            <input type="text" id="prof-address-line" class="form-input" placeholder="e.g. 42 Main St" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">CITY</label>
+            <input type="text" id="prof-city" class="form-input" placeholder="e.g. Berlin" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">STATE / REGION</label>
+            <input type="text" id="prof-state" class="form-input" placeholder="e.g. Berlin" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">POSTAL CODE</label>
+            <input type="number" id="prof-postcode" class="form-input" placeholder="e.g. 10117" required>
+          </div>
+          <button type="submit" class="btn btn-rust btn-pill" style="grid-column: 1 / -1; max-width: 250px;">Save Profile & Address ➔</button>
         </form>
       </div>
     </div>
@@ -135,10 +297,10 @@
   <!-- Main Workflow Workspace -->
   <main class="container mt-3 mb-4">
 
-    <!-- Top Mode Switcher Tabs -->
+    <!-- Top Mode Switcher Tabs (Categories tab is ONLY visible to ADMIN) -->
     <div class="tabs" id="main-view-tabs">
-      <button class="tab-btn active" onclick="switchView('venues-spaces-view', this)">🏛️ VENUES & SPACES WORKBENCH</button>
-      <button class="tab-btn" onclick="switchView('categories-view', this)">🏷️ CATEGORIES TAXONOMY</button>
+      <button class="tab-btn active" id="tab-venues-spaces" onclick="switchView('venues-spaces-view', this)">🏛️ VENUES & SPACES WORKBENCH</button>
+      <button class="tab-btn d-none" id="tab-categories" onclick="switchView('categories-view', this)">🏷️ CATEGORIES TAXONOMY (ADMIN ONLY)</button>
     </div>
 
     <!-- VIEW 1: VENUES & SPACES WORKBENCH -->
@@ -159,17 +321,18 @@
       <div class="action-panel">
         <div class="action-panel-header">
           <div>
-            <h3 style="font-family: var(--font-serif);">STEP 1: SELECT OR PROVISION A VENUE</h3>
-            <p style="font-size: 0.86rem; color: var(--text-muted);">Choose a venue to automatically load its spaces and inventory</p>
+            <h3 style="font-family: var(--font-serif);" id="venues-section-title">STEP 1: SELECT OR PROVISION A VENUE</h3>
+            <p style="font-size: 0.86rem; color: var(--text-muted);" id="venues-section-desc">Choose a venue to automatically load its spaces and inventory</p>
           </div>
-          <div style="display:flex; gap:0.5rem;">
-            <button onclick="toggleSection('create-venue-accordion')" class="btn btn-sm btn-rust btn-pill" id="btn-toggle-create-venue">+ Register Venue</button>
+          <!-- Register Venue Button: ONLY SHOWN FOR PROVIDER AND ADMIN -->
+          <div style="display:flex; gap:0.5rem;" id="venue-actions-container">
+            <button onclick="handleRegisterVenueClick()" class="btn btn-sm btn-rust btn-pill d-none" id="btn-toggle-create-venue">+ Register Venue</button>
           </div>
         </div>
 
-        <!-- Collapsible Register Venue Form -->
+        <!-- Collapsible Register Venue Form (Category chosen from dropdown, NO typing ID!) -->
         <div id="create-venue-accordion" class="action-panel-body d-none" style="background: var(--bg-warm); border-bottom: var(--border-light);">
-          <h3 style="font-family: var(--font-serif); margin-bottom: 1rem;">PROVISION NEW VENUE ENTITY</h3>
+          <h3 style="font-family: var(--font-serif); margin-bottom: 1rem;">PROVISION NEW VENUE ENTITY (PROVIDER ONLY)</h3>
           <form id="create-venue-form">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
               <div class="form-group">
@@ -181,9 +344,9 @@
                 <input type="text" id="v-slug" class="form-input mono" required placeholder="grand-atelier-media-hall">
               </div>
               <div class="form-group">
-                <label class="form-label">ASSIGN CATEGORY</label>
+                <label class="form-label">SELECT CATEGORY</label>
                 <select id="v-category" class="form-select" required>
-                  <!-- Populated dynamically -->
+                  <option value="">-- Choose Category --</option>
                 </select>
               </div>
               <div class="form-group">
@@ -229,153 +392,165 @@
         </div>
       </div>
 
-      <!-- LEVEL 2: SPACES UNDER ACTIVE VENUE (Appears when Venue is selected) -->
+      <!-- LEVEL 2: SPACES UNDER ACTIVE VENUE (Auto-loaded when Venue is selected) -->
       <div id="spaces-master-panel" class="action-panel d-none">
         <div class="action-panel-header" style="background: var(--bg-warm);">
           <div>
             <h3 style="font-family: var(--font-serif);" id="spaces-panel-title">STEP 2: SPACES AT [SELECTED VENUE]</h3>
-            <p style="font-size: 0.86rem; color: var(--text-muted);">Select a space below to manage its resources, operating availability, and pricing</p>
+            <p style="font-size: 0.86rem; color: var(--text-muted);" id="spaces-panel-desc">Select a space below to configure its resources, operating availability, and pricing</p>
           </div>
-          <button onclick="toggleSection('create-space-accordion')" class="btn btn-sm btn-outline btn-pill">+ Add Space to this Venue</button>
+          <!-- Add Space Button: ONLY SHOWN FOR PROVIDER AND ADMIN -->
+          <button onclick="handleRegisterSpaceClick()" class="btn btn-sm btn-outline btn-pill d-none" id="btn-add-space">+ Add Space to this Venue</button>
         </div>
 
         <!-- Collapsible Create Space Form (VENUE ID AUTOMATICALLY BOUND) -->
         <div id="create-space-accordion" class="action-panel-body d-none" style="background: #FAF7F2; border-bottom: var(--border-light);">
-          <h3 style="font-family: var(--font-serif); margin-bottom: 0.5rem;">PROVISION SUB-SPACE WITH MEDIA ASSETS</h3>
+          <h3 style="font-family: var(--font-serif); margin-bottom: 0.5rem;">PROVISION SUB-SPACE WITH MULTIPART IMAGES</h3>
           <p class="mb-2" style="font-weight: 600; color: var(--accent-rust); font-size: 0.9rem;" id="space-auto-venue-label">Parent Venue: (Bound Automatically)</p>
 
           <form id="create-space-form">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
               <div class="form-group">
                 <label class="form-label">SPACE NAME</label>
-                <input type="text" id="sp-name" class="form-input" required placeholder="e.g. Master Tracking Studio A">
+                <input type="text" id="sp-name" class="form-input" required placeholder="e.g. Master Control Room A">
               </div>
               <div class="form-group">
-                <label class="form-label">MAX CAPACITY (PERSONS)</label>
-                <input type="number" id="sp-capacity" class="form-input" min="1" required value="20">
+                <label class="form-label">CAPACITY (GUESTS)</label>
+                <input type="number" id="sp-capacity" class="form-input" required min="1" placeholder="25">
               </div>
               <div class="form-group">
-                <label class="form-label">BASE RATE ($ / HOUR)</label>
-                <input type="number" step="0.5" id="sp-base-price" class="form-input" min="0" required value="75.0">
-              </div>
-              <div class="form-group">
-                <label class="form-label">SPACE IMAGES (OPTIONAL MULTIPART)</label>
-                <input type="file" id="sp-images" class="form-input" multiple accept="image/*">
+                <label class="form-label">HOURLY PRICING RATE ($)</label>
+                <input type="number" step="0.01" id="sp-base-price" class="form-input" required placeholder="120.00">
               </div>
             </div>
+
             <div class="form-group">
-              <label class="form-label">DESCRIPTION</label>
-              <textarea id="sp-desc" class="form-textarea" required placeholder="Acoustic specifications, physical dimensions, natural lighting, and equipment rigging."></textarea>
+              <label class="form-label">SPACE DESCRIPTION</label>
+              <textarea id="sp-desc" class="form-textarea" required placeholder="Acoustically isolated room calibrated for live tracking and mastering."></textarea>
             </div>
-            <button type="submit" class="btn btn-rust btn-pill">Create Space Unit ➔</button>
+
+            <!-- Multi-Image Upload with Cross (✕) Remove Buttons -->
+            <div class="form-group">
+              <label class="form-label">SPACE ASSETS / IMAGES (WITH REMOVE OPTION)</label>
+              <input type="file" id="sp-images-input" class="form-input" multiple accept="image/*" onchange="handleSpaceFilesSelected(event)">
+              <div id="space-images-preview" class="image-preview-grid"></div>
+              <small style="color:var(--text-muted); display:block; margin-top:0.3rem;">Selected images appear above with a ✕ cross button to remove any unwanted files before upload.</small>
+            </div>
+
+            <button type="submit" class="btn btn-rust btn-pill">Upload & Deploy Space ➔</button>
           </form>
         </div>
 
-        <!-- Spaces Grid -->
+        <!-- Spaces Cards Grid -->
         <div class="action-panel-body">
           <div id="spaces-list-grid" class="grid">
-            <!-- Loaded dynamically -->
+            <!-- Rendered dynamically -->
           </div>
         </div>
       </div>
 
-      <!-- LEVEL 3: DEEP SPACE WORKBENCH (Appears when Space is selected) -->
-      <div id="space-deep-workbench" class="action-panel d-none">
-        <div class="action-panel-header" style="background: var(--bg-warm);">
-          <div>
-            <h3 style="font-family: var(--font-serif);" id="deep-workbench-title">STEP 3: WORKBENCH FOR [SPACE]</h3>
-            <p style="font-size: 0.86rem; color: var(--text-muted);">Configure attached hardware, operating hours, blackout exceptions, and pricing</p>
+      <!-- LEVEL 3: DEEP WORKBENCH FOR SELECTED SPACE -->
+      <div id="space-deep-workbench" class="d-none">
+        
+        <div class="selection-banner" style="background: var(--bg-dark); color: #fff; border-left: 4px solid var(--accent-rust);">
+          <div class="selection-crumb" style="color: #fff;">
+            ⚙️ ACTIVE SPACE WORKBENCH: 
+            <span id="deep-workbench-title" style="background: rgba(226, 92, 55, 0.2); color: #FFF; border-color: var(--accent-rust);">NO SPACE SELECTED</span>
           </div>
+          <span class="badge badge-rust" id="workbench-role-indicator">CASCADE ACTIVE</span>
         </div>
 
-        <!-- Sub-Tabs for Deep Config -->
-        <div class="tabs" style="margin: 0; background: #FFFFFF; border-bottom: var(--border-light); padding: 0.5rem 1.75rem 0 1.75rem;">
-          <button class="tab-btn active" onclick="switchSpaceSubTab('sub-resources', this)">🛠️ Attached Resources</button>
-          <button class="tab-btn" onclick="switchSpaceSubTab('sub-availability', this)">📅 Availability & Slots</button>
-          <button class="tab-btn" onclick="switchSpaceSubTab('sub-pricing', this)">⚡ Pricing Engine & Quotes</button>
-        </div>
-
-        <!-- SUB-TAB 1: RESOURCES -->
-        <div id="sub-resources" class="action-panel-body space-sub-pane">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-            <div>
-              <h3 style="font-family: var(--font-serif);">HARDWARE & ASSET INVENTORY</h3>
-              <p style="font-size: 0.9rem;">Attach add-on equipment, instruments, or amenities to this space</p>
-            </div>
-            <button onclick="toggleSection('create-resource-accordion')" class="btn btn-sm btn-rust btn-pill">+ Attach Resource</button>
-          </div>
-
-          <!-- Add Resource Accordion (SPACE ID AUTOMATICALLY BOUND) -->
-          <div id="create-resource-accordion" class="card d-none mb-3" style="background: var(--bg-warm);">
-            <h3 style="font-family: var(--font-serif); margin-bottom: 1rem;">PROVISION RESOURCE FOR THIS SPACE</h3>
-            <form id="create-resource-form">
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
-                <div class="form-group">
-                  <label class="form-label">RESOURCE NAME</label>
-                  <input type="text" id="res-name" class="form-input" required placeholder="e.g. Neumann U87 Microphone">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">PRICE ($)</label>
-                  <input type="number" step="0.5" id="res-price" class="form-input" min="0" required value="25.0">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">PRICE TYPE</label>
-                  <select id="res-price-type" class="form-select" required>
-                    <option value="PER_HOUR">PER HOUR</option>
-                    <option value="FIXED_FEE">FIXED FEE</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">QUANTITY AVAILABLE</label>
-                  <input type="number" id="res-qty" class="form-input" min="1" required value="1">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">MANDATORY RESOURCE?</label>
-                  <select id="res-mandatory" class="form-select" required>
-                    <option value="false">OPTIONAL (CUSTOMER CHOOSES)</option>
-                    <option value="true">MANDATORY (INCLUDED BY DEFAULT)</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">RESOURCE IMAGES (OPTIONAL)</label>
-                  <input type="file" id="res-images" class="form-input" multiple accept="image/*">
-                </div>
+        <!-- ============================================================= -->
+        <!-- PROVIDER ONLY WORKBENCH MODULES (Hidden for Customers)        -->
+        <!-- ============================================================= -->
+        <div id="provider-workbench-container" class="d-none">
+          
+          <!-- PROVIDER MODULE 1: RESOURCES & HARDWARE INVENTORY -->
+          <div class="action-panel">
+            <div class="action-panel-header">
+              <div>
+                <h3 style="font-family: var(--font-serif);">1. HARDWARE RESOURCES & EQUIPMENT INVENTORY</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Attach microphones, cameras, and add-on kits with defined stock quantities and rates</p>
               </div>
-              <div class="form-group">
-                <label class="form-label">DESCRIPTION</label>
-                <textarea id="res-desc" class="form-textarea" placeholder="Equipment specifications, serial number, and handling guidelines."></textarea>
-              </div>
-              <button type="submit" class="btn btn-rust btn-pill">Persist Resource to Space ➔</button>
-            </form>
-          </div>
-
-          <!-- Resources List Grid -->
-          <div id="space-resources-grid" class="grid">
-            <!-- Loaded dynamically -->
-          </div>
-        </div>
-
-        <!-- SUB-TAB 2: AVAILABILITY & SLOTS -->
-        <div id="sub-availability" class="action-panel-body space-sub-pane d-none">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-            <div>
-              <h3 style="font-family: var(--font-serif);">OPERATING RULES & BLACKOUT WINDOWS</h3>
-              <p style="font-size: 0.9rem;">Space context is automatically bound to all availability directives</p>
+              <button onclick="handleAttachResourceClick()" class="btn btn-sm btn-outline btn-pill" id="btn-attach-resource">+ Attach Resource</button>
             </div>
-            <div style="display:flex; gap:0.5rem;">
-              <button onclick="toggleSection('add-avail-rule-box')" class="btn btn-sm btn-outline btn-pill">+ Operating Rule</button>
-              <button onclick="toggleSection('add-blackout-box')" class="btn btn-sm btn-rust btn-pill">+ Register Blackout</button>
-            </div>
-          </div>
 
-          <!-- Add Operating Rule Accordion -->
-          <div id="add-avail-rule-box" class="card d-none mb-3" style="background: var(--bg-warm);">
-            <h3 style="font-family: var(--font-serif); margin-bottom: 1rem;">DEFINE WEEKLY OPERATING HOURS</h3>
-            <form id="create-avail-rule-form">
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <!-- Collapsible Create Resource Form (Multipart) -->
+            <div id="create-resource-accordion" class="action-panel-body d-none" style="background: var(--bg-warm); border-bottom: var(--border-light);">
+              <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">NEW RESOURCE SPECIFICATION</h4>
+              <form id="create-resource-form">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                  <div class="form-group">
+                    <label class="form-label">RESOURCE NAME</label>
+                    <input type="text" id="res-name" class="form-input" required placeholder="e.g. Neumann U87 Microphone">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">PRICE ($) (SET 0 FOR FREE)</label>
+                    <input type="number" step="0.01" id="res-price" class="form-input" required placeholder="25.00">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">PRICING TYPE</label>
+                    <select id="res-type" class="form-select" required>
+                      <option value="PER_HOUR">PER_HOUR ($ / Hr)</option>
+                      <option value="FIXED_PRICE">FIXED_PRICE (Flat Fee)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">AVAILABLE STOCK QUANTITY</label>
+                    <input type="number" id="res-qty" class="form-input" required min="1" value="5">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">MANDATORY</label>
+                    <select id="res-mandatory" class="form-select">
+                      <option value="false">Optional Add-on</option>
+                      <option value="true">Mandatory with Space</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div class="form-group">
+                  <label class="form-label">RESOURCE DESCRIPTION</label>
+                  <textarea id="res-desc" class="form-textarea" required placeholder="High-fidelity large-diaphragm studio condenser microphone with shock mount."></textarea>
+                </div>
+
+                <!-- Resource Image Upload with Cross (✕) Remove Buttons -->
+                <div class="form-group">
+                  <label class="form-label">RESOURCE IMAGES (WITH ✕ REMOVE BUTTONS)</label>
+                  <input type="file" id="res-images-input" class="form-input" multiple accept="image/*" onchange="handleResourceFilesSelected(event)">
+                  <div id="resource-images-preview" class="image-preview-grid"></div>
+                </div>
+
+                <button type="submit" class="btn btn-rust btn-pill">Save & Attach Resource ➔</button>
+              </form>
+            </div>
+
+            <div class="action-panel-body">
+              <div id="space-resources-grid" class="grid">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- PROVIDER MODULE 2: OPERATING SCHEDULE & BLACKOUT WINDOWS -->
+          <div class="action-panel">
+            <div class="action-panel-header">
+              <div>
+                <h3 style="font-family: var(--font-serif);">2. OPERATING RULES & BLACKOUT WINDOWS</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">As the space owner, define recurring operating hours and reserve maintenance blocks</p>
+              </div>
+              <div style="display:flex; gap:0.5rem;">
+                <button onclick="handleScheduleActionClick('add-rule-box')" class="btn btn-sm btn-outline btn-pill">+ Weekly Rule</button>
+                <button onclick="handleScheduleActionClick('add-blackout-box')" class="btn btn-sm btn-rust btn-pill">+ Blackout Period</button>
+              </div>
+            </div>
+
+            <!-- Add Schedule Rule Form -->
+            <div id="add-rule-box" class="action-panel-body d-none" style="background: var(--bg-warm); border-bottom: var(--border-light);">
+              <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">SET WEEKLY OPERATING SCHEDULE</h4>
+              <form id="create-avail-rule-form" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; align-items:flex-end;">
+                <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label">DAY OF WEEK</label>
-                  <select id="av-day" class="form-select" required>
+                  <select id="ar-day" class="form-select" required>
                     <option value="MONDAY">MONDAY</option>
                     <option value="TUESDAY">TUESDAY</option>
                     <option value="WEDNESDAY">WEDNESDAY</option>
@@ -385,184 +560,240 @@
                     <option value="SUNDAY">SUNDAY</option>
                   </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label">OPENING TIME</label>
-                  <input type="time" id="av-open" class="form-input" required value="09:00">
+                  <input type="time" id="ar-open-time" class="form-input" required value="09:00">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label">CLOSING TIME</label>
-                  <input type="time" id="av-close" class="form-input" required value="18:00">
+                  <input type="time" id="ar-close-time" class="form-input" required value="20:00">
                 </div>
-                <div class="form-group">
-                  <label class="form-label">SLOT DURATION (MINS)</label>
-                  <input type="number" id="av-duration" class="form-input" min="15" max="720" value="60" required>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">SLOT DURATION (MIN)</label>
+                  <input type="number" id="ar-duration" class="form-input" value="60" min="15" max="720">
                 </div>
-              </div>
-              <button type="submit" class="btn btn-rust btn-pill">Commit Operating Rule ➔</button>
-            </form>
-          </div>
+                <button type="submit" class="btn btn-rust btn-pill">Save Schedule</button>
+              </form>
+            </div>
 
-          <!-- Add Blackout Accordion -->
-          <div id="add-blackout-box" class="card d-none mb-3" style="background: #FFF5F5;">
-            <h3 style="font-family: var(--font-serif); margin-bottom: 1rem;">REGISTER MAINTENANCE OR BLACKOUT BLOCK</h3>
-            <form id="create-blackout-form">
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
-                <div class="form-group">
+            <!-- Add Blackout Window Form -->
+            <div id="add-blackout-box" class="action-panel-body d-none" style="background: var(--bg-warm); border-bottom: var(--border-light);">
+              <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">RESERVE BLACKOUT / MAINTENANCE WINDOW</h4>
+              <form id="create-blackout-form" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; align-items:flex-end;">
+                <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label">START DATE & TIME</label>
                   <input type="datetime-local" id="bo-start" class="form-input" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label">END DATE & TIME</label>
                   <input type="datetime-local" id="bo-end" class="form-input" required>
                 </div>
-                <div class="form-group">
-                  <label class="form-label">REASON FOR BLACKOUT</label>
-                  <input type="text" id="bo-reason" class="form-input" required placeholder="e.g. Scheduled Acoustic Calibration">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">REASON</label>
+                  <input type="text" id="bo-reason" class="form-input" required placeholder="Acoustic tuning & equipment calibration">
+                </div>
+                <button type="submit" class="btn btn-rust btn-pill">Block Out Dates</button>
+              </form>
+            </div>
+
+            <div class="action-panel-body">
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:2rem;">
+                <div>
+                  <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">ACTIVE WEEKLY RULES</h4>
+                  <div id="active-rules-list">Loading...</div>
+                </div>
+                <div>
+                  <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">ACTIVE BLACKOUT BLOCKS</h4>
+                  <div id="active-blackouts-list">Loading...</div>
                 </div>
               </div>
-              <button type="submit" class="btn btn-rust btn-pill">Lock Out Time Block ➔</button>
-            </form>
+            </div>
           </div>
 
-          <!-- Live Slot Query Card -->
-          <div class="card mb-3" style="border-left: 4px solid var(--accent-rust);">
-            <h3 style="font-family: var(--font-serif); margin-bottom: 0.3rem;">INSPECT LIVE AVAILABLE SLOTS</h3>
-            <p style="font-size:0.86rem; color: var(--text-muted);" class="mb-2">Calculated by resolving operating rules against active blackouts</p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: flex-end;">
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">START DATE</label>
-                <input type="date" id="query-slot-start" class="form-input">
+          <!-- PROVIDER MODULE 3: DYNAMIC PRICING RULES CONFIGURATION -->
+          <div class="action-panel">
+            <div class="action-panel-header">
+              <div>
+                <h3 style="font-family: var(--font-serif);">3. DYNAMIC PRICING RULES & SURGE CONFIGURATION</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Set peak hour multipliers, weekend surges, and seasonal modifiers</p>
               </div>
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">END DATE</label>
-                <input type="date" id="query-slot-end" class="form-input">
-              </div>
-              <button onclick="queryActiveSpaceSlots()" class="btn btn-outline btn-pill btn-block">Query Open Slots ➔</button>
+              <button onclick="handlePricingActionClick()" class="btn btn-sm btn-rust btn-pill">+ Add Pricing Rule</button>
             </div>
 
-            <div id="slots-live-display" class="mt-3">
-              <!-- Slot list -->
+            <!-- Add Pricing Rule Form -->
+            <div id="add-pricing-rule-box" class="action-panel-body d-none" style="background: var(--bg-warm); border-bottom: var(--border-light);">
+              <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">DEFINE DYNAMIC SURGE / DISCOUNT RULE</h4>
+              <form id="create-pricing-rule-form">
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+                  <div class="form-group">
+                    <label class="form-label">RULE NAME</label>
+                    <input type="text" id="pr-name" class="form-input" required placeholder="e.g. Weekend Prime Surge">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">RULE TYPE</label>
+                    <select id="pr-rule-type" class="form-select" required>
+                      <option value="PEAK_HOUR">PEAK_HOUR</option>
+                      <option value="WEEKEND">WEEKEND</option>
+                      <option value="SPECIFIC_DATE">SPECIFIC_DATE</option>
+                      <option value="SEASONAL">SEASONAL</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">ADJUSTMENT TYPE</label>
+                    <select id="pr-adj-type" class="form-select" required>
+                      <option value="PERCENTAGE">PERCENTAGE (+/- %)</option>
+                      <option value="FIXED_PRICE">FIXED_PRICE (Flat Override Rate)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">ADJUSTMENT VALUE</label>
+                    <input type="number" step="0.01" id="pr-adj-val" class="form-input" required placeholder="20.00">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">DAY OF WEEK (OPTIONAL)</label>
+                    <select id="pr-day" class="form-select">
+                      <option value="">-- ANY DAY --</option>
+                      <option value="SATURDAY">SATURDAY</option>
+                      <option value="SUNDAY">SUNDAY</option>
+                      <option value="FRIDAY">FRIDAY</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">PRIORITY (1-10)</label>
+                    <input type="number" id="pr-priority" class="form-input" value="1" min="1" max="10">
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-rust btn-pill">Deploy Dynamic Rule</button>
+              </form>
+            </div>
+
+            <div class="action-panel-body">
+              <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">CURRENT CONFIGURED PRICING RULES</h4>
+              <div id="space-pricing-rules-list">Loading...</div>
             </div>
           </div>
 
-          <!-- Existing Rules & Blackouts Summary -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-            <div>
-              <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">ACTIVE OPERATING RULES</h4>
-              <div id="active-rules-list"></div>
-            </div>
-            <div>
-              <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">SCHEDULED BLACKOUTS</h4>
-              <div id="active-blackouts-list"></div>
-            </div>
-          </div>
         </div>
 
-        <!-- SUB-TAB 3: PRICING ENGINE & CALCULATOR -->
-        <div id="sub-pricing" class="action-panel-body space-sub-pane d-none">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-            <div>
-              <h3 style="font-family: var(--font-serif);">DYNAMIC PRICING MATRIX & QUOTES</h3>
-              <p style="font-size: 0.9rem;">Configure multipliers and evaluate real-time price computations</p>
-            </div>
-            <button onclick="toggleSection('add-pricing-rule-box')" class="btn btn-sm btn-rust btn-pill">+ Pricing Rule</button>
-          </div>
+        <!-- ============================================================= -->
+        <!-- CUSTOMER ONLY WORKBENCH MODULES (Hidden for Providers)        -->
+        <!-- ============================================================= -->
+        <div id="customer-workbench-container" class="d-none">
 
-          <!-- Add Pricing Rule Accordion -->
-          <div id="add-pricing-rule-box" class="card d-none mb-3" style="background: var(--bg-warm);">
-            <h3 style="font-family: var(--font-serif); margin-bottom: 1rem;">ESTABLISH PRICING RULE DIRECTIVE</h3>
-            <form id="create-pricing-rule-form">
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
-                <div class="form-group">
-                  <label class="form-label">RULE NAME</label>
-                  <input type="text" id="pr-name" class="form-input" required placeholder="e.g. Weekend Peak Surge">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">RULE TYPE</label>
-                  <select id="pr-rule-type" class="form-select" required>
-                    <option value="PEAK_HOUR">PEAK HOUR</option>
-                    <option value="WEEKEND">WEEKEND</option>
-                    <option value="SPECIFIC_DATE">SPECIFIC DATE</option>
-                    <option value="SEASONAL">SEASONAL</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">ADJUSTMENT TYPE</label>
-                  <select id="pr-adj-type" class="form-select" required>
-                    <option value="PERCENTAGE">PERCENTAGE MULTIPLIER (e.g. 1.25)</option>
-                    <option value="FIXED_PRICE">FIXED PRICE FLAT ADDON (e.g. 25.00)</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">ADJUSTMENT VALUE</label>
-                  <input type="number" step="0.1" id="pr-adj-val" class="form-input" min="0" required value="1.25">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">DAY OF WEEK (OPTIONAL)</label>
-                  <select id="pr-day" class="form-select">
-                    <option value="">-- ALL DAYS --</option>
-                    <option value="SATURDAY">SATURDAY</option>
-                    <option value="SUNDAY">SUNDAY</option>
-                    <option value="FRIDAY">FRIDAY</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">PRIORITY</label>
-                  <input type="number" id="pr-priority" class="form-input" min="1" value="1">
-                </div>
-              </div>
-              <button type="submit" class="btn btn-rust btn-pill">Commit Pricing Directive ➔</button>
-            </form>
-          </div>
-
-          <!-- Interactive Price Calculator Grid -->
-          <div class="grid">
-            
-            <!-- Real Calculator Engine Card -->
-            <div class="card" style="border-left: 4px solid var(--accent-rust);">
-              <h3 style="font-family: var(--font-serif); margin-bottom: 0.3rem;">COMPUTE TOTAL PRICE QUOTE</h3>
-              <p style="font-size:0.86rem; color: var(--text-muted);" class="mb-2">Calls /api/v1/pricing/calculate with selected space & add-on hardware</p>
+          <!-- CUSTOMER SPACE SUMMARY & CAPACITY CARD -->
+          <div class="action-panel">
+            <div class="action-panel-body" style="background:#FFFFFF;">
+              <div id="customer-space-hero-preview"></div>
               
-              <div class="form-group">
-                <label class="form-label">RESERVATION START TIME</label>
-                <input type="datetime-local" id="calc-start" class="form-input" required>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">RESERVATION END TIME</label>
-                <input type="datetime-local" id="calc-end" class="form-input" required>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">SELECT ADD-ON HARDWARE/RESOURCES</label>
-                <div id="calc-resources-checkboxes" style="background: var(--bg-warm); border: var(--border-light); border-radius: var(--radius-xs); padding: 0.75rem; max-height: 140px; overflow-y: auto;">
-                  <p style="font-size:0.85rem; color:#666;">No resources attached to space.</p>
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-top:1rem;">
+                <!-- Left: Dynamic Pricing Rules Policy -->
+                <div style="background:var(--bg-warm); padding:1.25rem; border-radius:var(--radius-xs); border:1px solid var(--border-medium);">
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+                    <span class="badge badge-rust">PRICING POLICIES</span>
+                    <strong style="font-family:var(--font-serif); font-size:1rem;">⚡ DYNAMIC RATE RULES</strong>
+                  </div>
+                  <div id="customer-space-pricing-rules-preview">
+                    <small style="color:var(--text-muted);">Loading active surge and discount rules...</small>
+                  </div>
                 </div>
-              </div>
 
-              <button onclick="runSpacePriceCalculation()" class="btn btn-rust btn-block btn-pill">
-                Evaluate Final Price Matrix ➔
-              </button>
-
-              <div id="calc-result-box" class="card mt-2 d-none" style="background: var(--bg-warm);">
-                <h4 style="font-family: var(--font-serif);">CALCULATION BREAKDOWN</h4>
-                <div id="calc-result-content" class="mt-1 mono" style="font-size: 0.92rem;"></div>
-                <div class="mt-2">
-                  <button class="btn btn-rust btn-block btn-pill" onclick="triggerStripeCheckout()">
-                    💳 Confirm & Pay via Stripe
-                  </button>
+                <!-- Right: Blackouts & Maintenance Notice -->
+                <div style="background:var(--bg-warm); padding:1.25rem; border-radius:var(--radius-xs); border:1px solid var(--border-medium);">
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+                    <span class="badge badge-featured">CALENDAR AVAILABILITY</span>
+                    <strong style="font-family:var(--font-serif); font-size:1rem;">🚫 MAINTENANCE BLACKOUTS</strong>
+                  </div>
+                  <div id="customer-space-blackouts-preview">
+                    <small style="color:var(--text-muted);">Loading maintenance blocks...</small>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Space Pricing Rules Table -->
-            <div class="card">
-              <h3 style="font-family: var(--font-serif); margin-bottom: 1rem;">ACTIVE RULES FOR THIS SPACE</h3>
-              <div id="space-pricing-rules-list">
-                <!-- Loaded dynamically -->
+          <!-- CUSTOMER MODULE 1: MULTI-SLOT RANGE SELECTION EXPLORER -->
+          <div class="action-panel">
+            <div class="action-panel-header">
+              <div>
+                <h3 style="font-family: var(--font-serif);">1. SELECT OPERATING TIME SLOTS (MULTI-HOUR SELECTION)</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Click chips to select 1 hour, 2 hours, 3 hours, or custom duration. Range is automatically calculated.</p>
               </div>
             </div>
+            <div class="action-panel-body">
+              <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">QUERY START DATE</label>
+                  <input type="date" id="query-slot-start" class="form-input">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">QUERY END DATE</label>
+                  <input type="date" id="query-slot-end" class="form-input">
+                </div>
+                <button onclick="queryActiveSpaceSlots()" class="btn btn-rust btn-pill">Refresh Slots ➔</button>
+              </div>
 
+              <!-- Live Slot Range Selection Summary Bar -->
+              <div id="slot-selection-summary-bar" class="mt-2 p-2 d-none" style="background:#FFF9F6; border:1px solid var(--accent-rust); border-radius:var(--radius-xs);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                  <div>
+                    <strong style="color:var(--accent-rust);">🎯 SELECTED TIME WINDOW:</strong>
+                    <span id="slot-selection-summary-text" class="mono" style="font-weight:700; margin-left:0.5rem;"></span>
+                  </div>
+                  <button type="button" onclick="clearSelectedSlotRange()" class="btn btn-sm btn-outline btn-pill">Reset Selection ✕</button>
+                </div>
+              </div>
+
+              <div id="slots-live-display" class="mt-3">
+                <small style="color:var(--text-muted);">Select dates above and click 'Refresh Slots' to view open time intervals.</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- CUSTOMER MODULE 2: HARDWARE EQUIPMENT & RESOURCE CART -->
+          <div class="action-panel">
+            <div class="action-panel-header">
+              <div>
+                <h3 style="font-family: var(--font-serif);">2. ADD-ON EQUIPMENT & HARDWARE SELECTION</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Select equipment units up to the provider's stock inventory (Free or Paid)</p>
+              </div>
+              <div class="badge badge-rust" id="cart-summary-badge">0 ADD-ONS SELECTED</div>
+            </div>
+            <div class="action-panel-body">
+              <div id="customer-resource-cart-list">
+                <p style="color:var(--text-muted);">Loading attachable space equipment...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CUSTOMER MODULE 3: DYNAMIC PRICING QUOTE & PRE-ORDER BREAKDOWN -->
+          <div class="action-panel">
+            <div class="action-panel-header">
+              <div>
+                <h3 style="font-family: var(--font-serif);">3. PRE-ORDER SUMMARY & DYNAMIC QUOTE CALCULATOR</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Transparent itemized breakdown of space time, applied surge rules, and equipment add-ons</p>
+              </div>
+            </div>
+            <div class="action-panel-body">
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; align-items:flex-end;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">SELECTED START (DATE & TIME)</label>
+                  <input type="datetime-local" id="calc-start" class="form-input" required onchange="onManualDatetimeChange()">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">SELECTED END (DATE & TIME)</label>
+                  <input type="datetime-local" id="calc-end" class="form-input" required onchange="onManualDatetimeChange()">
+                </div>
+                <button onclick="runSpacePriceCalculation()" class="btn btn-rust btn-pill">Calculate Total Quote ➔</button>
+              </div>
+
+              <!-- Quote Result Display Card -->
+              <div id="calc-result-box" class="quote-breakdown-card d-none">
+                <div id="calc-result-content"></div>
+                <button onclick="triggerReservationBooking()" class="btn btn-rust btn-block btn-pill mt-2">
+                  Confirm & Lock Reservation (Next Phase Booking Engine) ➔
+                </button>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -571,443 +802,1044 @@
 
     </div>
 
-    <!-- VIEW 2: CATEGORIES TAXONOMY (ADMIN & BROWSE) -->
+    <!-- VIEW 2: CATEGORIES TAXONOMY (ADMIN ONLY) -->
     <div id="categories-view" class="d-none">
-      
       <div class="action-panel">
         <div class="action-panel-header">
           <div>
-            <h3 style="font-family: var(--font-serif);">GLOBAL CATEGORY TAXONOMY</h3>
-            <p style="font-size: 0.86rem; color: var(--text-muted);">Administer marketplace classification hierarchy</p>
+            <h3 style="font-family: var(--font-serif);">CATEGORY TAXONOMY (SYSTEM OWNER / ADMIN ONLY)</h3>
+            <p style="font-size: 0.86rem; color: var(--text-muted);">Manage platform-wide disciplines used by providers when publishing venues</p>
           </div>
-          <button onclick="toggleSection('create-category-panel')" class="btn btn-sm btn-rust btn-pill" id="btn-toggle-create-category">+ Create Category</button>
+          <button onclick="toggleSection('create-category-panel')" class="btn btn-sm btn-rust btn-pill">+ New Category</button>
         </div>
 
-        <!-- Add Category Form with SLUG -->
         <div id="create-category-panel" class="action-panel-body d-none" style="background: var(--bg-warm); border-bottom: var(--border-light);">
-          <h3 style="font-family: var(--font-serif); margin-bottom: 1rem;">REGISTER NEW SYSTEM CATEGORY</h3>
-          <form id="create-category-form">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
-              <div class="form-group">
-                <label class="form-label">CATEGORY NAME</label>
-                <input type="text" id="cat-name-input" class="form-input" required placeholder="e.g. Recording Studios" oninput="autoGenerateSlug(this.value, 'cat-slug-input')">
-              </div>
-              <div class="form-group">
-                <label class="form-label">UNIQUE SLUG</label>
-                <input type="text" id="cat-slug-input" class="form-input mono" required placeholder="recording-studios">
-              </div>
+          <form id="create-category-form" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; align-items:flex-end;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">NAME</label>
+              <input type="text" id="cat-name-input" class="form-input" required placeholder="e.g. Broadcast Podcasting" oninput="autoGenerateSlug(this.value, 'cat-slug-input')">
             </div>
-            <div class="form-group">
-              <label class="form-label">SCOPE & DESCRIPTION</label>
-              <textarea id="cat-desc-input" class="form-textarea" required placeholder="Covers tracking rooms, vocal booths, and live broadcast stages."></textarea>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">SLUG</label>
+              <input type="text" id="cat-slug-input" class="form-input mono" required placeholder="broadcast-podcasting">
             </div>
-            <button type="submit" class="btn btn-rust btn-pill">Persist Category to Repository ➔</button>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">DESCRIPTION</label>
+              <input type="text" id="cat-desc-input" class="form-input" required placeholder="Dedicated broadcast audio booths">
+            </div>
+            <button type="submit" class="btn btn-rust btn-pill">Create Category</button>
           </form>
         </div>
 
-        <!-- Category Grid -->
         <div class="action-panel-body">
-          <div id="categories-deck-grid" class="grid">
-            <!-- Rendered dynamically -->
+          <div id="categories-table-container">
+            Loading taxonomy...
           </div>
         </div>
       </div>
-
     </div>
 
   </main>
 
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/main.js"></script>
   <script>
-    // State Tracker
+    // Global State
     let currentUser = null;
-    let catalogCategories = [];
-    let catalogVenues = [];
     let selectedVenue = null;
     let selectedSpace = null;
+    let globalVenues = [];
+    let globalCategories = [];
+    let currentSpaceResources = [];
+    let currentSpacePricingRules = [];
+    let currentSpaceBlackouts = [];
+    let currentSpaceSlots = [];
+    let customerSelectedResourceQuantities = {}; // { [resourceId]: number }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const token = localStorage.getItem('bookforge_token');
-      if (!token) {
-        window.location.href = 'login.html';
+    // Multi-slot range selection state
+    let selectedSlotRange = {
+      dateKey: null,
+      startISO: null,
+      endISO: null,
+      startIndex: null,
+      endIndex: null
+    };
+
+    // Image Upload State (with ✕ remove tracking)
+    let spaceImageFiles = [];
+    let resourceImageFiles = [];
+
+    function extractImageUrls(obj) {
+      if (!obj) return [];
+      if (Array.isArray(obj.imgUrls) && obj.imgUrls.length > 0) {
+        return obj.imgUrls.filter(u => u && typeof u === 'string');
+      }
+      if (Array.isArray(obj.spaceImages) && obj.spaceImages.length > 0) {
+        return obj.spaceImages.map(img => typeof img === 'string' ? img : (img.imageUrl || img.url || '')).filter(u => u);
+      }
+      if (Array.isArray(obj.resourceImages) && obj.resourceImages.length > 0) {
+        return obj.resourceImages.map(img => typeof img === 'string' ? img : (img.imageUrl || img.url || '')).filter(u => u);
+      }
+      return [];
+    }
+
+    function handleSpaceFilesSelected(e) {
+      const newFiles = Array.from(e.target.files);
+      spaceImageFiles = [...spaceImageFiles, ...newFiles];
+      renderSpaceImagePreviews();
+    }
+
+    function removeSpaceImage(index) {
+      spaceImageFiles.splice(index, 1);
+      renderSpaceImagePreviews();
+    }
+
+    function renderSpaceImagePreviews() {
+      const preview = document.getElementById('space-images-preview');
+      if (!preview) return;
+      preview.innerHTML = spaceImageFiles.map((file, idx) => `
+        <div class="image-preview-item">
+          <img src="${URL.createObjectURL(file)}" alt="${file.name}">
+          <button type="button" class="image-preview-remove" onclick="removeSpaceImage(${idx})" title="Remove image">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function handleResourceFilesSelected(e) {
+      const newFiles = Array.from(e.target.files);
+      resourceImageFiles = [...resourceImageFiles, ...newFiles];
+      renderResourceImagePreviews();
+    }
+
+    function removeResourceImage(index) {
+      resourceImageFiles.splice(index, 1);
+      renderResourceImagePreviews();
+    }
+
+    function renderResourceImagePreviews() {
+      const preview = document.getElementById('resource-images-preview');
+      if (!preview) return;
+      preview.innerHTML = resourceImageFiles.map((file, idx) => `
+        <div class="image-preview-item">
+          <img src="${URL.createObjectURL(file)}" alt="${file.name}">
+          <button type="button" class="image-preview-remove" onclick="removeResourceImage(${idx})" title="Remove image">✕</button>
+        </div>
+      `).join('');
+    }
+
+    // Role Verification Guards
+    function checkIsAdmin() {
+      if (!currentUser) return false;
+      return (currentUser.roles && currentUser.roles.includes('ROLE_ADMIN')) || currentUser.role === 'ROLE_ADMIN';
+    }
+
+    function checkIsProvider() {
+      if (!currentUser) return false;
+      return (currentUser.roles && currentUser.roles.includes('ROLE_PROVIDER')) || currentUser.role === 'ROLE_PROVIDER';
+    }
+
+    function checkIsCustomer() {
+      return !checkIsAdmin() && !checkIsProvider();
+    }
+
+    function handleRegisterVenueClick() {
+      if (!checkIsProvider() && !checkIsAdmin()) {
+        showToast('Only confirmed Space Providers can deploy venues. Please submit a Host Request below.', 'error');
+        document.getElementById('customer-provider-notice').classList.remove('d-none');
+        document.getElementById('customer-provider-notice').scrollIntoView({ behavior: 'smooth' });
         return;
       }
-
-      currentUser = getCurrentUser();
-      renderUserProfileBanner();
-      await refreshAllCatalogData();
-    });
-
-    function renderUserProfileBanner() {
-      if (!currentUser) return;
-      const role = currentUser.role || (currentUser.roles && currentUser.roles[0]) || 'ROLE_CUSTOMER';
-      const badge = document.getElementById('user-role-badge');
-      badge.textContent = role;
-      badge.className = `badge badge-rust`;
-      
-      document.getElementById('user-display-name').textContent = currentUser.username ? `${currentUser.username.toUpperCase()}'S WORKBENCH` : 'OPERATOR CONSOLE';
-      document.getElementById('user-display-email').textContent = `ACTIVE JWT SESSION // ROLE: ${role}`;
-
-      // Set date defaults for calculators
-      const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(now.getDate() + 1);
-
-      const toISO = (d, h) => {
-        d.setHours(h, 0, 0, 0);
-        return d.toISOString().slice(0, 16);
-      };
-
-      document.getElementById('calc-start').value = toISO(now, 10);
-      document.getElementById('calc-end').value = toISO(now, 14);
-      document.getElementById('bo-start').value = toISO(tomorrow, 8);
-      document.getElementById('bo-end').value = toISO(tomorrow, 18);
-      document.getElementById('query-slot-start').value = now.toISOString().split('T')[0];
-      document.getElementById('query-slot-end').value = tomorrow.toISOString().split('T')[0];
+      toggleSection('create-venue-accordion');
     }
 
-    function autoGenerateSlug(value, targetElementId) {
-      const slug = value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      const el = document.getElementById(targetElementId);
-      if (el) el.value = slug;
+    function handleRegisterSpaceClick() {
+      if (!checkIsProvider() && !checkIsAdmin()) {
+        showToast('Provider role required to create spaces.', 'error');
+        return;
+      }
+      toggleSection('create-space-accordion');
     }
 
+    function handleAttachResourceClick() {
+      if (!checkIsProvider() && !checkIsAdmin()) {
+        showToast('Provider role required to attach resources.', 'error');
+        return;
+      }
+      toggleSection('create-resource-accordion');
+    }
+
+    function handleScheduleActionClick(boxId) {
+      if (!checkIsProvider() && !checkIsAdmin()) {
+        showToast('Provider role required to configure schedules.', 'error');
+        return;
+      }
+      toggleSection(boxId);
+    }
+
+    function handlePricingActionClick() {
+      if (!checkIsProvider() && !checkIsAdmin()) {
+        showToast('Provider role required to configure pricing rules.', 'error');
+        return;
+      }
+      toggleSection('add-pricing-rule-box');
+    }
+
+    function requestProviderVerification() {
+      showToast('★ Host application submitted! Status: PENDING ADMIN APPROVAL (Coming Soon Data Impl).', 'success');
+      const notice = document.getElementById('customer-provider-notice');
+      if (notice) {
+        notice.innerHTML = `
+          <div style="background: #FFFBEB; border: 1px solid #FCD34D; padding: 1rem; border-radius: var(--radius-xs);">
+            <strong style="color: #B45309;">Application Submitted (Status: PENDING ADMIN REVIEW)</strong>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
+              Your request to become a verified Space Provider has been queued for the System Administrator. Once confirmed, you can deploy venues, spaces, and equipment.
+            </p>
+          </div>
+        `;
+      }
+    }
+
+    // Helper functions
     function toggleSection(id) {
       const el = document.getElementById(id);
       if (el) el.classList.toggle('d-none');
+    }
+
+    function autoGenerateSlug(text, targetId) {
+      const slug = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const target = document.getElementById(targetId);
+      if (target) target.value = slug;
     }
 
     function switchView(viewId, btn) {
       document.getElementById('venues-spaces-view').classList.add('d-none');
       document.getElementById('categories-view').classList.add('d-none');
       document.getElementById(viewId).classList.remove('d-none');
-      document.querySelectorAll('#main-view-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
     }
 
-    function switchSpaceSubTab(paneId, btn) {
-      document.querySelectorAll('.space-sub-pane').forEach(p => p.classList.add('d-none'));
-      document.getElementById(paneId).classList.remove('d-none');
-      btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
+    // Initialization
+    document.addEventListener('DOMContentLoaded', async () => {
+      currentUser = getCurrentUser();
+      const token = localStorage.getItem('bookforge_token');
 
-    async function refreshAllCatalogData() {
-      await loadProfile();
-      await loadCategories();
-      await loadVenues();
-      if (selectedVenue) {
-        await selectVenue(selectedVenue.id);
-      }
-    }
-
-    async function loadProfile() {
-      try {
-        const res = await AuthAPI.getProfile();
-        if (res && res.data) {
-          if (res.data.fullName) document.getElementById('prof-full-name').value = res.data.fullName;
-          if (res.data.phone) document.getElementById('prof-phone-num').value = res.data.phone;
-        }
-      } catch (e) {
-        console.warn('Profile sync:', e.message);
-      }
-    }
-
-    async function loadCategories() {
-      try {
-        const res = await CategoryAPI.getAll();
-        catalogCategories = res.data || (Array.isArray(res) ? res : []);
-        renderCategories();
-        populateCategoryDropdown();
-      } catch (e) {
-        showToast('Categories fetch error: ' + e.message, 'error');
-      }
-    }
-
-    function populateCategoryDropdown() {
-      const sel = document.getElementById('v-category');
-      if (!sel) return;
-      sel.innerHTML = catalogCategories.length === 0 
-        ? '<option value="">No categories defined yet</option>' 
-        : catalogCategories.map(c => `<option value="${c.id}">${c.name} (${c.slug || 'slug'})</option>`).join('');
-    }
-
-    function renderCategories() {
-      const grid = document.getElementById('categories-deck-grid');
-      if (!catalogCategories || catalogCategories.length === 0) {
-        grid.innerHTML = '<div class="card text-center" style="grid-column:1/-1;"><h3>NO CATEGORIES FOUND. CLICK "+ CREATE CATEGORY"</h3></div>';
+      if (!token || !currentUser) {
+        showToast('Please authenticate to enter the console', 'error');
+        setTimeout(() => { window.location.href = 'login.html'; }, 700);
         return;
       }
 
-      grid.innerHTML = catalogCategories.map(c => `
-        <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <span class="badge badge-rust">SLUG: ${c.slug || 'generic'}</span>
-            <span class="mono" style="font-size:0.75rem; color:var(--text-muted);">ID: ${(c.id||'').substring(0,8)}</span>
-          </div>
-          <h3 class="mt-1" style="font-family: var(--font-serif);">${c.name}</h3>
-          <p class="mt-1 mb-2" style="font-size:0.9rem; color:var(--text-muted);">${c.description || 'No description'}</p>
-          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <button onclick="promptEditCategory('${c.id}', '${escape(c.name)}', '${escape(c.slug||'')}', '${escape(c.description||'')}')" class="btn btn-sm btn-outline btn-pill">Edit</button>
-            <button onclick="deleteCategory('${c.id}')" class="btn btn-sm btn-rust btn-pill">Delete</button>
-          </div>
-        </div>
-      `).join('');
+      const isAdmin = checkIsAdmin();
+      const isProvider = checkIsProvider();
+      const isCustomer = checkIsCustomer();
+
+      // Display user info & role badge
+      let roleStr = 'ROLE_CUSTOMER';
+      let roleTitle = `CUSTOMER // ${currentUser.username.toUpperCase()}`;
+      let roleDesc = 'Browse verified venues, check live slot availability, select equipment add-ons, and obtain dynamic pricing quotes.';
+
+      if (isAdmin) {
+        roleStr = 'ROLE_ADMIN';
+        roleTitle = `SYSTEM ADMINISTRATOR // ${currentUser.username.toUpperCase()}`;
+        roleDesc = 'Oversee category taxonomy, review venue approval status, and supervise platform inventory.';
+      } else if (isProvider) {
+        roleStr = 'ROLE_PROVIDER';
+        roleTitle = `SPACE PROVIDER // ${currentUser.username.toUpperCase()}`;
+        roleDesc = 'Manage venue assets, configure sub-spaces, equipment inventory, weekly operating hours, and dynamic pricing rules.';
+      }
+
+      document.getElementById('user-role-badge').textContent = roleStr;
+      document.getElementById('user-display-name').textContent = roleTitle;
+      document.getElementById('user-display-email').textContent = `${roleDesc} | Session: ACTIVE JWT`;
+
+      loadUserProfile();
+
+      // Role-Based UI Elements
+      const catTab = document.getElementById('tab-categories');
+      if (isAdmin) {
+        catTab.classList.remove('d-none');
+      } else {
+        catTab.classList.add('d-none');
+      }
+
+      if (isCustomer) {
+        document.getElementById('customer-provider-notice').classList.remove('d-none');
+        document.getElementById('btn-request-provider').classList.remove('d-none');
+        document.getElementById('venues-section-title').textContent = 'STEP 1: SELECT A VERIFIED VENUE';
+        document.getElementById('venues-section-desc').textContent = 'Choose an approved venue to explore its spaces, booking slots, and equipment';
+      } else {
+        document.getElementById('customer-provider-notice').classList.add('d-none');
+        document.getElementById('btn-request-provider').classList.add('d-none');
+      }
+
+      const btnRegVenue = document.getElementById('btn-toggle-create-venue');
+      if (isProvider || isAdmin) {
+        btnRegVenue.classList.remove('d-none');
+      } else {
+        btnRegVenue.classList.add('d-none');
+      }
+
+      const btnAddSpace = document.getElementById('btn-add-space');
+      if (isProvider || isAdmin) {
+        btnAddSpace.classList.remove('d-none');
+      } else {
+        btnAddSpace.classList.add('d-none');
+      }
+
+      // Load initial datasets
+      await Promise.all([loadCategories(), loadVenues()]);
+    });
+
+    async function loadUserProfile() {
+      try {
+        const res = await AuthAPI.getProfile();
+        const p = (res && res.data !== undefined) ? res.data : res;
+        if (p) {
+          if (p.fullName) document.getElementById('prof-full-name').value = p.fullName;
+          if (p.mobileNo) document.getElementById('prof-phone-num').value = p.mobileNo;
+          if (p.address) {
+            if (p.address.address) document.getElementById('prof-address-line').value = p.address.address;
+            if (p.address.city) document.getElementById('prof-city').value = p.address.city;
+            if (p.address.state) document.getElementById('prof-state').value = p.address.state;
+            if (p.address.postcode) document.getElementById('prof-postcode').value = p.address.postcode;
+          }
+        }
+      } catch (e) {
+        console.warn('Profile fetch error:', e.message);
+      }
     }
 
+    async function refreshAllCatalogData() {
+      await Promise.all([loadCategories(), loadVenues()]);
+      if (selectedVenue) await selectVenue(selectedVenue.id);
+      if (selectedSpace) await selectSpace(selectedSpace.id, selectedSpace.name, selectedSpace.basePrice, selectedSpace.capacity, selectedSpace.description, selectedSpace.imgUrls);
+      showToast('Catalog synchronized!', 'success');
+    }
+
+    // 1. CATEGORIES MANAGEMENT (Admin Only)
+    async function loadCategories() {
+      try {
+        const res = await CategoryAPI.getAll();
+        globalCategories = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+        
+        const catSelect = document.getElementById('v-category');
+        if (catSelect) {
+          catSelect.innerHTML = '<option value="">-- Choose Category --</option>' +
+            globalCategories.map(c => `<option value="${c.id}">${c.name} (${c.slug})</option>`).join('');
+        }
+
+        const container = document.getElementById('categories-table-container');
+        if (!container) return;
+
+        if (globalCategories.length === 0) {
+          container.innerHTML = '<p>No categories configured yet.</p>';
+          return;
+        }
+
+        container.innerHTML = `
+          <table style="width:100%; border-collapse:collapse; text-align:left;">
+            <thead>
+              <tr style="border-bottom:var(--border-medium); font-size:0.85rem; color:var(--text-muted);">
+                <th style="padding:0.75rem;">NAME</th>
+                <th style="padding:0.75rem;">SLUG</th>
+                <th style="padding:0.75rem;">DESCRIPTION</th>
+                <th style="padding:0.75rem; text-align:right;">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${globalCategories.map(c => `
+                <tr style="border-bottom:var(--border-light);">
+                  <td style="padding:0.75rem; font-weight:700;">${c.name}</td>
+                  <td style="padding:0.75rem;" class="mono text-rust">${c.slug}</td>
+                  <td style="padding:0.75rem; font-size:0.88rem; color:var(--text-muted);">${c.description || '-'}</td>
+                  <td style="padding:0.75rem; text-align:right;">
+                    <button onclick="promptEditCategory('${c.id}', '${escape(c.name)}', '${escape(c.slug)}', '${escape(c.description || '')}')" class="btn btn-sm btn-outline btn-pill">Edit</button>
+                    <button onclick="deleteCategory('${c.id}')" class="btn btn-sm btn-outline btn-pill">✕</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (err) {
+        console.warn('Categories load error:', err.message);
+      }
+    }
+
+    // 2. VENUES MANAGEMENT
     async function loadVenues() {
       try {
         const res = await VenueAPI.getAll();
-        catalogVenues = res.data || (Array.isArray(res) ? res : []);
-        renderVenues();
-      } catch (e) {
+        globalVenues = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+        renderVenuesGrid(globalVenues);
+      } catch (err) {
         document.getElementById('venues-list-grid').innerHTML = `
           <div class="card text-center" style="grid-column: 1/-1;">
-            <h3>COULD NOT RETRIEVE VENUES</h3>
-            <p class="mt-1">${e.message}</p>
+            <p style="color:var(--accent-rust);">${err.message}</p>
           </div>
         `;
       }
     }
 
-    function renderVenues() {
+    function renderVenuesGrid(venues) {
       const grid = document.getElementById('venues-list-grid');
-      if (!catalogVenues || catalogVenues.length === 0) {
-        grid.innerHTML = '<div class="card text-center" style="grid-column: 1/-1;"><h3>NO VENUES REGISTERED YET. CLICK "+ REGISTER VENUE"</h3></div>';
+      const isAdmin = checkIsAdmin();
+      const isProvider = checkIsProvider();
+      const isCustomer = checkIsCustomer();
+
+      const displayVenues = isCustomer 
+        ? venues.filter(v => v.venueStatus !== 'REJECTED')
+        : venues;
+
+      if (!displayVenues || displayVenues.length === 0) {
+        grid.innerHTML = '<div class="card text-center" style="grid-column: 1/-1;"><h3>NO VENUES AVAILABLE</h3><p>' +
+          (isCustomer ? 'Check back soon for newly registered studio spaces.' : 'Confirmed Space Providers can click "+ Register Venue" above.') + '</p></div>';
         return;
       }
 
-      const isAdmin = currentUser && (currentUser.role === 'ROLE_ADMIN' || (currentUser.roles && currentUser.roles.includes('ROLE_ADMIN')));
-
-      grid.innerHTML = catalogVenues.map(v => {
-        const isSelected = selectedVenue && selectedVenue.id === v.id;
-        const statusClass = (v.status || 'APPROVED').toLowerCase();
+      grid.innerHTML = displayVenues.map(v => {
+        const statusBadge = v.venueStatus === 'APPROVED' ? 'badge-approved' : (v.venueStatus === 'REJECTED' ? 'badge-rejected' : 'badge-rust');
+        const addr = v.address ? `${v.address.city || ''}, ${v.address.state || ''}` : 'Location unlisted';
 
         return `
-          <div class="card ${isSelected ? 'active-card-highlight' : ''}" id="venue-card-${v.id}">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
-              <span class="badge badge-${statusClass}">${v.status || 'APPROVED'}</span>
-              <span class="mono" style="font-size:0.75rem; color:var(--text-muted);">ID: ${(v.id||'').substring(0,8)}</span>
+          <div class="card" id="venue-card-${v.id}" onclick="selectVenue('${v.id}')" style="cursor: pointer; border-top: 3px solid var(--accent-rust);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="badge ${statusBadge}">${v.venueStatus || 'APPROVED'}</span>
+              <span class="mono" style="font-size:0.75rem; color:var(--text-muted);">ID: ${v.id.substring(0,8)}...</span>
             </div>
-            <h3 style="font-family: var(--font-serif);">${v.name}</h3>
-            <p class="mt-1 mb-2" style="font-size:0.9rem;">${v.description || 'No description'}</p>
-            <div style="background:var(--bg-warm); border:var(--border-light); border-radius:var(--radius-xs); padding:0.4rem 0.6rem; font-size:0.82rem; margin-bottom:1rem;">
-              📍 ${v.city || 'Metropolis'}, ${v.addressLine || (v.address && v.address.addressLine) || ''}
-            </div>
+            <h3 class="mt-1" style="font-family: var(--font-serif);">${v.name}</h3>
+            <p style="font-size:0.86rem; color:var(--text-muted); margin-top:0.25rem;">📍 ${addr}</p>
+            <p class="mt-1 mb-2" style="font-size:0.88rem;">${v.description ? v.description.substring(0, 110) + '...' : ''}</p>
             
-            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.75rem;">
-              <button onclick="selectVenue('${v.id}')" class="btn btn-sm ${isSelected ? 'btn-rust' : 'btn-outline'} btn-pill" style="flex:1;">
-                ${isSelected ? 'Active Venue ✓' : 'Select Venue ➔'}
-              </button>
-            </div>
-
-            <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-              <button onclick="deleteVenue('${v.id}')" class="btn btn-sm btn-outline btn-pill">Delete</button>
-              ${isAdmin ? `
-                <button onclick="setVenueStatus('${v.id}', 'APPROVED')" class="btn btn-sm btn-pill" style="background:#E8F5E9; color:#2E7D32;">Approve</button>
-                <button onclick="setVenueStatus('${v.id}', 'REJECTED')" class="btn btn-sm btn-pill" style="background:#FFEBEE; color:#C62828;">Reject</button>
-              ` : ''}
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:var(--border-light); padding-top:0.75rem; margin-top:0.75rem;">
+              <span style="font-size:0.8rem; font-weight:700; color:var(--accent-rust);">SELECT VENUE ➔</span>
+              
+              <div style="display:flex; gap:0.4rem;" onclick="event.stopPropagation();">
+                ${isAdmin ? `
+                  <button onclick="updateVenueStatusPrompt('${v.id}', 'APPROVED')" class="btn btn-sm btn-outline btn-pill" title="Approve">✓</button>
+                  <button onclick="updateVenueStatusPrompt('${v.id}', 'REJECTED')" class="btn btn-sm btn-outline btn-pill" title="Reject">✕</button>
+                ` : ''}
+                ${(isAdmin || isProvider) ? `
+                  <button onclick="deleteVenue('${v.id}')" class="btn btn-sm btn-outline btn-pill" title="Delete Venue">🗑</button>
+                ` : ''}
+              </div>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    // SELECT VENUE: AUTOMATICALLY LOADS SPACES (NO MANUAL IDs!)
     async function selectVenue(venueId) {
-      selectedVenue = catalogVenues.find(v => v.id === venueId);
+      selectedVenue = globalVenues.find(v => v.id === venueId);
       if (!selectedVenue) return;
 
-      // Update Crumb
       document.getElementById('crumb-venue-name').textContent = selectedVenue.name;
       document.getElementById('crumb-space-name').textContent = 'Select a Space Below';
 
-      // Highlight card
       document.querySelectorAll('#venues-list-grid .card').forEach(c => c.classList.remove('active-card-highlight'));
       const card = document.getElementById(`venue-card-${venueId}`);
       if (card) card.classList.add('active-card-highlight');
 
-      // Setup Spaces Panel
-      document.getElementById('spaces-master-panel').classList.remove('d-none');
-      document.getElementById('spaces-panel-title').textContent = `STEP 2: SPACES AT "${selectedVenue.name.toUpperCase()}"`;
-      document.getElementById('space-auto-venue-label').textContent = `Target Venue: ${selectedVenue.name} (ID: ${selectedVenue.id})`;
+      document.getElementById('space-auto-venue-label').textContent = `Parent Venue: ${selectedVenue.name} (Auto-Bound: ${venueId.substring(0,8)}...)`;
 
-      // Reset deep workbench
-      selectedSpace = null;
+      const spacesPanel = document.getElementById('spaces-master-panel');
+      spacesPanel.classList.remove('d-none');
+      document.getElementById('spaces-panel-title').textContent = `STEP 2: SPACES AT "${selectedVenue.name.toUpperCase()}"`;
+
       document.getElementById('space-deep-workbench').classList.add('d-none');
 
-      // Fetch spaces for this venue
+      await loadSpacesForActiveVenue(venueId);
+    }
+
+    // 3. SPACES MANAGEMENT
+    async function loadSpacesForActiveVenue(venueId) {
       try {
         const res = await SpaceAPI.getByVenue(venueId);
-        const spaces = res.data || (Array.isArray(res) ? res : []);
-        renderSpaces(spaces);
-      } catch (e) {
+        const spaces = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+        renderSpacesGrid(spaces);
+      } catch (err) {
         document.getElementById('spaces-list-grid').innerHTML = `
           <div class="card text-center" style="grid-column: 1/-1;">
-            <h3>FAILED TO LOAD SPACES</h3>
-            <p class="mt-1">${e.message}</p>
+            <p>${err.message}</p>
           </div>
         `;
       }
     }
 
-    function renderSpaces(spaces) {
+    function renderSpacesGrid(spaces) {
       const grid = document.getElementById('spaces-list-grid');
+      const isAdmin = checkIsAdmin();
+      const isProvider = checkIsProvider();
+      const isCustomer = checkIsCustomer();
+
       if (!spaces || spaces.length === 0) {
-        grid.innerHTML = `
-          <div class="card text-center" style="grid-column: 1/-1;">
-            <h3>NO SPACES CREATED FOR THIS VENUE YET</h3>
-            <p class="mt-1">Click <strong>"+ Add Space to this Venue"</strong> above.</p>
-          </div>
-        `;
+        grid.innerHTML = '<div class="card text-center" style="grid-column: 1/-1;"><h3>NO SPACES CREATED FOR THIS VENUE YET</h3><p>' +
+          (isCustomer ? 'No sub-spaces are currently published under this venue.' : 'Providers can click "+ Add Space to this Venue" to create spaces.') + '</p></div>';
         return;
       }
 
       grid.innerHTML = spaces.map(s => {
-        const isSelected = selectedSpace && selectedSpace.id === s.id;
-        const imagesHtml = (s.imageUrls && s.imageUrls.length > 0)
-          ? `<div class="thumb-preview-strip">${s.imageUrls.map(u => `<img src="${u}" alt="Space Asset">`).join('')}</div>`
+        const images = extractImageUrls(s);
+        const heroImageHtml = images.length > 0
+          ? `<div style="height:190px; width:100%; overflow:hidden; border-radius:var(--radius-xs); margin-bottom:0.75rem; position:relative;">
+               <img src="${images[0]}" alt="${s.name}" style="width:100%; height:100%; object-fit:cover;">
+               ${images.length > 1 ? `<span class="badge badge-rust" style="position:absolute; bottom:8px; right:8px; background:rgba(26,24,22,0.85); color:#fff;">+${images.length - 1} photos</span>` : ''}
+             </div>`
+          : '';
+
+        const thumbStripHtml = (images.length > 1)
+          ? `<div class="thumb-preview-strip mb-1">${images.map(img => `<img src="${img}" alt="${s.name}">`).join('')}</div>`
           : '';
 
         return `
-          <div class="card ${isSelected ? 'active-card-highlight' : ''}" id="space-card-${s.id}">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-              <span class="badge badge-approved">CAPACITY: ${s.capacity || '10'}</span>
-              <span class="mono" style="font-size:0.75rem; color:var(--text-muted);">ID: ${(s.id||'').substring(0,8)}</span>
+          <div class="card" id="space-card-${s.id}" onclick="selectSpace('${s.id}', '${escape(s.name)}', ${s.basePrice || 0}, ${s.capacity || 1}, '${escape(s.description || '')}')" style="cursor: pointer; border-left: 4px solid var(--accent-rust);">
+            ${heroImageHtml}
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem;">
+              <span class="badge badge-rust">👥 CAPACITY: ${s.capacity} GUESTS</span>
+              <span class="badge badge-featured">DYNAMIC PRICING & GEAR</span>
             </div>
             <h3 class="mt-1" style="font-family: var(--font-serif);">${s.name}</h3>
-            <p class="mt-1 mb-2" style="font-size:0.9rem;">${s.description || 'No description'}</p>
-            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.75rem;">
-              <span class="badge badge-rust" style="font-size:0.85rem;">RATE: $${s.basePrice || '50'}/HR</span>
-            </div>
-            ${imagesHtml}
+            <p class="mt-1 mb-2" style="font-size:0.88rem;">${s.description || ''}</p>
+            ${thumbStripHtml}
 
-            <div class="mt-2" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-              <button onclick="selectSpace('${s.id}', '${escape(s.name)}', ${s.basePrice || 50})" class="btn btn-sm ${isSelected ? 'btn-rust' : 'btn-outline'} btn-pill" style="flex:1;">
-                ${isSelected ? 'Active Space ✓' : 'Manage Space ➔'}
-              </button>
-              <button onclick="deleteSpace('${s.id}')" class="btn btn-sm btn-outline btn-pill">Delete</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:var(--border-light); padding-top:0.75rem; margin-top:0.75rem;">
+              <span style="font-size:0.8rem; font-weight:700; color:var(--accent-rust);">${isCustomer ? 'SELECT & EXPLORE ➔' : 'OPEN WORKBENCH ⚙️'}</span>
+              ${(isAdmin || isProvider) ? `
+                <div style="display:flex; gap:0.4rem;" onclick="event.stopPropagation();">
+                  <button onclick="toggleEditSpaceAccordion('${s.id}')" class="btn btn-sm btn-outline btn-pill" title="Update Details & Images">✏️ Edit</button>
+                  <button onclick="deleteSpace('${s.id}')" class="btn btn-sm btn-outline btn-pill" title="Delete">🗑</button>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Inline Provider Edit Space Accordion -->
+            ${(isAdmin || isProvider) ? `
+              <div id="edit-space-box-${s.id}" class="d-none mt-2" onclick="event.stopPropagation();" style="background:var(--bg-warm); padding:1rem; border-radius:var(--radius-xs); border:1px solid var(--border-medium);">
+                <h4 style="font-family:var(--font-serif); margin-bottom:0.5rem;">UPDATE SPACE DETAILS & IMAGES</h4>
+                <form onsubmit="handleUpdateSpaceSubmit(event, '${s.id}')">
+                  <div class="form-group mb-1">
+                    <label class="form-label" style="font-size:0.75rem;">SPACE NAME</label>
+                    <input type="text" id="edit-sp-name-${s.id}" class="form-input" value="${s.name}" required>
+                  </div>
+                  <div class="form-group mb-1">
+                    <label class="form-label" style="font-size:0.75rem;">CAPACITY</label>
+                    <input type="number" id="edit-sp-cap-${s.id}" class="form-input" value="${s.capacity}" required>
+                  </div>
+                  <div class="form-group mb-1">
+                    <label class="form-label" style="font-size:0.75rem;">HOURLY PRICING RATE ($)</label>
+                    <input type="number" step="0.01" id="edit-sp-price-${s.id}" class="form-input" value="${s.basePrice || 0}" required>
+                  </div>
+                  <div class="form-group mb-1">
+                    <label class="form-label" style="font-size:0.75rem;">DESCRIPTION</label>
+                    <textarea id="edit-sp-desc-${s.id}" class="form-textarea" required>${s.description || ''}</textarea>
+                  </div>
+                  <div class="form-group mb-1">
+                    <label class="form-label" style="font-size:0.75rem;">UPLOAD NEW IMAGES (OPTIONAL)</label>
+                    <input type="file" id="edit-sp-imgs-${s.id}" class="form-input" multiple accept="image/*">
+                  </div>
+                  <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+                    <button type="submit" class="btn btn-sm btn-rust btn-pill">Save Updates ➔</button>
+                    <button type="button" onclick="toggleEditSpaceAccordion('${s.id}')" class="btn btn-sm btn-outline btn-pill">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleEditSpaceAccordion(spaceId) {
+      const box = document.getElementById(`edit-space-box-${spaceId}`);
+      if (box) box.classList.toggle('d-none');
+    }
+
+    async function handleUpdateSpaceSubmit(e, spaceId) {
+      e.preventDefault();
+      const name = document.getElementById(`edit-sp-name-${spaceId}`).value.trim();
+      const capacity = parseInt(document.getElementById(`edit-sp-cap-${spaceId}`).value, 10);
+      const basePrice = parseFloat(document.getElementById(`edit-sp-price-${spaceId}`).value);
+      const description = document.getElementById(`edit-sp-desc-${spaceId}`).value.trim();
+      const fileInput = document.getElementById(`edit-sp-imgs-${spaceId}`);
+      const imageFiles = fileInput && fileInput.files ? Array.from(fileInput.files) : [];
+
+      const payload = {
+        name,
+        capacity,
+        basePrice,
+        description,
+        venueId: selectedVenue.id
+      };
+
+      try {
+        await SpaceAPI.update(spaceId, payload, imageFiles);
+        showToast('Space specifications & image assets updated!', 'success');
+        await loadSpacesForActiveVenue(selectedVenue.id);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function selectSpace(spaceId, spaceName, basePrice, capacity, desc) {
+      selectedSpace = { 
+        id: spaceId, 
+        name: unescape(spaceName), 
+        basePrice: parseFloat(basePrice) || 0,
+        capacity: capacity || 1,
+        description: unescape(desc || '')
+      };
+
+      customerSelectedResourceQuantities = {};
+      clearSelectedSlotRange();
+
+      document.getElementById('crumb-space-name').textContent = selectedSpace.name;
+
+      document.querySelectorAll('#spaces-list-grid .card').forEach(c => c.classList.remove('active-card-highlight'));
+      const card = document.getElementById(`space-card-${spaceId}`);
+      if (card) card.classList.add('active-card-highlight');
+
+      const wb = document.getElementById('space-deep-workbench');
+      wb.classList.remove('d-none');
+      document.getElementById('deep-workbench-title').textContent = `"${selectedSpace.name.toUpperCase()}"`;
+
+      const isAdmin = checkIsAdmin();
+      const isProvider = checkIsProvider();
+      const isCustomer = checkIsCustomer();
+
+      const providerBox = document.getElementById('provider-workbench-container');
+      const customerBox = document.getElementById('customer-workbench-container');
+
+      if (isCustomer) {
+        providerBox.classList.add('d-none');
+        customerBox.classList.remove('d-none');
+        document.getElementById('workbench-role-indicator').textContent = 'CUSTOMER BOOKING MODE';
+
+        // Set default query range for slots (today -> +7 days)
+        const today = new Date().toISOString().split('T')[0];
+        const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+        document.getElementById('query-slot-start').value = today;
+        document.getElementById('query-slot-end').value = nextWeek;
+
+        // Render customer space hero details
+        renderCustomerSpaceHero();
+
+        // Load all Customer dependencies
+        await Promise.all([
+          loadSpaceResources(spaceId),
+          loadCustomerPricingRules(spaceId),
+          loadCustomerBlackouts(spaceId),
+          queryActiveSpaceSlots()
+        ]);
+
+      } else {
+        customerBox.classList.add('d-none');
+        providerBox.classList.remove('d-none');
+        document.getElementById('workbench-role-indicator').textContent = 'PROVIDER MANAGEMENT MODE';
+
+        await Promise.all([
+          loadSpaceResources(spaceId),
+          loadSpaceAvailability(spaceId),
+          loadSpacePricingRules(spaceId)
+        ]);
+      }
+    }
+
+    function renderCustomerSpaceHero() {
+      const container = document.getElementById('customer-space-hero-preview');
+      if (!container || !selectedSpace) return;
+
+      const spaceObj = globalVenues.flatMap(v => v.spaceList || []).find(s => s.id === selectedSpace.id);
+      const images = spaceObj ? extractImageUrls(spaceObj) : [];
+
+      const galleryHtml = images.length > 0
+        ? `<div class="space-gallery-banner">
+             <img src="${images[0]}" alt="${selectedSpace.name}">
+             ${images.length > 1 ? `<div class="thumb-preview-strip mt-1">${images.map(img => `<img src="${img}" alt="asset">`).join('')}</div>` : ''}
+           </div>`
+        : '';
+
+      container.innerHTML = `
+        ${galleryHtml}
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem;">
+          <div>
+            <h2 style="font-family:var(--font-serif);">${selectedSpace.name}</h2>
+            <p style="font-size:0.92rem; color:var(--text-muted); margin-top:0.25rem;">${selectedSpace.description || 'Verified space suitable for creative bookings and production events.'}</p>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <span class="badge badge-rust" style="font-size:0.9rem; padding:0.4rem 0.8rem;">👥 CAPACITY: ${selectedSpace.capacity} GUESTS</span>
+            <span class="badge badge-approved" style="font-size:0.9rem; padding:0.4rem 0.8rem;">LIVE CALENDAR ACTIVE</span>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadCustomerPricingRules(spaceId) {
+      const container = document.getElementById('customer-space-pricing-rules-preview');
+      if (!container) return;
+
+      try {
+        const res = await PricingAPI.getRules(spaceId);
+        currentSpacePricingRules = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+
+        if (currentSpacePricingRules.length === 0) {
+          container.innerHTML = '<p style="font-size:0.86rem; color:var(--text-muted);">Standard hourly base rate applies for all hours (no surge multipliers).</p>';
+          return;
+        }
+
+        container.innerHTML = `
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.86rem;">
+            ${currentSpacePricingRules.map(r => `
+              <li style="margin-bottom:0.3rem;">
+                <strong>${r.name}:</strong> ${r.priceAdjustment > 0 ? '+' : ''}${r.priceAdjustment}${r.adjustmentType === 'PERCENTAGE' ? '%' : ' Flat'} 
+                <span class="badge badge-rust ml-1" style="font-size:0.72rem;">${r.ruleType}</span>
+                ${r.dayOfWeek ? `(${r.dayOfWeek})` : ''}
+              </li>
+            `).join('')}
+          </ul>
+        `;
+      } catch (e) {
+        container.innerHTML = '<p style="font-size:0.86rem; color:var(--text-muted);">Standard pricing rules apply.</p>';
+      }
+    }
+
+    async function loadCustomerBlackouts(spaceId) {
+      const container = document.getElementById('customer-space-blackouts-preview');
+      if (!container) return;
+
+      try {
+        const res = await AvailabilityAPI.getBlackouts(spaceId);
+        currentSpaceBlackouts = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+
+        if (currentSpaceBlackouts.length === 0) {
+          container.innerHTML = '<p style="font-size:0.86rem; color:var(--text-muted);">✅ No maintenance blackouts scheduled. All weekly hours open.</p>';
+          return;
+        }
+
+        container.innerHTML = `
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.86rem;">
+            ${currentSpaceBlackouts.map(b => `
+              <li style="margin-bottom:0.3rem; color:var(--accent-rust);">
+                <strong>Unavailable:</strong> ${b.startDateTime.replace('T',' ')} ➔ ${b.endDateTime.replace('T',' ')}
+                <span style="color:var(--text-muted);">(${b.reason || 'Maintenance'})</span>
+              </li>
+            `).join('')}
+          </ul>
+        `;
+      } catch (e) {
+        container.innerHTML = '<p style="font-size:0.86rem; color:var(--text-muted);">Calendar open as per weekly schedule.</p>';
+      }
+    }
+
+    // -------------------------------------------------------------
+    // MODULE: RESOURCES & EQUIPMENT INVENTORY
+    // -------------------------------------------------------------
+    async function loadSpaceResources(spaceId) {
+      try {
+        const res = await ResourceAPI.getBySpace(spaceId);
+        currentSpaceResources = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+
+        if (checkIsCustomer()) {
+          renderCustomerResourceCart(currentSpaceResources);
+        } else {
+          renderProviderResourceGrid(currentSpaceResources);
+        }
+      } catch (e) {
+        console.warn('Resources fetch error:', e.message);
+      }
+    }
+
+    function renderProviderResourceGrid(resources) {
+      const grid = document.getElementById('space-resources-grid');
+      if (!resources || resources.length === 0) {
+        grid.innerHTML = '<div class="card text-center" style="grid-column: 1/-1;"><p>No hardware resources or AV equipment attached to this space yet.</p></div>';
+        return;
+      }
+
+      grid.innerHTML = resources.map(r => {
+        const images = extractImageUrls(r);
+        const heroImageHtml = images.length > 0
+          ? `<div style="height:150px; width:100%; border-radius:var(--radius-xs); overflow:hidden; margin-bottom:0.75rem;">
+               <img src="${images[0]}" alt="${r.name}" style="width:100%; height:100%; object-fit:cover;">
+             </div>`
+          : '';
+
+        const isFree = !r.resourcePrice || parseFloat(r.resourcePrice) === 0;
+        const priceDisplay = isFree ? 'FREE ADD-ON' : `+$${r.resourcePrice} (${r.resourcePriceType})`;
+
+        return `
+          <div class="card" style="border-top: 3px solid var(--accent-rust);">
+            ${heroImageHtml}
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="badge ${isFree ? 'badge-featured' : 'badge-rust'}">${r.resourcePriceType}</span>
+              <span class="mono" style="font-weight:700;">${priceDisplay}</span>
+            </div>
+            <h4 class="mt-1" style="font-family: var(--font-serif);">${r.name}</h4>
+            <p style="font-size:0.86rem; color:var(--text-muted);">${r.description || ''}</p>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:var(--border-light); padding-top:0.5rem; margin-top:0.5rem;">
+              <span class="mono" style="font-size:0.8rem; font-weight:700;">STOCK QTY: ${r.resourceCountQuantity || 1}</span>
+              <div style="display:flex; gap:0.4rem;">
+                <button onclick="toggleEditResourceAccordion('${r.id}')" class="btn btn-sm btn-outline btn-pill" title="Edit Resource">✏️ Edit</button>
+                <button onclick="deleteResource('${r.id}')" class="btn btn-sm btn-outline btn-pill" title="Remove">Remove</button>
+              </div>
+            </div>
+
+            <!-- Inline Edit Resource Box -->
+            <div id="edit-res-box-${r.id}" class="d-none mt-2" style="background:var(--bg-warm); padding:1rem; border-radius:var(--radius-xs); border:1px solid var(--border-medium);">
+              <h4 style="font-family:var(--font-serif); margin-bottom:0.5rem;">UPDATE RESOURCE SPECIFICATION & IMAGES</h4>
+              <form onsubmit="handleUpdateResourceSubmit(event, '${r.id}')">
+                <div class="form-group mb-1">
+                  <label class="form-label" style="font-size:0.75rem;">RESOURCE NAME</label>
+                  <input type="text" id="edit-res-name-${r.id}" class="form-input" value="${r.name}" required>
+                </div>
+                <div class="form-group mb-1">
+                  <label class="form-label" style="font-size:0.75rem;">PRICE ($) (0 FOR FREE)</label>
+                  <input type="number" step="0.01" id="edit-res-price-${r.id}" class="form-input" value="${r.resourcePrice || 0}" required>
+                </div>
+                <div class="form-group mb-1">
+                  <label class="form-label" style="font-size:0.75rem;">PRICING TYPE</label>
+                  <select id="edit-res-type-${r.id}" class="form-select" required>
+                    <option value="PER_HOUR" ${r.resourcePriceType === 'PER_HOUR' ? 'selected' : ''}>PER_HOUR ($ / Hr)</option>
+                    <option value="FIXED_PRICE" ${r.resourcePriceType === 'FIXED_PRICE' ? 'selected' : ''}>FIXED_PRICE (Flat Fee)</option>
+                  </select>
+                </div>
+                <div class="form-group mb-1">
+                  <label class="form-label" style="font-size:0.75rem;">AVAILABLE STOCK QUANTITY</label>
+                  <input type="number" id="edit-res-qty-${r.id}" class="form-input" value="${r.resourceCountQuantity || 1}" required min="1">
+                </div>
+                <div class="form-group mb-1">
+                  <label class="form-label" style="font-size:0.75rem;">MANDATORY</label>
+                  <select id="edit-res-mandatory-${r.id}" class="form-select">
+                    <option value="false" ${!r.mandatory ? 'selected' : ''}>Optional Add-on</option>
+                    <option value="true" ${r.mandatory ? 'selected' : ''}>Mandatory with Space</option>
+                  </select>
+                </div>
+                <div class="form-group mb-1">
+                  <label class="form-label" style="font-size:0.75rem;">DESCRIPTION</label>
+                  <textarea id="edit-res-desc-${r.id}" class="form-textarea" required>${r.description || ''}</textarea>
+                </div>
+                <div class="form-group mb-1">
+                  <label class="form-label" style="font-size:0.75rem;">UPLOAD NEW IMAGES (OPTIONAL)</label>
+                  <input type="file" id="edit-res-imgs-${r.id}" class="form-input" multiple accept="image/*">
+                </div>
+                <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+                  <button type="submit" class="btn btn-sm btn-rust btn-pill">Save Resource ➔</button>
+                  <button type="button" onclick="toggleEditResourceAccordion('${r.id}')" class="btn btn-sm btn-outline btn-pill">Cancel</button>
+                </div>
+              </form>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    // SELECT SPACE: AUTOMATICALLY LOADS RESOURCES, AVAILABILITY, AND PRICING (NO MANUAL IDs!)
-    async function selectSpace(spaceId, escapedName, basePrice) {
-      selectedSpace = { id: spaceId, name: unescape(escapedName), basePrice };
-
-      // Update Crumb
-      document.getElementById('crumb-space-name').textContent = selectedSpace.name;
-
-      // Highlight card
-      document.querySelectorAll('#spaces-list-grid .card').forEach(c => c.classList.remove('active-card-highlight'));
-      const card = document.getElementById(`space-card-${spaceId}`);
-      if (card) card.classList.add('active-card-highlight');
-
-      // Setup Deep Workbench
-      const wb = document.getElementById('space-deep-workbench');
-      wb.classList.remove('d-none');
-      document.getElementById('deep-workbench-title').textContent = `STEP 3: WORKBENCH FOR "${selectedSpace.name.toUpperCase()}" (BASE: $${basePrice}/HR)`;
-
-      // Load all 3 sub-modules in parallel for this space!
-      await Promise.all([
-        loadSpaceResources(spaceId),
-        loadSpaceAvailability(spaceId),
-        loadSpacePricingRules(spaceId)
-      ]);
+    function toggleEditResourceAccordion(resourceId) {
+      const box = document.getElementById(`edit-res-box-${resourceId}`);
+      if (box) box.classList.toggle('d-none');
     }
 
-    // MODULE 1: RESOURCES FOR SELECTED SPACE
-    async function loadSpaceResources(spaceId) {
+    async function handleUpdateResourceSubmit(e, resourceId) {
+      e.preventDefault();
+      const name = document.getElementById(`edit-res-name-${resourceId}`).value.trim();
+      const resourcePrice = parseFloat(document.getElementById(`edit-res-price-${resourceId}`).value);
+      const resourcePriceType = document.getElementById(`edit-res-type-${resourceId}`).value;
+      const resourceCountQuantity = parseInt(document.getElementById(`edit-res-qty-${resourceId}`).value, 10);
+      const mandatory = document.getElementById(`edit-res-mandatory-${resourceId}`).value === 'true';
+      const description = document.getElementById(`edit-res-desc-${resourceId}`).value.trim();
+      const fileInput = document.getElementById(`edit-res-imgs-${resourceId}`);
+      const imageFiles = fileInput && fileInput.files ? Array.from(fileInput.files) : [];
+
+      const payload = {
+        name,
+        description,
+        resourcePrice,
+        resourcePriceType,
+        resourceCountQuantity,
+        mandatory,
+        spaceId: selectedSpace.id
+      };
+
       try {
-        const res = await ResourceAPI.getBySpace(spaceId);
-        const resources = res.data || (Array.isArray(res) ? res : []);
-        renderSpaceResources(resources);
-        populateCalculatorResourceCheckboxes(resources);
-      } catch (e) {
-        document.getElementById('space-resources-grid').innerHTML = `<p>${e.message}</p>`;
+        await ResourceAPI.update(resourceId, payload, imageFiles);
+        showToast('Resource specification & images updated!', 'success');
+        await loadSpaceResources(selectedSpace.id);
+      } catch (err) {
+        showToast(err.message, 'error');
       }
     }
 
-    function renderSpaceResources(resources) {
-      const grid = document.getElementById('space-resources-grid');
+    function renderCustomerResourceCart(resources) {
+      const container = document.getElementById('customer-resource-cart-list');
       if (!resources || resources.length === 0) {
-        grid.innerHTML = '<div class="card text-center" style="grid-column: 1/-1;"><h3>NO RESOURCES ATTACHED TO THIS SPACE YET</h3></div>';
+        container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">This space does not require or offer hardware add-ons. Standard space access applies.</p>';
+        updateCartBadge();
         return;
       }
 
-      grid.innerHTML = resources.map(r => `
-        <div class="card" style="border-top: 3px solid var(--accent-rust);">
-          <div style="display:flex; justify-content:space-between;">
-            <span class="badge badge-rust">${r.resourcePriceType || 'PER_HOUR'}</span>
-            <span class="mono" style="font-size:0.75rem;">QTY: ${r.resourceCountQuantity || 1}</span>
+      container.innerHTML = resources.map(r => {
+        const maxQty = r.resourceCountQuantity || 1;
+        const currentQty = customerSelectedResourceQuantities[r.id] || (r.mandatory ? 1 : 0);
+        customerSelectedResourceQuantities[r.id] = currentQty;
+
+        const isFree = !r.resourcePrice || parseFloat(r.resourcePrice) === 0;
+        const priceLabel = isFree 
+          ? 'FREE ADD-ON' 
+          : (r.resourcePriceType === 'PER_HOUR' ? `$${r.resourcePrice} / hr` : `$${r.resourcePrice} flat fee`);
+
+        const images = extractImageUrls(r);
+        const imgThumbHtml = images.length > 0
+          ? `<img src="${images[0]}" alt="${r.name}" style="width:75px; height:75px; object-fit:cover; border-radius:var(--radius-xs); border:1px solid var(--border-medium); flex-shrink:0;">`
+          : '';
+
+        return `
+          <div class="resource-cart-card">
+            <div style="display:flex; gap:1rem; flex:1; min-width:240px; align-items:center;">
+              ${imgThumbHtml}
+              <div>
+                <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                  <strong style="font-family: var(--font-serif); font-size:1.05rem;">${r.name}</strong>
+                  <span class="badge ${r.mandatory ? 'badge-approved' : (isFree ? 'badge-featured' : 'badge-rust')}">
+                    ${r.mandatory ? 'MANDATORY ADD-ON' : (isFree ? 'FREE INCLUDED' : 'OPTIONAL GEAR')}
+                  </span>
+                  <span class="mono" style="font-size:0.75rem; color:var(--text-muted);">Available Stock: ${maxQty}</span>
+                </div>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.2rem;">${r.description || ''}</p>
+                <div class="mono text-rust" style="font-size:0.85rem; font-weight:700; margin-top:0.3rem;">
+                  Rate: ${priceLabel}
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:1.25rem;">
+              <div class="qty-stepper">
+                <button type="button" class="qty-btn" onclick="stepResourceQty('${r.id}', -1, ${maxQty}, ${r.mandatory})" ${r.mandatory || currentQty <= 0 ? 'disabled' : ''}>−</button>
+                <span class="qty-display" id="qty-val-${r.id}">${currentQty}</span>
+                <button type="button" class="qty-btn" onclick="stepResourceQty('${r.id}', 1, ${maxQty}, ${r.mandatory})" ${currentQty >= maxQty ? 'disabled' : ''}>+</button>
+              </div>
+              <div style="min-width:70px; text-align:right;">
+                <span class="mono" style="font-weight:700; font-size:0.95rem;" id="subtotal-${r.id}">
+                  ${isFree ? 'FREE' : `$${(currentQty * r.resourcePrice).toFixed(2)}`}
+                </span>
+              </div>
+            </div>
           </div>
-          <h3 class="mt-1" style="font-family: var(--font-serif);">${r.name}</h3>
-          <p class="mt-1 mb-2" style="font-size:0.85rem;">${r.description || ''}</p>
-          <p><strong>ADD-ON FEE:</strong> $${r.resourcePrice} ${r.mandatory ? '<span class="badge badge-rust">MANDATORY</span>' : ''}</p>
-          <div class="mt-2">
-            <button onclick="deleteResource('${r.id}')" class="btn btn-sm btn-outline btn-pill">Remove Resource</button>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
+
+      updateCartBadge();
     }
 
-    function populateCalculatorResourceCheckboxes(resources) {
-      const box = document.getElementById('calc-resources-checkboxes');
-      if (!resources || resources.length === 0) {
-        box.innerHTML = '<p style="font-size:0.85rem; color:#666;">No resources available for this space.</p>';
-        return;
+    function stepResourceQty(resourceId, delta, maxQty, isMandatory) {
+      let current = customerSelectedResourceQuantities[resourceId] || 0;
+      let next = current + delta;
+      if (next < (isMandatory ? 1 : 0)) next = isMandatory ? 1 : 0;
+      if (next > maxQty) next = maxQty;
+
+      customerSelectedResourceQuantities[resourceId] = next;
+
+      const valEl = document.getElementById(`qty-val-${resourceId}`);
+      if (valEl) valEl.textContent = next;
+
+      const resource = currentSpaceResources.find(r => r.id === resourceId);
+      const subtotalEl = document.getElementById(`subtotal-${resourceId}`);
+      if (subtotalEl && resource) {
+        const isFree = !resource.resourcePrice || parseFloat(resource.resourcePrice) === 0;
+        subtotalEl.textContent = isFree ? 'FREE' : `$${(next * resource.resourcePrice).toFixed(2)}`;
       }
 
-      box.innerHTML = resources.map(r => `
-        <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; font-weight:600; font-size:0.86rem; cursor:pointer;">
-          <input type="checkbox" value="${r.id}" class="calc-res-item" ${r.mandatory ? 'checked disabled' : ''}>
-          <span>${r.name} (+$${r.resourcePrice} ${r.resourcePriceType})</span>
-        </label>
-      `).join('');
+      renderCustomerResourceCart(currentSpaceResources);
     }
 
-    // MODULE 2: AVAILABILITY & SLOTS FOR SELECTED SPACE
+    function updateCartBadge() {
+      const badge = document.getElementById('cart-summary-badge');
+      if (!badge) return;
+      let totalUnits = 0;
+      for (const id in customerSelectedResourceQuantities) {
+        totalUnits += customerSelectedResourceQuantities[id];
+      }
+      badge.textContent = `${totalUnits} EQUIPMENT ADD-ON${totalUnits === 1 ? '' : 'S'} SELECTED`;
+    }
+
+    // -------------------------------------------------------------
+    // MODULE: OPERATING RULES & BLACKOUTS (Provider Only)
+    // -------------------------------------------------------------
     async function loadSpaceAvailability(spaceId) {
       try {
         const [rulesRes, blackoutsRes] = await Promise.all([
-          AvailabilityAPI.getBySpace(spaceId),
-          AvailabilityAPI.getBlackoutsBySpace(spaceId)
+          AvailabilityAPI.getRules(spaceId),
+          AvailabilityAPI.getBlackouts(spaceId)
         ]);
 
-        const rules = rulesRes.data || (Array.isArray(rulesRes) ? rulesRes : []);
-        const blackouts = blackoutsRes.data || (Array.isArray(blackoutsRes) ? blackoutsRes : []);
+        const rules = Array.isArray(rulesRes) ? rulesRes : (rulesRes && rulesRes.data ? rulesRes.data : []);
+        const blackouts = Array.isArray(blackoutsRes) ? blackoutsRes : (blackoutsRes && blackoutsRes.data ? blackoutsRes.data : []);
+
+        const isAdmin = checkIsAdmin();
+        const isProvider = checkIsProvider();
 
         const rulesContainer = document.getElementById('active-rules-list');
         rulesContainer.innerHTML = rules.length === 0 
-          ? '<p style="color:#666;">No weekly operating rules set.</p>'
+          ? '<p style="color:var(--text-muted); font-size:0.88rem;">No weekly operating rules established. Space will not yield open slots for customers until a schedule is added.</p>'
           : rules.map(r => `
             <div style="background:#fff; border:var(--border-light); border-radius:var(--radius-xs); padding:0.6rem 0.85rem; margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <strong>${r.dayOfWeek}:</strong> ${r.openingTime} - ${r.closingTime}
                 <span style="font-size:0.75rem; color:var(--text-muted);">(${r.slotDurationInMinutes || 60}m slots)</span>
               </div>
-              <button onclick="deleteAvailRule('${r.id}')" class="btn btn-sm btn-outline btn-pill">✕</button>
+              ${(isAdmin || isProvider) ? `<button onclick="deleteAvailRule('${r.id}')" class="btn btn-sm btn-outline btn-pill">✕</button>` : ''}
             </div>
           `).join('');
 
         const blackoutsContainer = document.getElementById('active-blackouts-list');
         blackoutsContainer.innerHTML = blackouts.length === 0
-          ? '<p style="color:#666;">No blackouts registered.</p>'
+          ? '<p style="color:var(--text-muted); font-size:0.88rem;">No blackouts registered.</p>'
           : blackouts.map(b => `
             <div style="background:#fff; border:var(--border-light); border-radius:var(--radius-xs); padding:0.6rem 0.85rem; margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <strong>${b.reason || 'MAINTENANCE'}:</strong><br>
                 <span class="mono" style="font-size:0.75rem;">${b.startDateTime} ➔ ${b.endDateTime}</span>
               </div>
-              <button onclick="deleteBlackoutSlot('${b.id}')" class="btn btn-sm btn-outline btn-pill">✕</button>
+              ${(isAdmin || isProvider) ? `<button onclick="deleteBlackoutSlot('${b.id}')" class="btn btn-sm btn-outline btn-pill">✕</button>` : ''}
             </div>
           `).join('');
 
       } catch (e) {
-        console.warn('Availability fetch:', e.message);
+        console.warn('Availability fetch error:', e.message);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // MODULE: SLOT AVAILABILITY & MULTI-SLOT RANGE SELECTION (Customer)
+    // -------------------------------------------------------------
+    function formatTimeOnly(isoStr) {
+      if (!isoStr) return '';
+      try {
+        const timePart = isoStr.includes('T') ? isoStr.split('T')[1] : isoStr;
+        const parts = timePart.split(':');
+        let h = parseInt(parts[0], 10);
+        const m = parts[1] || '00';
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12;
+        if (h === 0) h = 12;
+        const formattedH = h < 10 ? '0' + h : h;
+        return `${formattedH}:${m} ${ampm}`;
+      } catch (e) {
+        return isoStr;
+      }
+    }
+
+    function formatSlotHeaderDate(dateStr) {
+      if (!dateStr) return '';
+      try {
+        const parts = dateStr.split('-');
+        if (parts.length < 3) return dateStr;
+        const dateObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        return dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      } catch (e) {
+        return dateStr;
       }
     }
 
@@ -1020,59 +1852,216 @@
       const end = document.getElementById('query-slot-end').value;
 
       try {
-        const res = await AvailabilityAPI.getSlots(selectedSpace.id, start, end);
-        const slots = res.data || (Array.isArray(res) ? res : []);
+        const res = await AvailabilityAPI.getSlots({ spaceId: selectedSpace.id, startDate: start, endDate: end });
+        currentSpaceSlots = Array.isArray(res) ? res : (res && res.data ? res.data : []);
         const box = document.getElementById('slots-live-display');
 
-        if (slots.length === 0) {
-          box.innerHTML = '<div class="card text-center" style="background:#FFF9F6;"><h4>No available slots found for this date window.</h4></div>';
+        if (currentSpaceSlots.length === 0) {
+          box.innerHTML = `
+            <div class="card text-center" style="background:#FFF9F6; padding:1.25rem;">
+              <h4>NO OPEN SLOTS FOR THIS DATE RANGE</h4>
+              <p style="font-size:0.86rem; color:var(--text-muted); margin-top:0.25rem;">
+                The provider may not have operating hours configured for this date window or slots intersect a maintenance blackout.
+              </p>
+            </div>
+          `;
           return;
         }
 
-        box.innerHTML = `
-          <h4 style="font-family: var(--font-serif); margin-bottom: 0.5rem;">AVAILABLE SLOTS (${slots.length} OPEN BLOCKS)</h4>
-          <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem;">
-            ${slots.map(s => `
-              <div class="badge badge-approved" style="padding:0.5rem 0.75rem; font-size:0.82rem;">
-                ${s.startTime || s.start || '09:00'} - ${s.endTime || s.end || '10:00'}
-              </div>
-            `).join('')}
-          </div>
+        // Group slots by Date
+        const grouped = {};
+        currentSpaceSlots.forEach((s, globalIdx) => {
+          const sTime = s.startTime || s.start || s.startDateTime;
+          const eTime = s.endTime || s.end || s.endDateTime;
+          if (!sTime || !eTime) return;
+          const dKey = sTime.includes('T') ? sTime.split('T')[0] : (start || new Date().toISOString().split('T')[0]);
+          if (!grouped[dKey]) grouped[dKey] = [];
+          grouped[dKey].push({ startTime: sTime, endTime: eTime, indexInDay: grouped[dKey].length, globalIdx });
+        });
+
+        let html = `
+          <h4 style="font-family: var(--font-serif); margin-bottom: 0.25rem;">
+            OPEN OPERATING HOURS (${currentSpaceSlots.length} DISCRETE SLOTS AVAILABLE)
+          </h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+            Tip: Click a slot to select 1 hour, or click two slots on the same date to select a 2-hour, 3-hour or multi-hour range.
+          </p>
         `;
+
+        for (const dateKey in grouped) {
+          const daySlots = grouped[dateKey];
+          html += `
+            <div style="margin-bottom: 1.5rem; background:#FFFFFF; padding:1rem; border-radius:var(--radius-xs); border:1px solid var(--border-light);">
+              <h5 style="font-family: var(--font-serif); font-size:1rem; color:var(--text-main); margin-bottom:0.75rem; font-weight:700;">
+                📅 ${formatSlotHeaderDate(dateKey)}
+              </h5>
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                ${daySlots.map(s => {
+                  const isSelected = isSlotInCurrentRange(dateKey, s.indexInDay);
+                  return `
+                    <button type="button" 
+                      id="slot-chip-${dateKey}-${s.indexInDay}"
+                      class="slot-pill-btn ${isSelected ? 'selected' : ''}" 
+                      onclick="handleSlotChipClick('${dateKey}', ${s.indexInDay}, '${s.startTime}', '${s.endTime}')">
+                      🕒 ${formatTimeOnly(s.startTime)} – ${formatTimeOnly(s.endTime)}
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        box.innerHTML = html;
+        updateSlotSelectionSummaryUI();
       } catch (e) {
         showToast(e.message, 'error');
       }
     }
 
-    // MODULE 3: PRICING RULES & CALCULATOR FOR SELECTED SPACE
+    function isSlotInCurrentRange(dateKey, slotIndex) {
+      if (!selectedSlotRange.dateKey || selectedSlotRange.dateKey !== dateKey) return false;
+      if (selectedSlotRange.startIndex === null) return false;
+      const minIdx = Math.min(selectedSlotRange.startIndex, selectedSlotRange.endIndex !== null ? selectedSlotRange.endIndex : selectedSlotRange.startIndex);
+      const maxIdx = Math.max(selectedSlotRange.startIndex, selectedSlotRange.endIndex !== null ? selectedSlotRange.endIndex : selectedSlotRange.startIndex);
+      return slotIndex >= minIdx && slotIndex <= maxIdx;
+    }
+
+    function handleSlotChipClick(dateKey, slotIndex, startTimeISO, endTimeISO) {
+      // Find all slots for this day
+      const daySlots = currentSpaceSlots.filter(s => (s.startTime || s.start).startsWith(dateKey));
+
+      if (!selectedSlotRange.dateKey || selectedSlotRange.dateKey !== dateKey || selectedSlotRange.startIndex === null) {
+        // First selection on this date
+        selectedSlotRange = {
+          dateKey,
+          startISO: startTimeISO,
+          endISO: endTimeISO,
+          startIndex: slotIndex,
+          endIndex: slotIndex
+        };
+      } else if (selectedSlotRange.startIndex === slotIndex && selectedSlotRange.endIndex === slotIndex) {
+        // Clicked the same single slot again -> deselect
+        clearSelectedSlotRange();
+        return;
+      } else {
+        // Multi-slot range selection
+        const firstIdx = selectedSlotRange.startIndex;
+        const minIdx = Math.min(firstIdx, slotIndex);
+        const maxIdx = Math.max(firstIdx, slotIndex);
+
+        const startSlot = daySlots[minIdx];
+        const endSlot = daySlots[maxIdx];
+
+        selectedSlotRange = {
+          dateKey,
+          startISO: startSlot.startTime || startSlot.start,
+          endISO: endSlot.endTime || endSlot.end,
+          startIndex: minIdx,
+          endIndex: maxIdx
+        };
+      }
+
+      // Update Date & Time inputs in dynamic calculator
+      document.getElementById('calc-start').value = selectedSlotRange.startISO ? selectedSlotRange.startISO.substring(0, 16) : '';
+      document.getElementById('calc-end').value = selectedSlotRange.endISO ? selectedSlotRange.endISO.substring(0, 16) : '';
+
+      // Re-render slot chip styling across the day
+      daySlots.forEach((s, idx) => {
+        const chip = document.getElementById(`slot-chip-${dateKey}-${idx}`);
+        if (chip) {
+          if (isSlotInCurrentRange(dateKey, idx)) {
+            chip.classList.add('selected');
+          } else {
+            chip.classList.remove('selected');
+          }
+        }
+      });
+
+      updateSlotSelectionSummaryUI();
+    }
+
+    function clearSelectedSlotRange() {
+      selectedSlotRange = {
+        dateKey: null,
+        startISO: null,
+        endISO: null,
+        startIndex: null,
+        endIndex: null
+      };
+
+      document.querySelectorAll('.slot-pill-btn').forEach(b => b.classList.remove('selected'));
+      updateSlotSelectionSummaryUI();
+    }
+
+    function updateSlotSelectionSummaryUI() {
+      const bar = document.getElementById('slot-selection-summary-bar');
+      const textEl = document.getElementById('slot-selection-summary-text');
+      if (!bar || !textEl) return;
+
+      if (!selectedSlotRange.startISO || !selectedSlotRange.endISO) {
+        bar.classList.add('d-none');
+        return;
+      }
+
+      bar.classList.remove('d-none');
+      const startF = formatTimeOnly(selectedSlotRange.startISO);
+      const endF = formatTimeOnly(selectedSlotRange.endISO);
+      const dateF = formatSlotHeaderDate(selectedSlotRange.dateKey);
+
+      const d1 = new Date(selectedSlotRange.startISO);
+      const d2 = new Date(selectedSlotRange.endISO);
+      const diffHours = Math.round((d2 - d1) / 3600000);
+      const hoursLabel = diffHours > 0 ? ` (${diffHours} Hour${diffHours === 1 ? '' : 's'} Selected)` : '';
+
+      textEl.textContent = `${dateF} | ${startF} ➔ ${endF}${hoursLabel}`;
+    }
+
+    function onManualDatetimeChange() {
+      // User typed or edited the manual inputs
+      clearSelectedSlotRange();
+    }
+
+    // -------------------------------------------------------------
+    // MODULE: DYNAMIC PRICING RULES (Provider Config)
+    // -------------------------------------------------------------
     async function loadSpacePricingRules(spaceId) {
       try {
-        const res = await PricingAPI.getBySpace(spaceId);
-        const rules = res.data || (Array.isArray(res) ? res : []);
+        const res = await PricingAPI.getRules(spaceId);
+        const rules = Array.isArray(res) ? res : (res && res.data ? res.data : []);
         const container = document.getElementById('space-pricing-rules-list');
 
         if (rules.length === 0) {
-          container.innerHTML = '<p style="color:#666;">No dynamic rules established. Base rate applies.</p>';
+          container.innerHTML = '<p style="color:var(--text-muted); font-size:0.88rem;">No dynamic surge rules configured. Standard space pricing applies.</p>';
           return;
         }
 
+        const isAdmin = checkIsAdmin();
+        const isProvider = checkIsProvider();
+
         container.innerHTML = rules.map(r => `
-          <div class="card mb-2" style="padding:0.75rem; background:var(--bg-warm);">
+          <div class="card mb-2" style="padding:0.75rem 1rem; background:var(--bg-warm);">
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-              <strong>${r.name}</strong>
-              <button onclick="deletePricingRule('${r.id}')" class="btn btn-sm btn-outline btn-pill">✕</button>
+              <div>
+                <strong>${r.name}</strong>
+                <span class="badge badge-rust ml-1" style="font-size:0.75rem;">${r.ruleType}</span>
+              </div>
+              ${(isAdmin || isProvider) ? `<button onclick="deletePricingRule('${r.id}')" class="btn btn-sm btn-outline btn-pill">✕</button>` : ''}
             </div>
             <p style="font-size:0.85rem; margin-top:0.3rem;">
-              TYPE: <span class="badge badge-rust">${r.ruleType}</span> | 
-              ADJUSTMENT: <strong>${r.priceAdjustment} (${r.adjustmentType})</strong>
+              Adjustment: <strong>${r.priceAdjustment > 0 ? '+' : ''}${r.priceAdjustment}${r.adjustmentType === 'PERCENTAGE' ? '%' : ' Flat Override'}</strong> | 
+              Day: <strong>${r.dayOfWeek || 'ANY'}</strong> | Priority: <strong>${r.priority}</strong>
             </p>
           </div>
         `).join('');
       } catch (e) {
-        console.warn('Pricing rules:', e.message);
+        console.warn('Pricing rules fetch error:', e.message);
       }
     }
 
+    // -------------------------------------------------------------
+    // MODULE: DYNAMIC PRICE CALCULATION & PRE-ORDER BREAKDOWN (Customer)
+    // -------------------------------------------------------------
     async function runSpacePriceCalculation() {
       if (!selectedSpace) {
         showToast('Please select a space first.', 'error');
@@ -1081,12 +2070,32 @@
       const start = document.getElementById('calc-start').value;
       const end = document.getElementById('calc-end').value;
       if (!start || !end) {
-        showToast('Start time and end time required', 'error');
+        showToast('Please select slot times from the calendar chips above.', 'error');
         return;
       }
 
-      const checkedBoxes = document.querySelectorAll('.calc-res-item:checked');
-      const resourceIds = Array.from(checkedBoxes).map(b => b.value);
+      // Collect resource IDs based on quantities chosen in customer cart
+      const resourceIds = [];
+      const itemizedSelections = [];
+
+      for (const resId in customerSelectedResourceQuantities) {
+        const qty = customerSelectedResourceQuantities[resId];
+        if (qty > 0) {
+          const resObj = currentSpaceResources.find(r => r.id === resId);
+          for (let i = 0; i < qty; i++) {
+            resourceIds.push(resId);
+          }
+          if (resObj) {
+            itemizedSelections.push({
+              name: resObj.name,
+              qty: qty,
+              unitPrice: resObj.resourcePrice || 0,
+              type: resObj.resourcePriceType,
+              mandatory: resObj.mandatory
+            });
+          }
+        }
+      }
 
       try {
         const res = await PricingAPI.calculate({
@@ -1096,34 +2105,83 @@
           resourceIds
         });
 
-        const data = res.data || res;
+        const data = (res && res.data !== undefined) ? res.data : res;
         const resultBox = document.getElementById('calc-result-box');
         const content = document.getElementById('calc-result-content');
         resultBox.classList.remove('d-none');
 
+        const dStart = new Date(start);
+        const dEnd = new Date(end);
+        const hours = Math.max(1, Math.round((dEnd - dStart) / 3600000));
+
+        const breakdowns = data.resourceBreakdowns || [];
+        const breakdownsHtml = breakdowns.length > 0
+          ? `
+            <div style="background:var(--bg-warm); padding:1rem; border-radius:var(--radius-xs); margin:1rem 0; border:1px solid var(--border-medium);">
+              <strong style="font-size:0.86rem; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:0.4rem;">
+                📦 Itemized Hardware Add-ons & Equipment:
+              </strong>
+              <ul style="margin:0; padding-left:1.2rem; font-size:0.88rem;">
+                ${breakdowns.map(b => `
+                  <li style="margin-bottom:0.25rem;">
+                    ${b.resourceName}: <strong>${parseFloat(b.price) === 0 ? 'FREE INCLUDED' : '+$' + parseFloat(b.price).toFixed(2)}</strong>
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+          `
+          : '<p style="font-size:0.86rem; color:var(--text-muted); margin:0.6rem 0;">No optional hardware add-ons selected (Space access only).</p>';
+
         content.innerHTML = `
-          <div style="font-size:1.3rem; font-weight:800; color:var(--accent-rust);" class="mb-1">
-            TOTAL COMPUTED: $${data.totalPrice || data.finalPrice || '0.00'}
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:var(--border-light); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <span class="badge badge-featured">PRE-ORDER QUOTE CONFIRMED</span>
+              <h2 style="font-family: var(--font-serif); margin-top:0.35rem; color:var(--accent-rust);">
+                TOTAL AMOUNT: $${parseFloat(data.finalTotalPrice || data.calculatedSpacePrice || 0).toFixed(2)}
+              </h2>
+            </div>
+            <div style="text-align:right;">
+              <span class="mono text-rust" style="font-weight:700; display:block;">RULE: ${data.appliedRuleName || 'STANDARD'}</span>
+              <span style="font-size:0.8rem; color:var(--text-muted);">Duration: ${hours} Hour${hours === 1 ? '' : 's'} (${formatTimeOnly(start)} – ${formatTimeOnly(end)})</span>
+            </div>
           </div>
-          <p>Base Hourly: $${selectedSpace.basePrice}/hr</p>
-          <p>Applied Rules Count: ${(data.appliedRules && data.appliedRules.length) || 0}</p>
-          <p>Selected Resources Count: ${resourceIds.length}</p>
+
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1rem; font-size:0.88rem;">
+            <div style="background:var(--bg-warm); padding:0.75rem 1rem; border-radius:var(--radius-xs);">
+              <span style="color:var(--text-muted); display:block; font-size:0.8rem;">Space Rate & Time Subtotal:</span>
+              <strong style="font-size:1.05rem;">$${parseFloat(data.calculatedSpacePrice || 0).toFixed(2)}</strong>
+            </div>
+            <div style="background:var(--bg-warm); padding:0.75rem 1rem; border-radius:var(--radius-xs);">
+              <span style="color:var(--text-muted); display:block; font-size:0.8rem;">Equipment Add-ons Total:</span>
+              <strong style="font-size:1.05rem;">+${parseFloat(data.totalResourcePrice) === 0 ? 'FREE' : '$' + parseFloat(data.totalResourcePrice || 0).toFixed(2)}</strong>
+            </div>
+            <div style="background:var(--bg-warm); padding:0.75rem 1rem; border-radius:var(--radius-xs);">
+              <span style="color:var(--text-muted); display:block; font-size:0.8rem;">Applied Pricing Modifier:</span>
+              <strong style="font-size:1.05rem; color:var(--accent-rust);">${data.appliedRuleType || 'STANDARD'}</strong>
+            </div>
+          </div>
+
+          ${breakdownsHtml}
         `;
+
+        resultBox.scrollIntoView({ behavior: 'smooth' });
       } catch (e) {
         showToast(e.message, 'error');
       }
     }
 
-    function triggerStripeCheckout() {
-      showToast('Redirecting to Stripe Checkout...', 'success');
+    function triggerReservationBooking() {
+      showToast('Locking slot reservation with Catalog Service...', 'success');
       setTimeout(() => {
-        alert('Stripe Payment Checkout Mock: Transaction token #STRIPE-TX-' + Math.floor(Math.random()*899999 + 100000) + ' processed successfully!');
-      }, 1000);
+        alert('Booking Reservation Pipeline: Next Phase Booking Engine will lock your selected interval and initiate the payment session!');
+      }, 900);
     }
 
-    // FORM SUBMISSION HANDLERS (EXACT DTOs)
+    // -------------------------------------------------------------
+    // FORM HANDLERS
+    // -------------------------------------------------------------
 
-    // 1. Create Category
+    // 1. Create Category (Admin Only)
     document.getElementById('create-category-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('cat-name-input').value.trim();
@@ -1132,7 +2190,7 @@
 
       try {
         await CategoryAPI.create({ name, slug, description });
-        showToast('Category registered successfully!', 'success');
+        showToast('Category created successfully!', 'success');
         document.getElementById('create-category-form').reset();
         toggleSection('create-category-panel');
         await loadCategories();
@@ -1162,7 +2220,7 @@
       if (!confirm('Permanently delete this category?')) return;
       try {
         await CategoryAPI.delete(id);
-        showToast('Category purged.', 'success');
+        showToast('Category deleted.', 'success');
         await loadCategories();
       } catch (err) {
         showToast(err.message, 'error');
@@ -1172,6 +2230,11 @@
     // 2. Create Venue
     document.getElementById('create-venue-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!checkIsProvider() && !checkIsAdmin()) {
+        showToast('Provider role required to deploy venues.', 'error');
+        return;
+      }
+
       const payload = {
         name: document.getElementById('v-name').value.trim(),
         slug: document.getElementById('v-slug').value.trim(),
@@ -1198,7 +2261,7 @@
       }
     });
 
-    async function setVenueStatus(id, status) {
+    async function updateVenueStatusPrompt(id, status) {
       try {
         await VenueAPI.updateStatus(id, status);
         showToast(`Venue status updated to ${status}!`, 'success');
@@ -1209,29 +2272,35 @@
     }
 
     async function deleteVenue(id) {
-      if (!confirm('Permanently delete this venue and all attached spaces?')) return;
+      if (!confirm('Permanently delete this venue and its associated spaces?')) return;
       try {
         await VenueAPI.delete(id);
-        showToast('Venue removed.', 'success');
+        showToast('Venue deleted.', 'success');
         selectedVenue = null;
         selectedSpace = null;
         document.getElementById('spaces-master-panel').classList.add('d-none');
         document.getElementById('space-deep-workbench').classList.add('d-none');
+        document.getElementById('crumb-venue-name').textContent = 'Select a Venue Below';
+        document.getElementById('crumb-space-name').textContent = 'Select a Space Below';
         await loadVenues();
       } catch (err) {
         showToast(err.message, 'error');
       }
     }
 
-    // 3. Create Space (Multipart with Images)
+    // 3. Create Space with Multipart Images
     document.getElementById('create-space-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!selectedVenue) {
-        showToast('Please select a venue first!', 'error');
+        showToast('Please select a parent venue first.', 'error');
+        return;
+      }
+      if (!checkIsProvider() && !checkIsAdmin()) {
+        showToast('Provider role required to deploy spaces.', 'error');
         return;
       }
 
-      const spaceDto = {
+      const payload = {
         name: document.getElementById('sp-name').value.trim(),
         description: document.getElementById('sp-desc').value.trim(),
         capacity: parseInt(document.getElementById('sp-capacity').value, 10),
@@ -1239,58 +2308,58 @@
         venueId: selectedVenue.id
       };
 
-      const fileInput = document.getElementById('sp-images');
-      const files = fileInput ? Array.from(fileInput.files) : [];
-
       try {
-        await SpaceAPI.create(spaceDto, files);
-        showToast('Space created successfully with assets!', 'success');
+        await SpaceAPI.create(payload, spaceImageFiles);
+        showToast('Space deployed with image assets!', 'success');
         document.getElementById('create-space-form').reset();
+        spaceImageFiles = [];
+        renderSpaceImagePreviews();
         toggleSection('create-space-accordion');
-        await selectVenue(selectedVenue.id);
+        await loadSpacesForActiveVenue(selectedVenue.id);
       } catch (err) {
         showToast(err.message, 'error');
       }
     });
 
-    async function deleteSpace(spaceId) {
-      if (!confirm('Permanently purge this space unit?')) return;
+    async function deleteSpace(id) {
+      if (!confirm('Permanently delete this space?')) return;
       try {
-        await SpaceAPI.delete(spaceId);
+        await SpaceAPI.delete(id);
         showToast('Space deleted.', 'success');
         selectedSpace = null;
         document.getElementById('space-deep-workbench').classList.add('d-none');
-        await selectVenue(selectedVenue.id);
+        document.getElementById('crumb-space-name').textContent = 'Select a Space Below';
+        await loadSpacesForActiveVenue(selectedVenue.id);
       } catch (err) {
         showToast(err.message, 'error');
       }
     }
 
-    // 4. Create Resource (Multipart with Images)
+    // 4. Create Resource with Multipart Images
     document.getElementById('create-resource-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!selectedSpace) {
-        showToast('Please select a space first!', 'error');
+      if (!selectedSpace) return;
+      if (!checkIsProvider() && !checkIsAdmin()) {
+        showToast('Provider role required to attach resources.', 'error');
         return;
       }
 
-      const resourceDto = {
+      const payload = {
         name: document.getElementById('res-name').value.trim(),
         description: document.getElementById('res-desc').value.trim(),
         resourcePrice: parseFloat(document.getElementById('res-price').value),
-        resourcePriceType: document.getElementById('res-price-type').value,
+        resourcePriceType: document.getElementById('res-type').value,
         resourceCountQuantity: parseInt(document.getElementById('res-qty').value, 10),
         mandatory: document.getElementById('res-mandatory').value === 'true',
         spaceId: selectedSpace.id
       };
 
-      const fileInput = document.getElementById('res-images');
-      const files = fileInput ? Array.from(fileInput.files) : [];
-
       try {
-        await ResourceAPI.create(resourceDto, files);
-        showToast('Resource attached to space!', 'success');
+        await ResourceAPI.create(payload, resourceImageFiles);
+        showToast('Resource hardware attached!', 'success');
         document.getElementById('create-resource-form').reset();
+        resourceImageFiles = [];
+        renderResourceImagePreviews();
         toggleSection('create-resource-accordion');
         await loadSpaceResources(selectedSpace.id);
       } catch (err) {
@@ -1299,7 +2368,6 @@
     });
 
     async function deleteResource(id) {
-      if (!confirm('Delete this resource?')) return;
       try {
         await ResourceAPI.delete(id);
         showToast('Resource removed.', 'success');
@@ -1313,20 +2381,24 @@
     document.getElementById('create-avail-rule-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!selectedSpace) return;
+      if (!checkIsProvider() && !checkIsAdmin()) {
+        showToast('Provider role required to configure schedules.', 'error');
+        return;
+      }
 
       const ruleDto = {
         spaceId: selectedSpace.id,
-        dayOfWeek: document.getElementById('av-day').value,
-        openingTime: document.getElementById('av-open').value + ':00',
-        closingTime: document.getElementById('av-close').value + ':00',
+        dayOfWeek: document.getElementById('ar-day').value,
+        openingTime: document.getElementById('ar-open-time').value,
+        closingTime: document.getElementById('ar-close-time').value,
         open: true,
-        slotDurationInMinutes: parseInt(document.getElementById('av-duration').value, 10)
+        slotDurationInMinutes: parseInt(document.getElementById('ar-duration').value, 10)
       };
 
       try {
         await AvailabilityAPI.createRule(ruleDto);
-        showToast('Operating rule established!', 'success');
-        toggleSection('add-avail-rule-box');
+        showToast('Weekly schedule rule saved!', 'success');
+        toggleSection('add-rule-box');
         await loadSpaceAvailability(selectedSpace.id);
       } catch (err) {
         showToast(err.message, 'error');
@@ -1336,17 +2408,21 @@
     async function deleteAvailRule(id) {
       try {
         await AvailabilityAPI.deleteRule(id);
-        showToast('Operating rule deleted.', 'success');
+        showToast('Schedule rule removed.', 'success');
         await loadSpaceAvailability(selectedSpace.id);
       } catch (err) {
         showToast(err.message, 'error');
       }
     }
 
-    // 6. Create Blackout
+    // 6. Create Blackout Window
     document.getElementById('create-blackout-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!selectedSpace) return;
+      if (!checkIsProvider() && !checkIsAdmin()) {
+        showToast('Provider role required to configure blackouts.', 'error');
+        return;
+      }
 
       const blackoutDto = {
         spaceId: selectedSpace.id,
@@ -1379,6 +2455,10 @@
     document.getElementById('create-pricing-rule-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!selectedSpace) return;
+      if (!checkIsProvider() && !checkIsAdmin()) {
+        showToast('Provider role required to configure pricing rules.', 'error');
+        return;
+      }
 
       const ruleDto = {
         spaceId: selectedSpace.id,
@@ -1411,15 +2491,23 @@
       }
     }
 
-    // 8. Update Profile
+    // 8. Update Profile with Address & MobileNo
     document.getElementById('profile-update-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const payload = {
+        fullName: document.getElementById('prof-full-name').value.trim(),
+        mobileNo: document.getElementById('prof-phone-num').value.trim(),
+        address: {
+          address: document.getElementById('prof-address-line').value.trim(),
+          city: document.getElementById('prof-city').value.trim(),
+          state: document.getElementById('prof-state').value.trim(),
+          postcode: parseInt(document.getElementById('prof-postcode').value, 10) || 0
+        }
+      };
+
       try {
-        await AuthAPI.updateProfile({
-          fullName: document.getElementById('prof-full-name').value.trim(),
-          phone: document.getElementById('prof-phone-num').value.trim()
-        });
-        showToast('Profile updated!', 'success');
+        await AuthAPI.updateProfile(payload);
+        await loadUserProfile(); showToast('Profile & Address saved successfully!', 'success');
         toggleSection('profile-editor-panel');
       } catch (err) {
         showToast(err.message, 'error');
