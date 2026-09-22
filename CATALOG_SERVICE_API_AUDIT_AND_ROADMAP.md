@@ -121,7 +121,7 @@ To reach enterprise production status, the following endpoints and data contract
 
 ### 4.1 Missing Endpoints in Catalog Service
 
-1. **Provider-Scoped Venues Endpoint (`GET /api/v1/venues/my-venues`)**:
+1. **Provider-Scoped Venues Endpoint (`GET /api/v1/venues/my-venues`)** [ACTIVE & INTEGRATED]:
    - *Current State:* `GET /api/v1/venues` returns all venues from all providers across the database.
    - *Requirement:* Providers need an endpoint filtered by `SecurityContext` / `UserContext.getUserId()` returning only venues registered by the authenticated provider.
    - *Proposed Signature:* `GET /api/v1/venues/provider` -> returns `CommonApiResponse<List<VenueResponseDTO>>` where `providerId == currentUserId`.

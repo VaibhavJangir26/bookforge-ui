@@ -10,7 +10,7 @@ const CONFIG = window.BOOKFORGE_CONFIG || {
   ENDPOINTS: {
     AUTH: { LOGIN: '/auth/login', SIGNUP: '/auth/signup', VERIFY: '/auth/verify', REFRESH: '/auth/refresh', LOGOUT: '/auth/logout', PROFILE_ME: '/profile/me' },
     CATEGORY: { GET_ALL: '/category', CREATE: '/category', UPDATE: '/category', DELETE: (id) => `/category/${id}` },
-    VENUE: { GET_ALL: '/venues', GET_DETAILS: (id) => `/venues/${id}`, CREATE: '/venues', UPDATE_DETAILS: (id) => `/venues/${id}/details`, UPDATE_STATUS: (id) => `/venues/${id}/status`, DELETE: (id) => `/venues/${id}` },
+    VENUE: { GET_ALL: '/venues', GET_MY_VENUES: '/venues/my-venues', GET_DETAILS: (id) => `/venues/${id}`, CREATE: '/venues', UPDATE_DETAILS: (id) => `/venues/${id}/details`, UPDATE_STATUS: (id) => `/venues/${id}/status`, DELETE: (id) => `/venues/${id}` },
     SPACE: { GET_ALL: '/spaces', GET_BY_VENUE: (id) => `/spaces/venue/${id}`, GET_DETAILS: (id) => `/spaces/${id}`, CREATE: '/spaces', UPDATE: (id) => `/spaces/${id}`, DELETE: (id) => `/spaces/${id}` },
     RESOURCE: { GET_ALL: '/resources', GET_BY_SPACE: (id) => `/resources/space/${id}`, GET_DETAILS: (id) => `/resources/${id}`, CREATE: '/resources', UPDATE: (id) => `/resources/${id}`, DELETE: (id) => `/resources/${id}` },
     AVAILABILITY: { RULES_BY_SPACE: (id) => `/availability/rules/space/${id}`, RULES: '/availability/rules', DELETE_RULE: (id) => `/availability/rules/${id}`, BLACKOUTS_BY_SPACE: (id) => `/availability/blackouts/space/${id}`, BLACKOUTS: '/availability/blackouts', DELETE_BLACKOUT: (id) => `/availability/blackouts/${id}`, SLOTS: (id) => `/availability/slots/space/${id}` },
@@ -204,6 +204,13 @@ const AuthAPI = {
 // CATEGORY MODULE (Admin Only for Write)
 // -------------------------------------------------------------
 const CategoryAPI = {
+  async getMyVenues() {
+    return await apiRequest(CONFIG.ENDPOINTS.VENUE.GET_MY_VENUES || '/venues/my-venues', {
+      method: 'GET',
+      loaderText: 'FETCHING MY VENUES...'
+    });
+  },
+
   async getAll() {
     return await apiRequest(CONFIG.ENDPOINTS.CATEGORY.GET_ALL, {
       method: 'GET',
@@ -239,6 +246,13 @@ const CategoryAPI = {
 // VENUE MODULE (Provider Only for Create/Edit)
 // -------------------------------------------------------------
 const VenueAPI = {
+  async getMyVenues() {
+    return await apiRequest(CONFIG.ENDPOINTS.VENUE.GET_MY_VENUES || '/venues/my-venues', {
+      method: 'GET',
+      loaderText: 'FETCHING MY VENUES...'
+    });
+  },
+
   async getAll() {
     return await apiRequest(CONFIG.ENDPOINTS.VENUE.GET_ALL, {
       method: 'GET',
@@ -302,6 +316,13 @@ const VenueAPI = {
 // SPACE MODULE (Provider Only)
 // -------------------------------------------------------------
 const SpaceAPI = {
+  async getMyVenues() {
+    return await apiRequest(CONFIG.ENDPOINTS.VENUE.GET_MY_VENUES || '/venues/my-venues', {
+      method: 'GET',
+      loaderText: 'FETCHING MY VENUES...'
+    });
+  },
+
   async getAll() {
     return await apiRequest(CONFIG.ENDPOINTS.SPACE.GET_ALL, {
       method: 'GET',
@@ -371,6 +392,13 @@ const SpaceAPI = {
 // RESOURCE MODULE (Provider Only)
 // -------------------------------------------------------------
 const ResourceAPI = {
+  async getMyVenues() {
+    return await apiRequest(CONFIG.ENDPOINTS.VENUE.GET_MY_VENUES || '/venues/my-venues', {
+      method: 'GET',
+      loaderText: 'FETCHING MY VENUES...'
+    });
+  },
+
   async getAll() {
     return await apiRequest(CONFIG.ENDPOINTS.RESOURCE.GET_ALL, {
       method: 'GET',

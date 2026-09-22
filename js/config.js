@@ -16,10 +16,10 @@ window.BOOKFORGE_CONFIG = {
 
   // Base API URLs
   API_BASE_URL: 'http://localhost:8900/api/v1',
-  AUTH_SERVICE_URL: 'http://localhost:8500/api/v1',
-  CATALOG_SERVICE_URL: 'http://localhost:8600/api/v1',
-  BOOKING_SERVICE_URL: 'http://localhost:8700/api/v1',
-  PAYMENT_SERVICE_URL: 'http://localhost:8800/api/v1',
+  AUTH_SERVICE_URL: 'http://localhost:8900/api/v1',
+  CATALOG_SERVICE_URL: 'http://localhost:8900/api/v1',
+  BOOKING_SERVICE_URL: 'http://localhost:8900/api/v1',
+  PAYMENT_SERVICE_URL: 'http://localhost:8900/api/v1',
 
   // Endpoints synchronized with backend microservice controllers
   ENDPOINTS: {
@@ -42,6 +42,7 @@ window.BOOKFORGE_CONFIG = {
     VENUE: {
       BASE: '/venues',
       GET_ALL: '/venues',
+      GET_MY_VENUES: '/venues/my-venues',
       GET_DETAILS: (id) => `/venues/${id}`,
       CREATE: '/venues',
       UPDATE_DETAILS: (id) => `/venues/${id}/details`,

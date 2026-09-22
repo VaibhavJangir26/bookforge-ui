@@ -1069,8 +1069,8 @@
       if (isCustomer) {
         document.getElementById('customer-provider-notice').classList.remove('d-none');
         document.getElementById('btn-request-provider').classList.remove('d-none');
-        document.getElementById('venues-section-title').textContent = 'STEP 1: SELECT A VERIFIED VENUE';
-        document.getElementById('venues-section-desc').textContent = 'Choose an approved venue to explore its spaces, booking slots, and equipment';
+        document.getElementById('venues-section-title').textContent = isCustomer ? 'STEP 1: SELECT A VERIFIED VENUE' : (isProvider ? 'STEP 1: MY REGISTERED VENUES' : 'STEP 1: ALL PLATFORM VENUES (ADMIN)');
+        document.getElementById('venues-section-desc').textContent = isCustomer ? 'Choose an approved venue to explore its spaces, booking slots, and equipment' : (isProvider ? 'Manage your owned venues, deploy sub-spaces, equipment inventory, and pricing rules' : 'Audit and approve or reject provider venue submissions across the network');
       } else {
         document.getElementById('customer-provider-notice').classList.add('d-none');
         document.getElementById('btn-request-provider').classList.add('d-none');
@@ -1173,7 +1173,13 @@
     // 2. VENUES MANAGEMENT
     async function loadVenues() {
       try {
-        const res = await VenueAPI.getAll();
+        const isProvider = checkIsProvider();
+        let res;
+        if (isProvider) {
+          res = await VenueAPI.getMyVenues();
+        } else {
+          res = await VenueAPI.getAll();
+        }
         globalVenues = Array.isArray(res) ? res : (res && res.data ? res.data : []);
         renderVenuesGrid(globalVenues);
       } catch (err) {
