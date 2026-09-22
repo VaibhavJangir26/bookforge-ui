@@ -8,13 +8,13 @@ const CONFIG = window.BOOKFORGE_CONFIG || {
   AUTH_SERVICE_URL: 'http://localhost:8500/api/v1',
   CATALOG_SERVICE_URL: 'http://localhost:8600/api/v1',
   ENDPOINTS: {
-    AUTH: { LOGIN: '/auth/login', SIGNUP: '/auth/signup', VERIFY: '/auth/verify', REFRESH: '/auth/refresh', LOGOUT: '/auth/logout', PROFILE_ME: '/profile/me' },
+    AUTH: { LOGIN: '/auth/login', SIGNUP: '/auth/signup', VERIFY: '/auth/verify', REFRESH: '/auth/refresh', LOGOUT: '/auth/logout', PROFILE_ME: '/profile/me', APPLY_PROVIDER: '/profile/apply-provider' },
     CATEGORY: { GET_ALL: '/category', CREATE: '/category', UPDATE: '/category', DELETE: (id) => `/category/${id}` },
     VENUE: { GET_ALL: '/venues', GET_MY_VENUES: '/venues/my-venues', GET_DETAILS: (id) => `/venues/${id}`, CREATE: '/venues', UPDATE_DETAILS: (id) => `/venues/${id}/details`, UPDATE_STATUS: (id) => `/venues/${id}/status`, DELETE: (id) => `/venues/${id}` },
     SPACE: { GET_ALL: '/spaces', GET_BY_VENUE: (id) => `/spaces/venue/${id}`, GET_DETAILS: (id) => `/spaces/${id}`, CREATE: '/spaces', UPDATE: (id) => `/spaces/${id}`, DELETE: (id) => `/spaces/${id}` },
     RESOURCE: { GET_ALL: '/resources', GET_BY_SPACE: (id) => `/resources/space/${id}`, GET_DETAILS: (id) => `/resources/${id}`, CREATE: '/resources', UPDATE: (id) => `/resources/${id}`, DELETE: (id) => `/resources/${id}` },
     AVAILABILITY: { RULES_BY_SPACE: (id) => `/availability/rules/space/${id}`, RULES: '/availability/rules', DELETE_RULE: (id) => `/availability/rules/${id}`, BLACKOUTS_BY_SPACE: (id) => `/availability/blackouts/space/${id}`, BLACKOUTS: '/availability/blackouts', DELETE_BLACKOUT: (id) => `/availability/blackouts/${id}`, SLOTS: (id) => `/availability/slots/space/${id}` },
-    PRICING: { RULES_BY_SPACE: (id) => `/pricing/rules/space/${id}`, RULES: '/pricing/rules', DELETE_RULE: (id) => `/pricing/rules/${id}`, CALCULATE: '/pricing/calculate' }
+    ADMIN_PROVIDERS: { PENDING: '/admin/providers/pending', REVIEW: (id) => `/admin/providers/${id}/status` }, PRICING: { RULES_BY_SPACE: (id) => `/pricing/rules/space/${id}`, RULES: '/pricing/rules', DELETE_RULE: (id) => `/pricing/rules/${id}`, CALCULATE: '/pricing/calculate' }
   }
 };
 
@@ -99,6 +99,14 @@ async function apiRequest(endpoint, options = {}) {
     if (!res.ok) {
       const errMsg = (responseData && (responseData.message || responseData.error)) || 
                      (typeof responseData === 'string' ? responseData : `Error ${res.status}: ${res.statusText}`);
+                     
+      // Global Stale JWT Handler (Only for 401 Unauthorized on non-auth endpoints)
+      const isAuthEndpoint = endpoint.includes('/auth/login') || endpoint.includes('/auth/signup') || endpoint.includes('/auth/verify');
+      if (res.status === 401 && !isAuthEndpoint) {
+        console.warn('Authentication token expired or invalid. Forcing logout.');
+        AuthAPI.logout();
+      }
+      
       throw new Error(errMsg);
     }
 
@@ -193,10 +201,20 @@ const AuthAPI = {
     });
   },
 
+  async applyProvider(dto) {
+    return await apiRequest(CONFIG.ENDPOINTS.AUTH.APPLY_PROVIDER, {
+      method: 'POST',
+      body: JSON.stringify(dto),
+      loaderText: 'SUBMITTING HOST APPLICATION...'
+    });
+  },
+
   logout() {
     localStorage.removeItem('bookforge_token');
     localStorage.removeItem('bookforge_user');
-    window.location.href = 'login.html';
+    localStorage.removeItem('signupIntent');
+    localStorage.removeItem('pending_verify_email');
+    window.location.replace('login.html');
   }
 };
 
@@ -564,6 +582,28 @@ const PricingAPI = {
       body: JSON.stringify({ spaceId, slotStartTime, slotEndTime, resourceIds }),
       loaderText: 'CALCULATING TOTAL QUOTE...'
     });
+  }
+};
+
+const AdminAPI = {
+  async getPendingProviders() {
+    return await apiRequest(CONFIG.ENDPOINTS.ADMIN_PROVIDERS.PENDING || '/admin/providers/pending', {
+      method: 'GET',
+      loaderText: 'FETCHING PENDING APPLICATIONS...'
+    });
+  },
+
+  async reviewProvider(userId, status, rejectionReason = '') {
+    return await apiRequest(CONFIG.ENDPOINTS.ADMIN_PROVIDERS.REVIEW(userId),
+      {
+        method: 'PATCH',
+        body: JSON.stringify({
+          status,
+          rejectionReason: rejectionReason || null
+        }),
+        loaderText: `${status === 'APPROVED' ? 'APPROVING' : 'REJECTING'} HOST APPLICATION...`
+      }
+    );
   }
 };
 

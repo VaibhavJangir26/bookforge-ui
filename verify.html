@@ -77,14 +77,24 @@
       const otp = document.getElementById('verify-otp').value.trim();
 
       try {
-        const res = await AuthAPI.verify({ email, otp });
-        showToast('OTP verified successfully! Access granted.', 'success');
+        await AuthAPI.verify({ email, otp });
+        showToast('OTP verified successfully! Account activated.', 'success');
         
         localStorage.removeItem('pending_verify_email');
+        const intent = localStorage.getItem('signupIntent');
+        localStorage.removeItem('signupIntent');
 
-        setTimeout(() => {
-          window.location.href = 'dashboard.html';
-        }, 500);
+        if (intent === 'provider') {
+          showToast('Navigating to Provider Verification Form...', 'info');
+          setTimeout(() => {
+            window.location.replace('become-provider.html');
+          }, 400);
+        } else {
+          showToast('Navigating to your member console...', 'info');
+          setTimeout(() => {
+            window.location.replace('dashboard.html');
+          }, 400);
+        }
       } catch (err) {
         showToast(err.message || 'Verification failed. Please check OTP.', 'error');
       }

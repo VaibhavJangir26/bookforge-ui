@@ -88,6 +88,17 @@
   <script src="js/api.js"></script>
   <script src="js/main.js"></script>
   <script>
+    function redirectIfAuthenticated() {
+      const token = localStorage.getItem('bookforge_token');
+      const user = getCurrentUser();
+      if (token && user) {
+        window.location.replace('dashboard.html');
+      }
+    }
+
+    redirectIfAuthenticated();
+    window.addEventListener('pageshow', redirectIfAuthenticated);
+
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const username = document.getElementById('login-username').value.trim();
@@ -97,8 +108,8 @@
         await AuthAPI.login({ username, password });
         showToast('Authentication approved! Navigating to console...', 'success');
         setTimeout(() => {
-          window.location.href = 'dashboard.html';
-        }, 500);
+          window.location.replace('dashboard.html');
+        }, 300);
       } catch (err) {
         showToast(err.message || 'Invalid username or password', 'error');
       }

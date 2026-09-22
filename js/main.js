@@ -2,6 +2,10 @@
  * Global UI Helper & State Management (Vintage Retro Edition)
  */
 
+function setSignupIntent(intent) {
+  localStorage.setItem('signupIntent', intent);
+}
+
 function getCurrentUser() {
   try {
     const raw = localStorage.getItem('bookforge_user');
@@ -23,13 +27,17 @@ function updateNavigation() {
   }
 
   if (token && user) {
-    const roleBadge = (user.roles && user.roles.includes('ROLE_ADMIN')) || user.role === 'ROLE_ADMIN'
-      ? '<span class="badge badge-rust">ADMIN</span>' 
-      : (((user.roles && user.roles.includes('ROLE_PROVIDER')) || user.role === 'ROLE_PROVIDER') ? '<span class="badge badge-approved">PROVIDER</span>' : '<span class="badge">CUSTOMER</span>');
+    let roleText = 'CUSTOMER';
+    if ((user.roles && user.roles.includes('ROLE_ADMIN')) || user.role === 'ROLE_ADMIN') {
+      roleText = 'ADMIN';
+    } else if ((user.roles && user.roles.includes('ROLE_PROVIDER')) || user.role === 'ROLE_PROVIDER') {
+      roleText = 'PROVIDER';
+    }
+    const roleBadge = '<span class="badge-on-btn">' + roleText + '</span>';
 
     navLinks.innerHTML = `
       <a href="index.html" class="nav-link-item">Home</a>
-      <a href="dashboard.html" class="btn btn-sm btn-rust btn-pill">Console ${roleBadge}</a>
+      <a href="dashboard.html" class="btn btn-sm btn-rust btn-pill" style="display:inline-flex; align-items:center; gap:0.4rem;">Console ${roleBadge}</a>
       <button onclick="AuthAPI.logout()" class="btn btn-sm btn-outline btn-pill">Sign Out</button>
     `;
   } else {
@@ -60,7 +68,7 @@ async function quickLoginAs(roleKey) {
     showLoader(`AUTHENTICATING SEED ACCOUNT (${seed.username})...`);
     await AuthAPI.login({ username: seed.username, password: seed.password });
     showToast(`Authenticated as ${seed.username}! Redirecting...`, 'success');
-    setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
+    setTimeout(() => { window.location.replace('dashboard.html'); }, 300);
   } catch (err) {
     showToast(`Seed login failed: ${err.message}`, 'error');
   } finally {

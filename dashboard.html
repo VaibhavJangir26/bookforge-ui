@@ -207,6 +207,14 @@
       height: 100%;
       object-fit: cover;
     }
+
+    @media (max-width: 768px) {
+      .slot-pill-btn {
+        padding: 0.45rem 0.75rem;
+        font-size: 0.8rem;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -240,27 +248,71 @@
           <p class="mono" style="font-size: 0.85rem; color: var(--text-muted);" id="user-display-email">authenticating session...</p>
         </div>
         <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
-          <button id="btn-request-provider" onclick="requestProviderVerification()" class="btn btn-sm btn-rust btn-pill d-none">Request Provider Status ★</button>
+          <a href="become-provider.html" id="btn-request-provider" class="btn btn-sm btn-rust btn-pill d-none">★ Become a Space Provider (Free)</a>
           <button onclick="toggleSection('profile-editor-panel')" class="btn btn-outline btn-sm btn-pill">Edit Profile & Address ✎</button>
           <button onclick="AuthAPI.logout()" class="btn btn-sm btn-rust btn-pill">Disconnect</button>
         </div>
       </div>
 
-      <!-- Customer-to-Provider Verification Application Box (Shown ONLY for Customers) -->
-      <div id="customer-provider-notice" class="d-none mt-3" style="background: var(--bg-warm); padding: 1.25rem 1.5rem; border-radius: var(--radius-xs); border: 1px solid var(--border-medium);">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-          <div>
-            <span class="badge badge-featured">HOST APPLICATION PIPELINE</span>
-            <h4 style="font-family: var(--font-serif); margin-top: 0.25rem;">Want to monetize your spaces on BookForge?</h4>
-            <p style="font-size: 0.86rem; color: var(--text-muted); margin-top: 0.2rem;">
-              You are currently browsing as a Customer. To register venues, list spaces, and attach equipment, submit a host verification application for admin approval.
-            </p>
+      <!-- Customer-to-Provider Verification & Host Pipeline Container -->
+      <div id="customer-provider-container" class="d-none mt-3">
+        <!-- State A: Not Applied (NONE) -->
+        <div id="provider-invite-card" class="card" style="background: #FFFDF9; border: 2px dashed var(--accent-rust); padding: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.25rem;">
+            <div>
+              <span class="badge badge-featured">🎉 100% FREE HOST REGISTRATION • ZERO ONBOARDING CHARGES</span>
+              <h3 style="font-family: var(--font-serif); margin-top: 0.45rem; font-size: 1.25rem;">Monetize Your Studio, Rehearsal Space, or Creative Venue</h3>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.35rem; max-width: 680px; line-height: 1.5;">
+                Register on BookForge as an accredited Space Provider. Set hourly base prices, provision dynamic pricing surge multipliers, and monetize audio/camera equipment kits.
+              </p>
+            </div>
+            <a href="become-provider.html" class="btn btn-rust btn-pill" style="font-size: 0.95rem; padding: 0.6rem 1.6rem;">
+              Apply to Become a Host (Free) ➔
+            </a>
           </div>
-          <button onclick="requestProviderVerification()" class="btn btn-sm btn-rust btn-pill">Submit Host Request ➔</button>
+        </div>
+
+        <!-- State B: Application Pending (PENDING) -->
+        <div id="provider-pending-card" class="card d-none" style="background: #FFFDF5; border-left: 4px solid #F57F17; padding: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.25rem;">
+            <div style="display: flex; gap: 1rem; align-items: flex-start;">
+              <div style="font-size: 1.8rem; line-height: 1;">⏳</div>
+              <div>
+                <span class="badge" style="background: #FFF0D4; color: #9E6B08; border-color: #E5A93C;">PENDING ADMINISTRATOR AUDIT</span>
+                <h3 style="font-family: var(--font-serif); margin-top: 0.35rem; font-size: 1.25rem;">Host Verification in Progress</h3>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.25rem;">
+                  Your provider registration for <strong id="disp-app-biz-name" style="color:var(--text-main);">Your Business</strong> (Tax/GST: <code id="disp-app-gst" style="color:var(--accent-rust); font-weight:700;">Pending</code>) is currently being audited.
+                </p>
+                <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 0.35rem;">
+                  ℹ️ <em>Once confirmed by the system administrator, your console will automatically unlock full venue and inventory tools.</em>
+                </p>
+              </div>
+            </div>
+            <a href="become-provider.html" class="btn btn-outline btn-pill">
+              View Application Status ⏳
+            </a>
+          </div>
+        </div>
+
+        <!-- State C: Application Rejected (REJECTED) -->
+        <div id="provider-rejected-card" class="card d-none" style="background: #FFF7F5; border-left: 4px solid #D64527; padding: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.25rem;">
+            <div>
+              <span class="badge badge-rejected">APPLICATION NEEDS REVISION</span>
+              <h3 style="font-family: var(--font-serif); margin-top: 0.35rem; font-size: 1.25rem;">Host Application Requires Additional Details</h3>
+              <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Your previous host verification requires correction of business or tax identification credentials.
+              </p>
+            </div>
+            <a href="become-provider.html" class="btn btn-rust btn-pill">
+              Update Details & Re-apply ➔
+            </a>
+          </div>
         </div>
       </div>
 
       <!-- Collapsible Profile & Address Edit Form -->
+
       <div id="profile-editor-panel" class="d-none mt-3" style="border-top: var(--border-light); padding-top: 1.25rem;">
         <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">OPERATOR PROFILE & REGISTERED ADDRESS</h4>
         <form id="profile-update-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; align-items: flex-end;">
@@ -800,7 +852,29 @@
 
       </div>
 
+    
+
+    <!-- VIEW 3: PROVIDER APPLICATION APPROVALS (ADMIN ONLY) -->
+    <div id="provider-approvals-view" class="d-none">
+      <div class="card mb-3">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <span class="badge badge-featured">ADMIN VERIFICATION PIPELINE</span>
+            <h2 style="font-family: var(--font-serif); margin-top:0.35rem;">PENDING HOST & PROVIDER APPLICATIONS</h2>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.2rem;">
+              Audit studio business credentials, verify Tax/GST identification numbers, and grant provider dashboard permissions.
+            </p>
+          </div>
+          <button onclick="loadPendingProviderApplications()" class="btn btn-outline btn-sm btn-pill">Refresh Pipeline ↺</button>
+        </div>
+      </div>
+
+      <div id="pending-providers-list-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.25rem;">
+        <!-- Populated via JS -->
+      </div>
     </div>
+
+</div>
 
     <!-- VIEW 2: CATEGORIES TAXONOMY (ADMIN ONLY) -->
     <div id="categories-view" class="d-none">
@@ -1016,22 +1090,34 @@
     function switchView(viewId, btn) {
       document.getElementById('venues-spaces-view').classList.add('d-none');
       document.getElementById('categories-view').classList.add('d-none');
-      document.getElementById(viewId).classList.remove('d-none');
+      const provView = document.getElementById('provider-approvals-view');
+      if (provView) provView.classList.add('d-none');
+
+      const target = document.getElementById(viewId);
+      if (target) target.classList.remove('d-none');
 
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
     }
 
-    // Initialization
-    document.addEventListener('DOMContentLoaded', async () => {
-      currentUser = getCurrentUser();
+    function checkDashboardAuth() {
       const token = localStorage.getItem('bookforge_token');
-
-      if (!token || !currentUser) {
-        showToast('Please authenticate to enter the console', 'error');
-        setTimeout(() => { window.location.href = 'login.html'; }, 700);
-        return;
+      const user = getCurrentUser();
+      if (!token || !user) {
+        window.location.replace('login.html');
+        return false;
       }
+      return true;
+    }
+
+    window.addEventListener('pageshow', () => {
+      checkDashboardAuth();
+    });
+
+    // Robust Dashboard Initialization (Fires reliably on fresh load, navigation, or cached page restoration)
+    async function initDashboard() {
+      if (!checkDashboardAuth()) return;
+      currentUser = getCurrentUser();
 
       const isAdmin = checkIsAdmin();
       const isProvider = checkIsProvider();
@@ -1052,47 +1138,67 @@
         roleDesc = 'Manage venue assets, configure sub-spaces, equipment inventory, weekly operating hours, and dynamic pricing rules.';
       }
 
-      document.getElementById('user-role-badge').textContent = roleStr;
-      document.getElementById('user-display-name').textContent = roleTitle;
-      document.getElementById('user-display-email').textContent = `${roleDesc} | Session: ACTIVE JWT`;
-
-      loadUserProfile();
+      const roleBadgeEl = document.getElementById('user-role-badge');
+      if (roleBadgeEl) roleBadgeEl.textContent = roleStr;
+      
+      const displayNameEl = document.getElementById('user-display-name');
+      if (displayNameEl) displayNameEl.textContent = roleTitle;
+      
+      const displayEmailEl = document.getElementById('user-display-email');
+      if (displayEmailEl) displayEmailEl.textContent = `${roleDesc} | Session: ACTIVE JWT`;
 
       // Role-Based UI Elements
       const catTab = document.getElementById('tab-categories');
+      const provTab = document.getElementById('tab-provider-approvals');
       if (isAdmin) {
-        catTab.classList.remove('d-none');
+        if (catTab) catTab.classList.remove('d-none');
+        if (provTab) provTab.classList.remove('d-none');
+        loadPendingProviderApplications();
       } else {
-        catTab.classList.add('d-none');
+        if (catTab) catTab.classList.add('d-none');
+        if (provTab) provTab.classList.add('d-none');
       }
 
+      const btnBecomeProv = document.getElementById('btn-request-provider');
+      const custProvNotice = document.getElementById('customer-provider-notice');
       if (isCustomer) {
-        document.getElementById('customer-provider-notice').classList.remove('d-none');
-        document.getElementById('btn-request-provider').classList.remove('d-none');
-        document.getElementById('venues-section-title').textContent = isCustomer ? 'STEP 1: SELECT A VERIFIED VENUE' : (isProvider ? 'STEP 1: MY REGISTERED VENUES' : 'STEP 1: ALL PLATFORM VENUES (ADMIN)');
-        document.getElementById('venues-section-desc').textContent = isCustomer ? 'Choose an approved venue to explore its spaces, booking slots, and equipment' : (isProvider ? 'Manage your owned venues, deploy sub-spaces, equipment inventory, and pricing rules' : 'Audit and approve or reject provider venue submissions across the network');
+        if (custProvNotice) custProvNotice.classList.remove('d-none');
+        if (btnBecomeProv) btnBecomeProv.classList.remove('d-none');
+        document.getElementById('venues-section-title').textContent = 'STEP 1: SELECT A VERIFIED VENUE';
+        document.getElementById('venues-section-desc').textContent = 'Choose an approved venue to explore its spaces, booking slots, and equipment';
       } else {
-        document.getElementById('customer-provider-notice').classList.add('d-none');
-        document.getElementById('btn-request-provider').classList.add('d-none');
+        if (custProvNotice) custProvNotice.classList.add('d-none');
+        if (btnBecomeProv) btnBecomeProv.classList.add('d-none');
+        document.getElementById('venues-section-title').textContent = isProvider ? 'STEP 1: MY REGISTERED VENUES' : 'STEP 1: ALL PLATFORM VENUES (ADMIN)';
+        document.getElementById('venues-section-desc').textContent = isProvider ? 'Manage your owned venues, deploy sub-spaces, equipment inventory, and pricing rules' : 'Audit and approve or reject provider venue submissions across the network';
       }
 
       const btnRegVenue = document.getElementById('btn-toggle-create-venue');
-      if (isProvider || isAdmin) {
-        btnRegVenue.classList.remove('d-none');
-      } else {
-        btnRegVenue.classList.add('d-none');
+      if (btnRegVenue) {
+        if (isProvider || isAdmin) btnRegVenue.classList.remove('d-none');
+        else btnRegVenue.classList.add('d-none');
       }
 
       const btnAddSpace = document.getElementById('btn-add-space');
-      if (isProvider || isAdmin) {
-        btnAddSpace.classList.remove('d-none');
-      } else {
-        btnAddSpace.classList.add('d-none');
+      if (btnAddSpace) {
+        if (isProvider || isAdmin) btnAddSpace.classList.remove('d-none');
+        else btnAddSpace.classList.add('d-none');
       }
 
-      // Load initial datasets
-      await Promise.all([loadCategories(), loadVenues()]);
-    });
+      // Automatically fetch datasets in parallel on load
+      await Promise.allSettled([
+        loadUserProfile(),
+        loadCategories(),
+        loadVenues()
+      ]);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initDashboard);
+    } else {
+      initDashboard();
+    }
+
 
     async function loadUserProfile() {
       try {
@@ -1100,12 +1206,76 @@
         const p = (res && res.data !== undefined) ? res.data : res;
         if (p) {
           if (p.fullName) document.getElementById('prof-full-name').value = p.fullName;
-          if (p.mobileNo) document.getElementById('prof-phone-num').value = p.mobileNo;
+          if (p.mobileNo) {
+            document.getElementById('prof-phone-num').value = p.mobileNo;
+            const appMobile = document.getElementById('app-mobile');
+            if (appMobile && !appMobile.value) appMobile.value = p.mobileNo;
+          }
           if (p.address) {
-            if (p.address.address) document.getElementById('prof-address-line').value = p.address.address;
-            if (p.address.city) document.getElementById('prof-city').value = p.address.city;
-            if (p.address.state) document.getElementById('prof-state').value = p.address.state;
-            if (p.address.postcode) document.getElementById('prof-postcode').value = p.address.postcode;
+            if (p.address.address) {
+              document.getElementById('prof-address-line').value = p.address.address;
+              const appAddr = document.getElementById('app-addr-street');
+              if (appAddr && !appAddr.value) appAddr.value = p.address.address;
+            }
+            if (p.address.city) {
+              document.getElementById('prof-city').value = p.address.city;
+              const appCity = document.getElementById('app-addr-city');
+              if (appCity && !appCity.value) appCity.value = p.address.city;
+            }
+            if (p.address.state) {
+              document.getElementById('prof-state').value = p.address.state;
+              const appState = document.getElementById('app-addr-state');
+              if (appState && !appState.value) appState.value = p.address.state;
+            }
+            if (p.address.postcode) {
+              document.getElementById('prof-postcode').value = p.address.postcode;
+              const appPost = document.getElementById('app-addr-postcode');
+              if (appPost && !appPost.value) appPost.value = p.address.postcode;
+            }
+          }
+
+          if (p.businessName) {
+            const bizEl = document.getElementById('app-business-name');
+            if (bizEl) bizEl.value = p.businessName;
+          }
+          if (p.taxOrGstNumber) {
+            const gstEl = document.getElementById('app-tax-gst');
+            if (gstEl) gstEl.value = p.taxOrGstNumber;
+          }
+
+          // Handle Host Pipeline States for Customer
+          const isCustomer = checkIsCustomer();
+          const hostContainer = document.getElementById('customer-provider-container');
+          const inviteCard = document.getElementById('provider-invite-card');
+          const pendingCard = document.getElementById('provider-pending-card');
+          const rejectedCard = document.getElementById('provider-rejected-card');
+
+          if (isCustomer && hostContainer) {
+            hostContainer.classList.remove('d-none');
+            const status = p.providerStatus || 'NONE';
+
+            if (status === 'PENDING') {
+              if (inviteCard) inviteCard.classList.add('d-none');
+              if (rejectedCard) rejectedCard.classList.add('d-none');
+              if (pendingCard) {
+                pendingCard.classList.remove('d-none');
+                const bizNameEl = document.getElementById('disp-app-biz-name');
+                if (bizNameEl) bizNameEl.textContent = p.businessName || 'Your Business';
+                const gstTextEl = document.getElementById('disp-app-gst');
+                if (gstTextEl) gstTextEl.textContent = p.taxOrGstNumber || 'Pending Tax ID';
+              }
+            } else if (status === 'REJECTED') {
+              if (inviteCard) inviteCard.classList.add('d-none');
+              if (pendingCard) pendingCard.classList.add('d-none');
+              if (rejectedCard) rejectedCard.classList.remove('d-none');
+            } else if (status === 'APPROVED') {
+              hostContainer.classList.add('d-none');
+            } else {
+              // NONE
+              if (inviteCard) inviteCard.classList.remove('d-none');
+              if (pendingCard) pendingCard.classList.add('d-none');
+              if (rejectedCard) rejectedCard.classList.add('d-none');
+            }
           }
         }
       } catch (e) {
@@ -1114,7 +1284,7 @@
     }
 
     async function refreshAllCatalogData() {
-      await Promise.all([loadCategories(), loadVenues()]);
+      try { await Promise.all([loadCategories(), loadVenues()]); } catch (e) { showToast("Failed to connect to backend", "error"); }
       if (selectedVenue) await selectVenue(selectedVenue.id);
       if (selectedSpace) await selectSpace(selectedSpace.id, selectedSpace.name, selectedSpace.basePrice, selectedSpace.capacity, selectedSpace.description, selectedSpace.imgUrls);
       showToast('Catalog synchronized!', 'success');
@@ -1172,6 +1342,11 @@
 
     // 2. VENUES MANAGEMENT
     async function loadVenues() {
+      const grid = document.getElementById('venues-list-grid');
+      if (grid && (!globalVenues || globalVenues.length === 0)) {
+        grid.innerHTML = '<div class="card text-center" style="grid-column: 1/-1; padding: 2rem;"><p style="font-family:var(--font-serif); font-size:1.1rem;">FETCHING ACTIVE SYSTEM VENUES...</p></div>';
+      }
+
       try {
         const isProvider = checkIsProvider();
         let res;
@@ -1183,13 +1358,19 @@
         globalVenues = Array.isArray(res) ? res : (res && res.data ? res.data : []);
         renderVenuesGrid(globalVenues);
       } catch (err) {
-        document.getElementById('venues-list-grid').innerHTML = `
-          <div class="card text-center" style="grid-column: 1/-1;">
-            <p style="color:var(--accent-rust);">${err.message}</p>
-          </div>
-        `;
+        console.error('loadVenues error:', err);
+        if (grid) {
+          grid.innerHTML = `
+            <div class="card text-center" style="grid-column: 1/-1; padding: 2.5rem 1.5rem;">
+              <p style="color:var(--accent-rust); font-weight:600; font-size:1.1rem; margin-bottom: 0.5rem;">Unable to load catalog venues: ${err.message}</p>
+              <p style="color:var(--text-muted); font-size:0.86rem; margin-bottom: 1.25rem;">The catalog microservice might still be initializing. Click below to retry.</p>
+              <button onclick="loadVenues()" class="btn btn-sm btn-rust btn-pill">Retry Fetching Venues ↺</button>
+            </div>
+          `;
+        }
       }
     }
+
 
     function renderVenuesGrid(venues) {
       const grid = document.getElementById('venues-list-grid');
@@ -2519,6 +2700,115 @@
         showToast(err.message, 'error');
       }
     });
+
+    // 9. Submit Free Provider Application
+    const providerAppForm = document.getElementById('provider-application-form');
+    if (providerAppForm) {
+      providerAppForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          businessName: document.getElementById('app-business-name').value.trim(),
+          taxOrGstNumber: document.getElementById('app-tax-gst').value.trim(),
+          mobileNo: document.getElementById('app-mobile').value.trim(),
+          businessAddress: {
+            address: document.getElementById('app-addr-street').value.trim(),
+            city: document.getElementById('app-addr-city').value.trim(),
+            state: document.getElementById('app-addr-state').value.trim(),
+            postcode: parseInt(document.getElementById('app-addr-postcode').value, 10) || 0
+          }
+        };
+
+        try {
+          await AuthAPI.applyProvider(payload);
+          showToast('🎉 Application submitted! Free registration queued for admin approval.', 'success');
+          toggleSection('provider-application-form-panel');
+          await loadUserProfile();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+
+    // 10. Admin Provider Review Operations
+    async function loadPendingProviderApplications() {
+      if (!checkIsAdmin()) return;
+      try {
+        const res = await AdminAPI.getPendingProviders();
+        const apps = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+        const badge = document.getElementById('pending-providers-badge');
+        if (badge) badge.textContent = apps.length;
+
+        const grid = document.getElementById('pending-providers-list-grid');
+        if (!grid) return;
+
+        if (!apps.length) {
+          grid.innerHTML = `
+            <div class="card text-center" style="grid-column: 1/-1; padding: 2.5rem; background: #FFFFFF;">
+              <span style="font-size:2rem;">🎉</span>
+              <h3 class="mt-2" style="font-family:var(--font-serif);">ALL APPLICATIONS AUDITED</h3>
+              <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.4rem;">
+                No host applications are currently pending verification.
+              </p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = apps.map(app => {
+          const addr = app.address ? `${app.address.address || ''}, ${app.address.city || ''}, ${app.address.state || ''} ${app.address.postcode || ''}` : 'No address specified';
+          return `
+            <div class="card" style="background:#FFFFFF; border-top: 3px solid var(--accent-rust); display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                  <span class="badge badge-featured">PENDING AUDIT</span>
+                  <span class="mono" style="font-size:0.75rem; color:var(--text-muted);">USER ID: ${app.userId ? app.userId.substring(0,8) : ''}...</span>
+                </div>
+                <h3 style="font-family:var(--font-serif);">${app.businessName || 'Unnamed Studio'}</h3>
+                <div style="margin: 0.5rem 0; padding: 0.5rem 0.75rem; background: var(--bg-warm); border-radius: var(--radius-xs); border: 1px solid var(--border-light);">
+                  <div style="font-size:0.78rem; color:var(--text-muted); font-weight:700;">TAX / GST IDENTIFICATION</div>
+                  <div class="mono" style="font-size:0.95rem; font-weight:700; color:var(--accent-rust);">${app.taxOrGstNumber || 'N/A'}</div>
+                </div>
+                <div style="font-size:0.86rem; color:var(--text-main); margin-top:0.5rem; line-height:1.5;">
+                  <div><strong>Applicant:</strong> ${app.fullName || app.username} (@${app.username})</div>
+                  <div><strong>Email:</strong> ${app.email || 'N/A'}</div>
+                  <div><strong>Mobile:</strong> ${app.mobileNo || 'N/A'}</div>
+                  <div><strong>Operating Address:</strong> 📍 ${addr}</div>
+                </div>
+              </div>
+
+              <div style="border-top: var(--border-light); padding-top: 0.85rem; margin-top: 1rem; display:flex; gap:0.5rem; justify-content:flex-end;">
+                <button onclick="reviewProviderApp('${app.userId}', 'REJECTED')" class="btn btn-sm btn-outline btn-pill" style="color:var(--accent-rust);">✕ Decline</button>
+                <button onclick="reviewProviderApp('${app.userId}', 'APPROVED')" class="btn btn-sm btn-rust btn-pill">✓ Approve Host</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Error loading pending providers:', err);
+        const grid = document.getElementById('pending-providers-list-grid');
+        if (grid) {
+          grid.innerHTML = `<div class="card text-center" style="grid-column: 1/-1; color:var(--accent-rust);">${err.message}</div>`;
+        }
+      }
+    }
+
+    async function reviewProviderApp(userId, status) {
+      let rejectionReason = '';
+      if (status === 'REJECTED') {
+        rejectionReason = prompt('Enter reason for declining this provider application (optional):');
+        if (rejectionReason === null) return;
+      } else {
+        if (!confirm('Approve this applicant to become a verified Space Provider?')) return;
+      }
+
+      try {
+        await AdminAPI.reviewProvider(userId, status, rejectionReason);
+        showToast(`Application successfully ${status === 'APPROVED' ? 'approved' : 'declined'}!`, 'success');
+        await loadPendingProviderApplications();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
   </script>
 </body>
 </html>

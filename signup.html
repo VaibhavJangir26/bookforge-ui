@@ -78,6 +78,17 @@
   <script src="js/api.js"></script>
   <script src="js/main.js"></script>
   <script>
+    function redirectIfAuthenticated() {
+      const token = localStorage.getItem('bookforge_token');
+      const user = getCurrentUser();
+      if (token && user) {
+        window.location.replace('dashboard.html');
+      }
+    }
+
+    redirectIfAuthenticated();
+    window.addEventListener('pageshow', redirectIfAuthenticated);
+
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const username = document.getElementById('signup-username').value.trim();
@@ -90,7 +101,7 @@
         localStorage.setItem('pending_verify_email', email);
         setTimeout(() => {
           window.location.href = 'verify.html';
-        }, 1000);
+        }, 800);
       } catch (err) {
         showToast(err.message || 'Registration failed', 'error');
       }

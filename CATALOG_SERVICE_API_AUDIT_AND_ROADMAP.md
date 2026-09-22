@@ -185,3 +185,16 @@ To reach enterprise production status, the following endpoints and data contract
    When calculating price quotes, active rules are sorted by `priority DESC`. The highest priority rule that satisfies the slot time window (Peak Hour vs Weekend vs Seasonal) is applied to calculate the modified space rate, before adding itemized equipment add-ons.
 3. **Blackout Slot Exemption:**  
    Slots intersecting any registered `BlackoutSlot` are excluded from `getAvailableSlots()`.
+
+---
+
+## 6. PROVIDER REGISTRATION & HOST APPROVAL PIPELINE [ACTIVE & INTEGRATED]
+
+1. **Host Application Workflow (`POST /api/v1/profile/apply-provider`)**:
+   - Customer submits commercial credentials (`businessName`, `taxOrGstNumber`, `mobileNo`, and operating `businessAddress`).
+   - Profile status transitions to `PENDING`.
+   - Free onboarding with zero setup fees or listing charges.
+2. **Admin Verification & Approval (`GET /api/v1/admin/providers/pending` & `PATCH /api/v1/admin/providers/{userId}/status`)**:
+   - Platform Administrator reviews tax/GST credentials, applicant details, and operating address.
+   - Admin approves application (`status: APPROVED`) or rejects with reason (`status: REJECTED`).
+   - On approval, backend assigns `ROLE_PROVIDER`, evicts Redis cache & active sessions, and unlocks the full provider console.

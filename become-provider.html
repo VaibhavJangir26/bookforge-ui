@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BECOME A SPACE PROVIDER // BOOKFORGE</title>
+  
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/become-provider.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="brand">
+        <span class="brand-title">BOOKFORGE</span>
+        <span class="brand-tagline">HOST ACCREDITATION</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link-item">Home</a>
+        <a href="dashboard.html" class="nav-link-item">Console</a>
+        <button onclick="AuthAPI.logout()" class="btn btn-sm btn-outline btn-pill">Sign Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="provider-page-header">
+    <div class="container">
+      <span class="badge badge-rust mb-1">HOST ONBOARDING // FREE REGISTRATION</span>
+      <h1>Become a Verified Space Provider</h1>
+      <p>
+        Monetize your recording studios, photo daylight bays, audio suites, and creative spaces.
+        Zero registration or listing fees. Submit your business verification to unlock full publishing privileges.
+      </p>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="container provider-card-container">
+
+    <!-- VIEW 1: Application Form (Shown if NOT YET APPLIED / NONE) -->
+    <div id="view-form" class="d-none">
+      
+      <!-- Value Proposition Highlights -->
+      <div class="provider-hero-perks">
+        <div class="perk-card">
+          <h4>100% Free Registration</h4>
+          <p>No upfront fees, listing retainers, or hidden onboarding costs. Keep your profits directly.</p>
+        </div>
+        <div class="perk-card">
+          <h4>Dynamic Pricing Engine</h4>
+          <p>Configure automated surge multipliers, peak hours, weekend rates, and custom hourly rules.</p>
+        </div>
+        <div class="perk-card">
+          <h4>Monetize Hardware & Gear</h4>
+          <p>Provision audio mics, 4K camera packages, and lighting kits as billable add-ons per booking.</p>
+        </div>
+      </div>
+
+      <!-- Application Form Card -->
+      <div class="provider-form-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--text-main);">Business & Space Verification</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.2rem;">
+              Provide verified commercial tax identification and registered physical address for audit.
+            </p>
+          </div>
+          <span class="badge badge-rust">FREE APPLICATION</span>
+        </div>
+
+        <form id="host-application-form">
+          <!-- Business Information Section -->
+          <div class="form-section-title">
+            <span>1. Commercial Identity</span>
+            <span class="mono" style="font-size: 0.78rem; color: var(--text-muted);">STEP 1 OF 2</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.25rem;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label font-semibold">BUSINESS OR STUDIO NAME *</label>
+              <input type="text" id="app-business-name" class="form-input" placeholder="e.g. Skyline Acoustic Studios LLC" required>
+              <small style="color:var(--text-muted); font-size:0.78rem;">The official trade name displayed on venue listings.</small>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label font-semibold">TAX IDENTIFICATION / GST NUMBER *</label>
+              <input type="text" id="app-tax-gst" class="form-input" placeholder="e.g. 27ABCDE1234F1Z5 or EIN-98765432" required>
+              <small style="color:var(--text-muted); font-size:0.78rem;">Required for business audit and provider compliance.</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label font-semibold">PRIMARY OPERATOR PHONE / MOBILE *</label>
+            <input type="text" id="app-mobile" class="form-input" placeholder="e.g. 9876543210" required>
+            <small style="color:var(--text-muted); font-size:0.78rem;">Direct phone line for host verification and guest booking alerts.</small>
+          </div>
+
+          <!-- Registered Location Section -->
+          <div class="form-section-title">
+            <span>2. Registered Business Location</span>
+            <span class="mono" style="font-size: 0.78rem; color: var(--text-muted);">STEP 2 OF 2</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label font-semibold">STREET ADDRESS *</label>
+            <input type="text" id="app-address" class="form-input" placeholder="e.g. 742 Industrial Sound Way, Suite 400" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 2fr 2fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+            <div>
+              <label class="form-label font-semibold">CITY *</label>
+              <input type="text" id="app-city" class="form-input" placeholder="e.g. Mumbai" required>
+            </div>
+            <div>
+              <label class="form-label font-semibold">STATE *</label>
+              <input type="text" id="app-state" class="form-input" placeholder="e.g. Maharashtra" required>
+            </div>
+            <div>
+              <label class="form-label font-semibold">POSTCODE *</label>
+              <input type="number" id="app-postcode" class="form-input" placeholder="400001" required>
+            </div>
+          </div>
+
+          <!-- Notice & Action Buttons -->
+          <div style="background: var(--bg-warm); border: 1px solid var(--border-light); border-radius: var(--radius-xs); padding: 1rem 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 1.4rem;">ℹ️</span>
+            <p style="font-size: 0.86rem; color: var(--text-muted); margin: 0;">
+              <strong>Zero Risk, 100% Free:</strong> Once your application is submitted, our system administrator will audit the business credentials. You will not be charged any fees.
+            </p>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <a href="dashboard.html" class="btn btn-outline btn-pill">Cancel & Return to Console</a>
+            <button type="submit" class="btn btn-rust btn-pill" style="padding-left: 2rem; padding-right: 2rem; font-size: 1rem;">
+              Submit Application for Free ➔
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- VIEW 2: Pending Audit Screen (Shown if status === 'PENDING') -->
+    <div id="view-pending" class="d-none">
+      
+      <div class="provider-status-banner pending">
+        <div class="status-icon-circle pending">⏳</div>
+        <div>
+          <span class="badge badge-pending mb-1">AUDIT IN PROGRESS</span>
+          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: #E65100; margin-top: 0.25rem;">
+            Host Application Under Review
+          </h3>
+          <p style="font-size: 0.92rem; color: var(--text-main); margin-top: 0.4rem; line-height: 1.55;">
+            Your provider application has been safely transmitted to the BookForge administrator.
+            Our team audits all commercial and tax details to maintain network verification standards.
+            As soon as an administrator confirms your credentials, your account automatically unlocks all provider tools!
+          </p>
+        </div>
+      </div>
+
+      <div class="provider-form-card">
+        <h4 style="font-family: var(--font-serif); font-size: 1.15rem; margin-bottom: 1rem; color: var(--text-main);">
+          Submitted Business Credentials
+        </h4>
+
+        <div class="application-audit-details">
+          <div class="audit-field-row">
+            <span class="audit-field-label">Registered Business Name</span>
+            <span class="audit-field-value" id="disp-pending-biz-name">Loading...</span>
+          </div>
+          <div class="audit-field-row">
+            <span class="audit-field-label">Tax / GST Identification</span>
+            <span class="audit-field-value mono" id="disp-pending-tax-id">Loading...</span>
+          </div>
+          <div class="audit-field-row">
+            <span class="audit-field-label">Registered Operator Contact</span>
+            <span class="audit-field-value" id="disp-pending-phone">Loading...</span>
+          </div>
+          <div class="audit-field-row">
+            <span class="audit-field-label">Official Operating Address</span>
+            <span class="audit-field-value" id="disp-pending-address">Loading...</span>
+          </div>
+          <div class="audit-field-row">
+            <span class="audit-field-label">Verification Status</span>
+            <span class="audit-field-value" style="color: #F57F17;">● PENDING ADMINISTRATOR APPROVAL</span>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; flex-wrap: wrap; gap: 1rem;">
+          <a href="dashboard.html" class="btn btn-outline btn-pill">Return to Customer Console ➔</a>
+          <button onclick="loadProviderVerificationState(true)" class="btn btn-rust btn-pill">
+            Check Approval Status ↺
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- VIEW 3: Rejected Screen (Shown if status === 'REJECTED') -->
+    <div id="view-rejected" class="d-none">
+      
+      <div class="provider-status-banner rejected">
+        <div class="status-icon-circle rejected">✕</div>
+        <div>
+          <span class="badge badge-rejected mb-1">ADDITIONAL INFORMATION REQUIRED</span>
+          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: #C62828; margin-top: 0.25rem;">
+            Application Requires Update
+          </h3>
+          <p style="font-size: 0.92rem; color: var(--text-main); margin-top: 0.4rem; line-height: 1.55;">
+            The administrator was unable to confirm your commercial identity with the tax or address details provided.
+            You can modify your business identification number or address and re-submit for free at any time.
+          </p>
+        </div>
+      </div>
+
+      <div class="provider-form-card text-center" style="padding: 2.5rem 1.5rem;">
+        <h4 style="font-family: var(--font-serif); font-size: 1.25rem;">Update & Re-apply as Space Provider</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted); max-width: 540px; margin: 0.5rem auto 1.75rem;">
+          Review your registered entity name (<strong id="disp-rejected-biz-name">Entity</strong>) and ensure your tax number matches official government business registration records.
+        </p>
+
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+          <a href="dashboard.html" class="btn btn-outline btn-pill">Return to Console</a>
+          <button onclick="showFormView()" class="btn btn-rust btn-pill">
+            Update Details & Re-apply ➔
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- VIEW 4: Approved Screen (Shown if status === 'APPROVED' or user is provider) -->
+    <div id="view-approved" class="d-none">
+      
+      <div class="provider-status-banner approved">
+        <div class="status-icon-circle approved">✓</div>
+        <div>
+          <span class="badge badge-approved mb-1">VERIFIED SPACE PROVIDER</span>
+          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: #2E7D32; margin-top: 0.25rem;">
+            Accreditation Active & Approved!
+          </h3>
+          <p style="font-size: 0.92rem; color: var(--text-main); margin-top: 0.4rem; line-height: 1.55;">
+            Your provider credentials have been verified by the system administrator.
+            You now have full authority to deploy venues, sub-spaces, equipment inventory, and automated dynamic pricing rules!
+          </p>
+        </div>
+      </div>
+
+      <div class="provider-form-card text-center" style="padding: 3rem 1.5rem;">
+        <h4 style="font-family: var(--font-serif); font-size: 1.4rem;">Your Provider Console is Ready</h4>
+        <p style="font-size: 0.92rem; color: var(--text-muted); max-width: 560px; margin: 0.5rem auto 2rem;">
+          Launch your console to manage owned venues, configure live calendar availability, and start accepting guest reservations.
+        </p>
+        <a href="dashboard.html" class="btn btn-rust btn-pill" style="font-size: 1.05rem; padding: 0.75rem 2.5rem;">
+          Launch Space Provider Console ➔
+        </a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/become-provider.js"></script>
+</body>
+</html>

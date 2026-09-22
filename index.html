@@ -61,7 +61,7 @@
           </div>
 
           <div style="display: flex; align-items: center; gap: 1.5rem; margin-top: 2.25rem; flex-wrap: wrap;">
-            <a href="signup.html" class="btn btn-rust btn-pill" style="padding: 0.85rem 2.25rem;">
+            <a href="signup.html" onclick="setSignupIntent('customer')" class="btn btn-rust btn-pill" style="padding: 0.85rem 2.25rem;">
               Create Member Account ➔
             </a>
             <a href="#earnings-calculator" class="btn btn-outline btn-pill" style="padding: 0.85rem 1.85rem;">
@@ -230,7 +230,7 @@
             <p style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1.5rem;">
               Based on base rate + dynamic surge rules and add-on hardware usage.
             </p>
-            <a href="signup.html" class="btn btn-rust btn-block btn-pill" style="padding: 0.85rem;">
+            <a href="signup.html" onclick="setSignupIntent('provider')" class="btn btn-rust btn-block btn-pill" style="padding: 0.85rem;">
               Register to Host Your Space ➔
             </a>
           </div>
@@ -256,128 +256,170 @@
       <div class="grid">
         
         <!-- Category 1: Sound & Audio Studios -->
-        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
-          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light); display: flex; flex-direction: column;">
+          <div style="height: 200px; width: 100%; overflow: hidden; position: relative; flex-shrink: 0;">
             <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80" alt="Audio & Sound Production Studio" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
             <div style="position: absolute; top: 12px; left: 12px;">
               <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 01</span>
             </div>
           </div>
-          <div style="padding: 1.5rem;">
+          <div style="padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1;">
             <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Sound & Broadcast Studios</h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
               Acoustically isolated tracking control rooms, live broadcast suites, and vocal isolation booths calibrated for vinyl mastering and podcasts.
             </p>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
+            <div style="margin-top: 1.25rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem;">
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Vocal Booths</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Mixing Desks</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Live Rooms</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Dolby Atmos</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: auto;">
               <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">DYNAMIC PRICING RULES</span>
-              <a href="signup.html" class="btn btn-sm btn-outline btn-pill">Publish Studio</a>
+              <a href="signup.html" onclick="setSignupIntent('provider')" class="btn btn-sm btn-outline btn-pill">Publish Studio</a>
             </div>
           </div>
         </div>
 
         <!-- Category 2: Photography Bays & Daylight Lofts -->
-        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
-          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light); display: flex; flex-direction: column;">
+          <div style="height: 200px; width: 100%; overflow: hidden; position: relative; flex-shrink: 0;">
             <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80" alt="Daylight Photography Studio Loft" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
             <div style="position: absolute; top: 12px; left: 12px;">
               <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 02</span>
             </div>
           </div>
-          <div style="padding: 1.5rem;">
+          <div style="padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1;">
             <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Photography & Daylight Lofts</h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
               High-ceiling daylight spaces with motorized cycloramas, northern exposure glass, and industrial polished concrete backdrops.
             </p>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
+            <div style="margin-top: 1.25rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem;">
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Northern Glass</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Motorized Cyc</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Makeup Bays</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Green Room</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: auto;">
               <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">SLOT GRANULARITY</span>
-              <a href="signup.html" class="btn btn-sm btn-outline btn-pill">Publish Loft</a>
+              <a href="signup.html" onclick="setSignupIntent('provider')" class="btn btn-sm btn-outline btn-pill">Publish Loft</a>
             </div>
           </div>
         </div>
 
         <!-- Category 3: Auditoriums, Event Halls & Theaters -->
-        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
-          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light); display: flex; flex-direction: column;">
+          <div style="height: 200px; width: 100%; overflow: hidden; position: relative; flex-shrink: 0;">
             <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80" alt="Heritage Auditorium Hall" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
             <div style="position: absolute; top: 12px; left: 12px;">
               <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 03</span>
             </div>
           </div>
-          <div style="padding: 1.5rem;">
+          <div style="padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1;">
             <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Auditoriums & Event Halls</h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
               Double-height timber vaulted halls, presentation amphitheaters, and full-scale exhibition spaces with stage lighting and tiered seating.
             </p>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
+            <div style="margin-top: 1.25rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem;">
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Tiered Seating</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ DMX Lighting</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Stage Rigging</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ PA System</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: auto;">
               <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">CAPACITY MANAGEMENT</span>
-              <a href="signup.html" class="btn btn-sm btn-outline btn-pill">Publish Hall</a>
+              <a href="signup.html" onclick="setSignupIntent('provider')" class="btn btn-sm btn-outline btn-pill">Publish Hall</a>
             </div>
           </div>
         </div>
 
         <!-- Category 4: Executive Coworking & Boardrooms -->
-        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
-          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light); display: flex; flex-direction: column;">
+          <div style="height: 200px; width: 100%; overflow: hidden; position: relative; flex-shrink: 0;">
             <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80" alt="Executive Workspace Suite" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
             <div style="position: absolute; top: 12px; left: 12px;">
               <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 04</span>
             </div>
           </div>
-          <div style="padding: 1.5rem;">
+          <div style="padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1;">
             <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Executive Boardrooms & Suites</h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
               Collaborative hubs, boardroom suites, and executive workstations tailored for remote tech teams, client presentations, and offsites.
             </p>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
+            <div style="margin-top: 1.25rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem;">
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Hybrid AV</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ 4K Video Wall</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Acoustic Pods</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Fiber Wi-Fi</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: auto;">
               <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">HOURLY CALENDAR</span>
-              <a href="signup.html" class="btn btn-sm btn-outline btn-pill">Publish Suite</a>
+              <a href="signup.html" onclick="setSignupIntent('provider')" class="btn btn-sm btn-outline btn-pill">Publish Suite</a>
             </div>
           </div>
         </div>
 
         <!-- Category 5: Add-on Equipment & AV Hardware Kits -->
-        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
-          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light); display: flex; flex-direction: column;">
+          <div style="height: 200px; width: 100%; overflow: hidden; position: relative; flex-shrink: 0;">
             <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80" alt="Camera and Sound Equipment" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
             <div style="position: absolute; top: 12px; left: 12px;">
               <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 05</span>
             </div>
           </div>
-          <div style="padding: 1.5rem;">
+          <div style="padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1;">
             <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Add-on Hardware & Equipment</h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
               Provision high-grade studio condenser microphones, strobe power packs, 4K cinema cameras, and motorized projectors as hourly or fixed fees.
             </p>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
+            <div style="margin-top: 1.25rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem;">
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ 4K Cinema Rigs</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Strobe Packs</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Condenser Mics</span>
+              <span class="badge" style="font-size:0.75rem; background: var(--bg-warm); border: 1px solid var(--border-light);">+ Motorized Screens</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: auto;">
               <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">INVENTORY QUANTITIES</span>
-              <a href="signup.html" class="btn btn-sm btn-outline btn-pill">Attach Gear</a>
+              <a href="signup.html" onclick="setSignupIntent('provider')" class="btn btn-sm btn-outline btn-pill">Attach Gear</a>
             </div>
           </div>
         </div>
 
-        <!-- Category 6: Unique Architectural Spaces -->
-        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
-          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
-            <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80" alt="Architectural Commercial Space" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
-            <div style="position: absolute; top: 12px; left: 12px;">
-              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 06</span>
+        <!-- Category 6: Add Your Own Custom Discipline (No Image, Rich Editorial Content) -->
+        <div class="card" style="padding: 2.25rem 2rem; border: 2px dashed var(--accent-rust); background: var(--bg-surface); display: flex; flex-direction: column; justify-content: space-between; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+              <span class="badge badge-rust" style="font-weight: 700;">DISCIPLINE 06 // CUSTOM</span>
+              <span class="mono text-rust" style="font-size: 0.8rem; font-weight: 700; letter-spacing: 0.05em;">★ LIST YOUR OWN</span>
+            </div>
+            
+            <h3 style="font-family: var(--font-serif); font-size: 1.45rem; color: var(--text-main); line-height: 1.3;">
+              Can’t Find Your Discipline? Add Your Own
+            </h3>
+            
+            <p style="font-size: 0.92rem; color: var(--text-muted); margin-top: 0.75rem; line-height: 1.6;">
+              BookForge welcomes all unique and unconventional commercial environments. Whether you operate an artisan glassblowing workshop, dance rehearsal hall, virtual production volume, rooftop atrium, or culinary test kitchen, you can publish custom space entities.
+            </p>
+
+            <div style="margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <span class="badge" style="font-size:0.75rem; background:#FFFFFF;">+ Dance Studios</span>
+              <span class="badge" style="font-size:0.75rem; background:#FFFFFF;">+ VR & VFX Volumes</span>
+              <span class="badge" style="font-size:0.75rem; background:#FFFFFF;">+ Maker Workshops</span>
+              <span class="badge" style="font-size:0.75rem; background:#FFFFFF;">+ Pop-up Galleries</span>
+              <span class="badge" style="font-size:0.75rem; background:#FFFFFF;">+ Broadcast Lofts</span>
             </div>
           </div>
-          <div style="padding: 1.5rem;">
-            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Custom Architectural Venues</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
-              Have an industrial warehouse, rooftop atrium, or bespoke gallery? Our taxonomy accommodates custom space configurations with dynamic pricing.
-            </p>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
-              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">CUSTOM TAXONOMY</span>
-              <a href="signup.html" class="btn btn-sm btn-rust btn-pill">Deploy Space</a>
-            </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 1.25rem; margin-top: 1.75rem;">
+            <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">100% FREE HOST REGISTRATION</span>
+            <a href="signup.html" onclick="setSignupIntent('provider')" class="btn btn-sm btn-rust btn-pill">Add Your Space ➔</a>
           </div>
         </div>
 
       </div>
     </div>
   </section>
+
 
   <!-- Section 4: Host Testimonials & Verified Ratings -->
   <section class="container mt-4 mb-4">
