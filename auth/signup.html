@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CREATE ACCOUNT // BOOKFORGE PLATFORM</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body style="background: var(--bg-warm);">
 
@@ -16,11 +16,11 @@
 
   <header class="vintage-nav">
     <div class="container nav-inner">
-      <a href="index.html" class="brand-logo">
+      <a href="../index.html" class="brand-logo">
         BOOK<span class="logo-accent">FORGE</span>
       </a>
       <div class="nav-links">
-        <a href="index.html" class="nav-link-item">Home</a>
+        <a href="../index.html" class="nav-link-item">Home</a>
         <a href="login.html" class="btn btn-sm btn-outline btn-pill">Sign In</a>
       </div>
     </div>
@@ -33,12 +33,12 @@
       <div style="text-align: center; margin-bottom: 2rem;">
         <span class="badge badge-rust mb-1">MEMBER REGISTRATION</span>
         <h1 style="font-size: 2.4rem; font-family: var(--font-serif); margin-top: 0.5rem;">CREATE ACCOUNT</h1>
-        <p style="font-size: 0.92rem;">Register your BookForge member identity to explore spaces or apply as a verified host.</p>
+        <p style="font-size: 0.92rem; color: var(--text-muted);">Register your BookForge member identity to explore spaces or apply as a verified host.</p>
       </div>
 
       <form id="signup-form">
         <div class="form-group">
-          <label class="form-label">USERNAME</label>
+          <label class="form-label">OPERATOR USERNAME</label>
           <input type="text" id="signup-username" class="form-input" placeholder="e.g. creative_host" required autofocus>
         </div>
 
@@ -57,7 +57,7 @@
             <span class="badge badge-approved" style="font-size: 0.72rem;">STANDARD MEMBER IDENTITY</span>
           </div>
           <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.5;">
-            All members register with standard access. Once inside your console, you can submit a <strong>Host Application</strong> for Administrator confirmation to unlock space publishing and hourly monetization.
+            All members register with standard customer access. Once registered, you can immediately submit a <strong>Host Application</strong> to monetize spaces and configure pricing rules.
           </p>
         </div>
 
@@ -74,9 +74,10 @@
 
   </main>
 
-  <script src="js/config.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/main.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/main.js"></script>
   <script>
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -90,7 +91,7 @@
         localStorage.setItem('pending_verify_email', email);
         setTimeout(() => {
           window.location.href = 'verify.html';
-        }, 1000);
+        }, 800);
       } catch (err) {
         showToast(err.message || 'Registration failed', 'error');
       }

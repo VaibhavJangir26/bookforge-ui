@@ -546,7 +546,7 @@ header.vintage-nav {
 
 .tab-btn.active {
   color: var(--text-main);
-  border-bottom: 2px solid var(--accent-rust);
+  border-bottom: 2px solid var(--accent-rust); margin-bottom: -1px;
   font-weight: 700;
 }
 
@@ -921,4 +921,118 @@ footer {
     width: 100%;
     text-align: center;
   }
+}
+
+/* -------------------------------------------------------------
+   WORKBENCH & PLATFORM DASHBOARD EXTENSIONS (VINTAGE RETRO)
+   ------------------------------------------------------------- */
+.selection-banner {
+  background: #FFFFFF;
+  border: var(--border-light);
+  border-left: 4px solid var(--accent-rust);
+  border-radius: var(--radius-xs);
+  padding: 1.2rem 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.selection-crumb {
+  font-size: 1.05rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-family: var(--font-serif);
+}
+
+.selection-crumb span {
+  background: var(--bg-warm);
+  color: var(--accent-rust);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.88rem;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  border: var(--border-light);
+}
+
+.action-panel {
+  border: var(--border-light);
+  background: var(--bg-card);
+  border-radius: var(--radius-xs);
+  box-shadow: var(--shadow-subtle);
+  margin-bottom: 2.25rem;
+  overflow: hidden;
+}
+
+.action-panel-header {
+  background: var(--bg-warm);
+  border-bottom: var(--border-light);
+  padding: 1.25rem 1.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.action-panel-body {
+  padding: 1.75rem;
+}
+
+.active-card-highlight {
+  border-color: var(--accent-rust) !important;
+  box-shadow: 0 0 0 2px var(--accent-rust), var(--shadow-hover) !important;
+  background: #FFFDFB !important;
+}
+
+.thumb-preview-strip {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+
+.thumb-preview-strip img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-medium);
+}
+
+.tabs {
+  display: flex;
+  gap: 0.75rem;
+  border-bottom: var(--border-light);
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  color: var(--accent-rust);
+  border-bottom: 2px solid var(--accent-rust); margin-bottom: -1px;
+  font-weight: 700;
+}
+
+.d-none {
+  display: none !important;
 }

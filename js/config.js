@@ -30,7 +30,8 @@ window.BOOKFORGE_CONFIG = {
       REFRESH: '/auth/refresh',
       LOGOUT: '/auth/logout',
       CHECK_AVAILABLE: '/auth/check-available',
-      PROFILE_ME: '/profile/me'
+      PROFILE_ME: '/profile/me',
+      APPLY_PROVIDER: '/profile/apply-provider'
     },
     CATEGORY: {
       BASE: '/category',
@@ -76,6 +77,11 @@ window.BOOKFORGE_CONFIG = {
       BLACKOUTS_BY_SPACE: (spaceId) => `/availability/blackouts/space/${spaceId}`,
       DELETE_BLACKOUT: (id) => `/availability/blackouts/${id}`,
       SLOTS: (spaceId) => `/availability/slots/space/${spaceId}`
+    },
+    ADMIN_PROVIDERS: {
+      BASE: '/admin/providers',
+      PENDING: '/admin/providers/pending',
+      REVIEW: (userId) => `/admin/providers/${userId}/status`
     },
     PRICING: {
       BASE: '/pricing',

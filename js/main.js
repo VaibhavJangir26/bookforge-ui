@@ -2,42 +2,53 @@
  * Global UI Helper & State Management (Vintage Retro Edition)
  */
 
+const SeedUsers = {
+  admin: { username: 'admin', password: 'admin@123', role: 'ROLE_ADMIN' },
+  provider: { username: 'ram123', password: 'ram@123', role: 'ROLE_PROVIDER' },
+  customer: { username: 'shyam123', password: 'shyam@123', role: 'ROLE_CUSTOMER' }
+};
+
 function getCurrentUser() {
-  try {
-    const raw = localStorage.getItem('bookforge_user');
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    return null;
-  }
+  return (typeof Auth !== 'undefined' && Auth.getUser) ? Auth.getUser() : null;
 }
 
 function updateNavigation() {
-  const user = getCurrentUser();
-  const token = localStorage.getItem('bookforge_token');
   const navLinks = document.getElementById('nav-links');
   if (!navLinks) return;
 
-  // On dashboard.html, keep its dedicated nav
-  if (window.location.pathname.includes('dashboard.html')) {
-    return;
-  }
+  const path = window.location.pathname;
+  const isInSubdir = path.includes('/auth/') || path.includes('/dashboard/') || path.includes('/venues/');
+  const root = isInSubdir ? '../' : '';
 
-  if (token && user) {
-    const roleBadge = (user.roles && user.roles.includes('ROLE_ADMIN')) || user.role === 'ROLE_ADMIN'
-      ? '<span class="badge badge-rust">ADMIN</span>' 
-      : (((user.roles && user.roles.includes('ROLE_PROVIDER')) || user.role === 'ROLE_PROVIDER') ? '<span class="badge badge-approved">PROVIDER</span>' : '<span class="badge">CUSTOMER</span>');
+  if (typeof Auth !== 'undefined' && Auth.isAuthenticated()) {
+    const user = Auth.getUser();
+    const role = Auth.getPrimaryRole();
+    let roleText = 'MEMBER';
+    let dashPage = 'customer.html';
+    if (role === 'ROLE_ADMIN') {
+      roleText = 'ADMIN';
+      dashPage = 'admin.html';
+    } else if (role === 'ROLE_PROVIDER') {
+      roleText = 'PROVIDER';
+      dashPage = 'provider.html';
+    }
+    const uname = (user && user.username) ? user.username : 'Member';
 
     navLinks.innerHTML = `
-      <a href="index.html" class="nav-link-item">Home</a>
-      <a href="dashboard.html" class="btn btn-sm btn-rust btn-pill">Console ${roleBadge}</a>
-      <button onclick="AuthAPI.logout()" class="btn btn-sm btn-outline btn-pill">Sign Out</button>
+      <a href="${root}index.html" class="nav-link-item">Home</a>
+      <a href="${root}index.html#how-it-works" class="nav-link-item">How It Works</a>
+      <a href="${root}index.html#earnings-calculator" class="nav-link-item">Host Earnings</a>
+      <span style="font-size:0.88rem; font-weight:600; color:var(--text-muted); align-self:center;">👋 ${uname}</span>
+      <a href="${root}dashboard/${dashPage}" class="btn btn-sm btn-rust btn-pill" style="display:inline-flex; align-items:center; gap:0.4rem;">Console (${roleText}) ➔</a>
+      <button onclick="Auth.logout()" class="btn btn-sm btn-outline btn-pill">Sign Out</button>
     `;
   } else {
     navLinks.innerHTML = `
-      <a href="index.html#earnings-calculator" class="nav-link-item">Host Earnings</a>
-      <a href="index.html#rating-engine" class="nav-link-item">Rating Boost</a>
-      <a href="login.html" class="nav-link-item">Sign In</a>
-      <a href="signup.html" class="btn btn-sm btn-rust btn-pill">Register Space ➔</a>
+      <a href="${root}index.html#how-it-works" class="nav-link-item">How Hosting Works</a>
+      <a href="${root}index.html#earnings-calculator" class="nav-link-item">Host Earnings</a>
+      <a href="${root}index.html#categories-section" class="nav-link-item">Disciplines</a>
+      <a href="${root}auth/login.html" class="nav-link-item">Sign In</a>
+      <a href="${root}auth/signup.html" class="btn btn-sm btn-rust btn-pill">Get Started ➔</a>
     `;
   }
 }
@@ -59,8 +70,10 @@ async function quickLoginAs(roleKey) {
   try {
     showLoader(`AUTHENTICATING SEED ACCOUNT (${seed.username})...`);
     await AuthAPI.login({ username: seed.username, password: seed.password });
-    showToast(`Authenticated as ${seed.username}! Redirecting...`, 'success');
-    setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
+    showToast(`Authenticated as ${seed.username}! Navigating to console...`, 'success');
+    setTimeout(() => {
+      Auth.redirectBasedOnRole();
+    }, 400);
   } catch (err) {
     showToast(`Seed login failed: ${err.message}`, 'error');
   } finally {

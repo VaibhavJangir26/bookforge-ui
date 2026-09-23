@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ADMIN GOVERNANCE // BOOKFORGE PLATFORM</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* Sleek Drawer & Dashboard Layout */
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    .admin-sidebar {
+      background: #FFFFFF;
+      border: var(--border-light);
+      border-radius: var(--radius-xs);
+      box-shadow: var(--shadow-subtle);
+      padding: 1.5rem 1rem;
+      position: sticky;
+      top: 1rem;
+    }
+    .admin-nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1rem;
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: var(--radius-xs);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 0.4rem;
+      border: 1px solid transparent;
+      text-decoration: none;
+    }
+    .admin-nav-item:hover {
+      background: var(--bg-warm);
+      color: var(--text-main);
+    }
+    .admin-nav-item.active {
+      background: var(--bg-warm);
+      color: var(--accent-rust);
+      border-color: var(--border-medium);
+      font-weight: 700;
+    }
+    .admin-nav-count {
+      background: var(--accent-rust);
+      color: #FFF;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-pill);
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: var(--border-light);
+      border-radius: var(--radius-xs);
+      box-shadow: var(--shadow-subtle);
+      padding: 2rem;
+    }
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      color: var(--text-main);
+    }
+    @media (max-width: 860px) {
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+      .admin-sidebar {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body style="background: var(--bg-warm);">
+
+  <!-- Global Loader Overlay -->
+  <div id="global-loader" class="loader-overlay">
+    <div class="vintage-spinner"></div>
+    <div class="loader-text" id="loader-text">EXECUTING TRANSACTION...</div>
+  </div>
+
+  <!-- Minimalist Vintage Header -->
+  <header class="vintage-nav">
+    <div class="container nav-inner">
+      <a href="../index.html" class="brand-logo">
+        BOOK<span class="logo-accent">FORGE</span>
+      </a>
+      <div class="nav-links">
+        <a href="../index.html" class="nav-link-item">Home</a>
+        <span class="badge badge-rust" style="align-self:center;">ROOT ADMIN</span>
+        <button onclick="Auth.logout()" class="btn btn-sm btn-outline btn-pill">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mt-4 mb-5">
+
+    <div class="admin-layout">
+      
+      <!-- Left Drawer / Navigation Sidebar -->
+      <aside class="admin-sidebar">
+        <div style="padding: 0.5rem 0.5rem 1.25rem 0.5rem; border-bottom: var(--border-light); margin-bottom: 1rem;">
+          <span class="badge badge-rust mb-1">SYSTEM GOVERNANCE</span>
+          <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">ADMIN CONSOLE</h3>
+          <p class="mono text-muted" style="font-size: 0.75rem; margin-top: 0.25rem;">Authorized Session: Root</p>
+        </div>
+
+        <nav>
+          <div class="admin-nav-item active" id="nav-btn-providers" onclick="showAdminSection('section-providers', this)">
+            <span>📋 Host Applications</span>
+            <span class="admin-nav-count" id="pending-providers-badge">0</span>
+          </div>
+
+          <div class="admin-nav-item" id="nav-btn-categories" onclick="showAdminSection('section-categories', this)">
+            <span>🏷️ Categories Taxonomy</span>
+          </div>
+
+          <div class="admin-nav-item" id="nav-btn-venues" onclick="showAdminSection('section-venues', this)">
+            <span>🏛️ Platform Venues</span>
+          </div>
+        </nav>
+
+        <div style="border-top: var(--border-light); padding-top: 1.25rem; margin-top: 1.5rem; padding-left: 0.5rem;">
+          <button onclick="loadAllAdminData()" class="btn btn-sm btn-outline btn-pill" style="width: 100%;">
+            Refresh All Data ↻
+          </button>
+        </div>
+      </aside>
+
+      <!-- Right Content Sections -->
+      <div class="admin-content-area">
+
+        <!-- 1. SECTION: HOST APPLICATIONS APPROVAL (DEDICATED) -->
+        <section id="section-providers" class="admin-section">
+          <div class="content-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; border-bottom:var(--border-light); padding-bottom:1.25rem;">
+              <div>
+                <span class="badge badge-rust mb-1">APPLICATION PIPELINE</span>
+                <h2 class="section-title">PENDING HOST VERIFICATION REQUESTS</h2>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.25rem;">
+                  Review incoming commercial identity documents from members applying to list and monetize spaces.
+                </p>
+              </div>
+              <button onclick="loadPendingProviders()" class="btn btn-sm btn-outline btn-pill">Reload Applications ↻</button>
+            </div>
+
+            <div id="pending-providers-list">
+              <div class="card text-center" style="background:var(--bg-primary);">
+                <div class="vintage-spinner" style="margin: 1.5rem auto;"></div>
+                <p class="mono text-muted">Checking pending host applications...</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. SECTION: CATEGORIES TAXONOMY (DEDICATED) -->
+        <section id="section-categories" class="admin-section d-none">
+          <div class="content-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; border-bottom:var(--border-light); padding-bottom:1.25rem;">
+              <div>
+                <span class="badge badge-rust mb-1">TAXONOMY REGISTRY</span>
+                <h2 class="section-title">CATEGORY TAXONOMY</h2>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.25rem;">
+                  Manage architectural and media categories used across all search and space classifications.
+                </p>
+              </div>
+              <button onclick="toggleSection('create-category-box')" class="btn btn-sm btn-rust btn-pill">+ New Category</button>
+            </div>
+
+            <!-- Create Category Drawer / Form -->
+            <div id="create-category-box" class="card mb-4 d-none" style="background: var(--bg-warm); border: 1px solid var(--accent-rust);">
+              <h4 style="font-family: var(--font-serif); margin-bottom: 1rem;">REGISTER NEW CATEGORY</h4>
+              <form id="create-category-form">
+                <div class="grid grid-2 mb-2">
+                  <div class="form-group">
+                    <label class="form-label">CATEGORY NAME</label>
+                    <input type="text" id="cat-name" class="form-input" required placeholder="e.g. Daylight Cyclorama Studio" oninput="autoGenerateSlug(this.value, 'cat-slug')">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">UNIQUE TAXONOMY SLUG</label>
+                    <input type="text" id="cat-slug" class="form-input mono" required placeholder="daylight-cyclorama-studio">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">DESCRIPTION & REQUIREMENTS</label>
+                  <textarea id="cat-desc" class="form-textarea" required placeholder="Studios with northern light exposure, blackout options, and 3-phase power."></textarea>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+                  <button type="button" onclick="toggleSection('create-category-box')" class="btn btn-sm btn-outline btn-pill">Cancel</button>
+                  <button type="submit" class="btn btn-sm btn-rust btn-pill">Save Category ➔</button>
+                </div>
+              </form>
+            </div>
+
+            <div id="categories-grid" class="grid grid-2">
+              <div class="card text-center" style="grid-column: 1/-1;">
+                <div class="vintage-spinner" style="margin: 1.5rem auto;"></div>
+                <p class="mono text-muted">Loading categories...</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. SECTION: PLATFORM VENUES GOVERNANCE (DEDICATED) -->
+        <section id="section-venues" class="admin-section d-none">
+          <div class="content-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; border-bottom:var(--border-light); padding-bottom:1.25rem;">
+              <div>
+                <span class="badge badge-rust mb-1">INVENTORY GOVERNANCE</span>
+                <h2 class="section-title">PLATFORM VENUE AUDIT</h2>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.25rem;">
+                  Review venue submissions. Approve to PUBLISHED to unlock space deployment and public guest booking.
+                </p>
+              </div>
+              <button onclick="loadAllVenues()" class="btn btn-sm btn-outline btn-pill">Refresh Venues ↻</button>
+            </div>
+
+            <div id="admin-venues-grid" class="grid grid-2">
+              <div class="card text-center" style="grid-column: 1/-1;">
+                <div class="vintage-spinner" style="margin: 1.5rem auto;"></div>
+                <p class="mono text-muted">Retrieving all network venues...</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    function toggleSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('d-none');
+    }
+
+    function autoGenerateSlug(text, targetId) {
+      const slug = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const target = document.getElementById(targetId);
+      if (target) target.value = slug;
+    }
+
+    function showAdminSection(sectionId, btn) {
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.add('d-none'));
+      const activeSec = document.getElementById(sectionId);
+      if (activeSec) activeSec.classList.remove('d-none');
+
+      document.querySelectorAll('.admin-nav-item').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      Auth.redirectIfNotAuthenticated('../auth/login.html');
+
+      if (!Auth.isAdmin()) {
+        showToast('Administrator privileges required.', 'error');
+        setTimeout(() => { Auth.redirectBasedOnRole(); }, 500);
+        return;
+      }
+
+      await loadAllAdminData();
+    });
+
+    async function loadAllAdminData() {
+      await Promise.all([
+        loadPendingProviders(),
+        loadCategories(),
+        loadAllVenues()
+      ]);
+    }
+
+    async function loadPendingProviders() {
+      const list = document.getElementById('pending-providers-list');
+      const badge = document.getElementById('pending-providers-badge');
+
+      try {
+        const res = await AdminAPI.getPendingProviders();
+        const applications = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+        badge.textContent = applications.length;
+
+        if (!applications || applications.length === 0) {
+          list.innerHTML = `
+            <div class="card text-center" style="background:var(--bg-primary); padding:3rem 2rem;">
+              <span class="badge badge-approved mb-1">ALL AUDITS UP TO DATE</span>
+              <h3 style="font-family:var(--font-serif); font-size:1.6rem; margin-top:0.5rem;">NO PENDING APPLICATIONS</h3>
+              <p class="text-muted" style="font-size:0.92rem; margin-top:0.3rem;">All submitted host applications have been reviewed.</p>
+            </div>
+          `;
+          return;
+        }
+
+        list.innerHTML = applications.map(app => {
+          const addr = app.address 
+            ? `${app.address.address || ''}, ${app.address.city || ''}, ${app.address.state || ''} ${app.address.postcode || ''}`
+            : 'Unspecified facility address';
+
+          return `
+            <div class="card mb-3" style="border-left: 4px solid var(--accent-rust); background: var(--bg-primary);">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.5rem; flex-wrap:wrap; gap:1rem;">
+                <div>
+                  <span class="badge badge-pending">PENDING VERIFICATION</span>
+                  <h3 style="font-family:var(--font-serif); font-size:1.45rem; margin-top:0.4rem;">${app.businessName || app.fullName || 'Host Applicant'}</h3>
+                  <div class="mono" style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;">
+                    Operator Username: <strong>${app.username}</strong> • Email: ${app.email || 'N/A'} • Mobile: ${app.mobileNo || 'N/A'}
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:0.6rem;">
+                  <button onclick="reviewProvider('${app.userId}', 'APPROVED')" class="btn btn-sm btn-rust btn-pill">
+                    Approve Provider Status ★
+                  </button>
+                  <button onclick="reviewProvider('${app.userId}', 'REJECTED')" class="btn btn-sm btn-outline btn-pill" style="color:var(--accent-rust); border-color:var(--accent-rust);">
+                    Reject Application
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-2 mt-2" style="background:#FFFFFF; padding:1rem; border-radius:var(--radius-xs); border:var(--border-light);">
+                <div>
+                  <span class="mono text-muted" style="font-size:0.75rem;">TAX / GST IDENTIFICATION:</span>
+                  <div style="font-weight:700; font-size:0.92rem; color:var(--text-main); margin-top:0.15rem;">${app.taxOrGstNumber || 'Not provided'}</div>
+                </div>
+                <div>
+                  <span class="mono text-muted" style="font-size:0.75rem;">COMMERCIAL OPERATING FACILITY:</span>
+                  <div style="font-weight:700; font-size:0.92rem; color:var(--text-main); margin-top:0.15rem;">${addr}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        list.innerHTML = `<div class="card text-center"><p style="color:var(--accent-rust);">${err.message}</p></div>`;
+      }
+    }
+
+    async function reviewProvider(userId, status) {
+      let rejectionReason = null;
+      if (status === 'REJECTED') {
+        rejectionReason = prompt('Please specify rejection reason for the applicant:');
+        if (!rejectionReason) return;
+      }
+
+      try {
+        // Passing status as string and rejectionReason as string cleanly
+        await AdminAPI.reviewProvider(userId, status, rejectionReason);
+        showToast(`Host application ${status.toLowerCase()} successfully!`, 'success');
+        await loadPendingProviders();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function loadCategories() {
+      const grid = document.getElementById('categories-grid');
+      try {
+        const res = await CategoryAPI.getAll();
+        const categories = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+
+        if (!categories || categories.length === 0) {
+          grid.innerHTML = '<div class="card text-center" style="grid-column: 1/-1;"><p class="mono text-muted">No categories created yet.</p></div>';
+          return;
+        }
+
+        grid.innerHTML = categories.map(c => `
+          <div class="card" style="background:var(--bg-primary); display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+                <span class="badge badge-rust mono" style="max-width:calc(100% - 85px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.74rem;" title="${c.slug}">${c.slug}</span>
+                <button onclick="deleteCategory('${c.id}')" class="btn btn-sm btn-outline btn-pill" style="color:var(--accent-rust); border-color:var(--accent-rust); font-size:0.72rem; padding:0.2rem 0.5rem;">Delete ✕</button>
+              </div>
+              <h4 style="font-family: var(--font-serif); font-size:1.25rem; margin-top:0.5rem; margin-bottom:0.35rem;">${c.name}</h4>
+              <p style="font-size:0.86rem; color:var(--text-muted); line-height:1.4;">${c.description || 'Category taxonomy description.'}</p>
+            </div>
+            <div class="mono text-muted" style="font-size:0.75rem; margin-top:0.75rem; border-top:var(--border-light); padding-top:0.5rem;">
+              ID: ${c.id}
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        grid.innerHTML = `<div class="card text-center" style="grid-column: 1/-1;"><p style="color:var(--accent-rust);">${err.message}</p></div>`;
+      }
+    }
+
+    async function deleteCategory(id) {
+      if (!confirm('Are you sure you want to delete this category taxonomy?')) return;
+      try {
+        await CategoryAPI.delete(id);
+        showToast('Category deleted successfully.', 'success');
+        await loadCategories();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function loadAllVenues() {
+      const grid = document.getElementById('admin-venues-grid');
+      try {
+        const res = await VenueAPI.getAll();
+        const venues = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+
+        if (!venues || venues.length === 0) {
+          grid.innerHTML = '<div class="card text-center" style="grid-column: 1/-1;"><p class="mono text-muted">No venues registered on the network yet.</p></div>';
+          return;
+        }
+
+        grid.innerHTML = venues.map(v => {
+          const statusBadge = v.venueStatus === 'PUBLISHED' ? 'badge-approved' : (v.venueStatus === 'SUSPENDED' ? 'badge-rejected' : 'badge-rust');
+          const addr = v.address ? `${v.address.city || ''}, ${v.address.state || ''}` : 'Location unlisted';
+
+          return `
+            <div class="card" style="background:var(--bg-primary); display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.5rem; margin-bottom:0.5rem;">
+                  <span class="badge ${statusBadge}">${v.venueStatus || 'VERIFICATION_PENDING'}</span>
+                  <span class="mono text-muted" style="font-size:0.75rem;">${addr}</span>
+                </div>
+                <h4 style="font-family: var(--font-serif); font-size:1.3rem; margin-bottom:0.4rem;">${v.name}</h4>
+                <p style="font-size:0.86rem; color:var(--text-muted); line-height:1.4; margin-bottom:0.75rem;">
+                  ${v.description || 'Facility listing.'}
+                </p>
+                <div class="mono text-muted" style="font-size:0.75rem; border-top:var(--border-light); padding-top:0.4rem;">
+                  Provider ID: ${v.providerId ? v.providerId.substring(0, 8) + '...' : 'N/A'}
+                </div>
+              </div>
+
+              <div style="margin-top:1rem; border-top:var(--border-light); padding-top:0.75rem; display:flex; gap:0.5rem; align-items:center;">
+                <!-- Exactly matches VenueStatus enum on backend: PUBLISHED, SUSPENDED, VERIFICATION_PENDING -->
+                <select onchange="updateVenueStatus('${v.id}', this.value)" class="form-select" style="font-size:0.8rem; padding:0.45rem;">
+                  <option value="VERIFICATION_PENDING" ${v.venueStatus === 'VERIFICATION_PENDING' ? 'selected' : ''}>VERIFICATION_PENDING</option>
+                  <option value="PUBLISHED" ${v.venueStatus === 'PUBLISHED' ? 'selected' : ''}>PUBLISHED (LIVE)</option>
+                  <option value="SUSPENDED" ${v.venueStatus === 'SUSPENDED' ? 'selected' : ''}>SUSPENDED (INACTIVE)</option>
+                </select>
+                <a href="../venues/venue-details.html?id=${v.id}" class="btn btn-sm btn-outline btn-pill" title="Public Venue Showcase">
+                  Inspect ↗
+                </a>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        grid.innerHTML = `<div class="card text-center" style="grid-column: 1/-1;"><p style="color:var(--accent-rust);">${err.message}</p></div>`;
+      }
+    }
+
+    async function updateVenueStatus(venueId, status) {
+      try {
+        await VenueAPI.updateStatus(venueId, status);
+        showToast(`Venue status updated to ${status}!`, 'success');
+        await loadAllVenues();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    document.getElementById('create-category-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('cat-name').value.trim(),
+        slug: document.getElementById('cat-slug').value.trim(),
+        description: document.getElementById('cat-desc').value.trim()
+      };
+
+      try {
+        await CategoryAPI.create(payload);
+        showToast('Category registered successfully!', 'success');
+        toggleSection('create-category-box');
+        document.getElementById('create-category-form').reset();
+        await loadCategories();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>

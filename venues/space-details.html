@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPACE SPECIFICATIONS & RESERVATION // BOOKFORGE PLATFORM</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <!-- Global Loader Overlay -->
+  <div id="global-loader" class="loader-overlay">
+    <div class="vintage-spinner"></div>
+    <div class="loader-text" id="loader-text">EXECUTING TRANSACTION...</div>
+  </div>
+
+  <!-- Minimalist Vintage Header -->
+  <header class="vintage-nav">
+    <div class="container nav-inner">
+      <a href="../index.html" class="brand-logo">
+        BOOK<span class="logo-accent">FORGE</span>
+      </a>
+      <div class="nav-links">
+        <a href="../index.html" class="nav-link-item">Home</a>
+        <a href="../dashboard/index.html" class="nav-link-item">Console</a>
+        <button onclick="Auth.logout()" class="btn btn-sm btn-outline btn-pill">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mt-4 mb-5">
+    
+    <!-- Top Nav Crumb -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+      <a href="javascript:history.back()" class="btn btn-sm btn-outline btn-pill">
+        ← Back to Venue
+      </a>
+      <span class="mono text-muted" style="font-size:0.82rem;" id="space-id-crumb">SPACE ID: SYNCHRONIZING...</span>
+    </div>
+
+    <!-- Space Header Card -->
+    <div class="card mb-4" style="padding: 2.5rem; border-left: 5px solid var(--accent-rust);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+          <span class="badge badge-rust" id="space-capacity-badge">CAPACITY: 1 GUEST</span>
+          <h1 style="font-family: var(--font-serif); font-size: clamp(2rem, 3.5vw, 2.8rem); margin-top: 0.5rem;" id="space-title">
+            LOADING SPACE...
+          </h1>
+          <p class="mono text-muted" style="font-size: 0.88rem; margin-top: 0.4rem;" id="space-venue-link">
+            Attached to Venue ID: -
+          </p>
+        </div>
+
+        <div style="text-align: right;">
+          <span class="mono text-muted" style="font-size: 0.8rem; display: block;">BASE HOURLY RATE</span>
+          <h2 style="font-family: var(--font-serif); font-size: 2.8rem; color: var(--accent-rust); margin: 0.2rem 0;" id="space-base-rate">
+            $0.00
+          </h2>
+          <span class="mono text-muted" style="font-size: 0.75rem;">+ DYNAMIC SURGES & TAX</span>
+        </div>
+      </div>
+
+      <div style="border-top: var(--border-light); padding-top: 1.25rem; margin-top: 1.5rem;">
+        <h4 style="font-family: var(--font-serif); font-size: 1.15rem; margin-bottom: 0.5rem;">ACOUSTIC SPECIFICATIONS & ARCHITECTURE</h4>
+        <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;" id="space-desc">
+          Fetching room specifications from catalog service...
+        </p>
+      </div>
+    </div>
+
+    <!-- Live Dynamic Price Calculator & Reservation Estimator -->
+    <div class="action-panel">
+      <div class="action-panel-header" style="background: #1A1816; color: #FAF7F2;">
+        <div>
+          <span class="badge badge-rust">PRICE FLYWHEEL ENGINE</span>
+          <h3 style="font-family: var(--font-serif); color: #FAF7F2; margin-top: 0.35rem;">CALCULATE HOURLY RESERVATION QUOTE</h3>
+          <p style="font-size: 0.85rem; color: #A8A29A;">Select dates and hardware add-ons to execute real-time calculation via backend pricing formulas.</p>
+        </div>
+      </div>
+
+      <div class="action-panel-body">
+        <form id="calc-quote-form">
+          <div class="grid grid-2 mb-3">
+            <div class="form-group">
+              <label class="form-label">SLOT START DATE & TIME</label>
+              <input type="datetime-local" id="quote-start" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">SLOT END DATE & TIME</label>
+              <input type="datetime-local" id="quote-end" class="form-input" required>
+            </div>
+          </div>
+
+          <!-- Add-on Hardware Selection -->
+          <div style="margin-bottom: 1.5rem;" id="hardware-section">
+            <h4 style="font-family: var(--font-serif); font-size: 1.1rem; margin-bottom: 0.5rem;">SELECT AVAILABLE HARDWARE ADD-ONS</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Optional equipment attached to this studio space.</p>
+            <div id="equipment-checkboxes" class="grid grid-2">
+              <p class="mono text-muted" style="grid-column: 1/-1;">Loading equipment inventory...</p>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-rust btn-block btn-pill" style="font-size: 1rem; padding: 0.85rem;">
+            Execute Dynamic Price Calculation ➔
+          </button>
+        </form>
+
+        <!-- Price Result Box -->
+        <div id="quote-result-card" class="card mt-3 d-none" style="background: var(--bg-warm); border: 2px solid var(--accent-rust); padding: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+            <div>
+              <span class="badge badge-rust">CALCULATED PRICE BREAKDOWN</span>
+              <h2 style="font-family: var(--font-serif); font-size: 2.8rem; color: var(--accent-rust); margin-top: 0.4rem;" id="quote-computed-total">
+                $0.00
+              </h2>
+              <p class="mono text-muted" style="font-size: 0.85rem;" id="quote-breakdown-note">
+                Calculated including base hourly duration and active peak surge rules.
+              </p>
+            </div>
+
+            <div>
+              <button onclick="initiateBooking()" class="btn btn-rust btn-pill" style="padding: 0.85rem 2.5rem;">
+                Proceed to Reservation ➔
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Pricing Rules & Schedule Rules on this Space -->
+    <div class="grid grid-2">
+      <!-- Active Pricing Rules -->
+      <div class="card">
+        <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">ACTIVE DYNAMIC PRICING RULES</h4>
+        <div id="space-pricing-rules-list">
+          <p class="mono text-muted">Checking pricing rules...</p>
+        </div>
+      </div>
+
+      <!-- Weekly Schedule -->
+      <div class="card">
+        <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">OPERATING SCHEDULE</h4>
+        <div id="space-operating-schedule-list">
+          <p class="mono text-muted">Checking operating rules...</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    let currentSpaceId = null;
+    let currentSpace = null;
+    let availableResources = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      Auth.redirectIfNotAuthenticated('../auth/login.html');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      currentSpaceId = urlParams.get('id');
+
+      if (!currentSpaceId) {
+        alert('No space ID specified');
+        window.location.href = '../dashboard/index.html';
+        return;
+      }
+
+      document.getElementById('space-id-crumb').textContent = `SPACE ID: ${currentSpaceId}`;
+
+      // Pre-fill tomorrow 10:00 to 14:00
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const yyyy = tomorrow.getFullYear();
+      const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+      const dd = String(tomorrow.getDate()).padStart(2, '0');
+
+      document.getElementById('quote-start').value = `${yyyy}-${mm}-${dd}T10:00`;
+      document.getElementById('quote-end').value = `${yyyy}-${mm}-${dd}T14:00`;
+
+      await Promise.all([
+        loadSpaceDetails(currentSpaceId),
+        loadSpaceResources(currentSpaceId),
+        loadSpacePricingRules(currentSpaceId),
+        loadSpaceSchedule(currentSpaceId)
+      ]);
+    });
+
+    async function loadSpaceDetails(spaceId) {
+      try {
+        const res = await SpaceAPI.getDetails(spaceId);
+        const s = (res && res.data !== undefined) ? res.data : res;
+
+        if (s) {
+          currentSpace = s;
+          document.getElementById('space-title').textContent = s.name || 'Studio Room';
+          document.getElementById('space-capacity-badge').textContent = `CAPACITY: ${s.capacity || 1} GUESTS`;
+          document.getElementById('space-base-rate').textContent = `$${s.basePrice ? parseFloat(s.basePrice).toFixed(2) : '0.00'}`;
+          document.getElementById('space-desc').textContent = s.description || 'Configured creative studio space.';
+          
+          if (s.venueId) {
+            document.getElementById('space-venue-link').innerHTML = `Attached to Venue ID: <a href="venue-details.html?id=${s.venueId}" style="color:var(--accent-rust); text-decoration:underline;">${s.venueId}</a>`;
+          }
+        }
+      } catch (err) {
+        document.getElementById('space-title').textContent = 'Error Loading Space';
+        document.getElementById('space-desc').textContent = err.message;
+      }
+    }
+
+    async function loadSpaceResources(spaceId) {
+      const container = document.getElementById('equipment-checkboxes');
+      try {
+        const res = await ResourceAPI.getBySpace(spaceId);
+        availableResources = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+
+        if (!availableResources || availableResources.length === 0) {
+          container.innerHTML = '<p class="mono text-muted" style="grid-column: 1/-1;">No add-on equipment attached to this room.</p>';
+          return;
+        }
+
+        container.innerHTML = availableResources.map(r => {
+          const price = r.resourcePrice !== undefined ? r.resourcePrice : (r.hourlyPrice || 0);
+          const priceType = r.resourcePriceType === "FIXED_PRICE" ? " flat" : "/hr";
+          const qty = r.resourceCountQuantity !== undefined ? r.resourceCountQuantity : (r.quantity || 1);
+          const imgTag = (r.imgUrls && r.imgUrls.length > 0) ? `<img src="${r.imgUrls[0]}" style="width:48px; height:48px; object-fit:cover; border-radius:var(--radius-xs);" alt="${r.name}">` : "";
+          const minQty = r.mandatory ? 1 : 0;
+
+          return `
+            <div class="card" style="display:flex; align-items:center; justify-content:space-between; padding:0.85rem; background:#FFFFFF; border:var(--border-light);">
+              <div style="display:flex; align-items:center; gap:0.75rem;">
+                ${imgTag}
+                <div>
+                  <strong style="font-size:0.92rem; display:block;">
+                    ${r.name} 
+                    ${r.mandatory ? '<span class="badge badge-rust" style="font-size:0.65rem; padding:0.1rem 0.4rem;">MANDATORY</span>' : ""}
+                    ${price === 0 ? '<span class="badge badge-approved" style="font-size:0.65rem; padding:0.1rem 0.4rem;">FREE INCLUDED</span>' : ""}
+                  </strong>
+                  <span class="mono text-muted" style="font-size:0.78rem;">
+                    ${price === 0 ? "Included with space" : "+$" + parseFloat(price).toFixed(2) + priceType} • Available Stock: ${qty}
+                  </span>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.4rem;">
+                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin:0;">QTY:</label>
+                <input type="number" data-resource-id="${r.id}" class="res-qty-input form-input" min="${minQty}" max="${qty}" value="${minQty}" style="width:65px; text-align:center; font-weight:700; padding:0.3rem;">
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (err) {
+        container.innerHTML = `<p style="color:var(--accent-rust);">${err.message}</p>`;
+      }
+    }
+
+    async function loadSpacePricingRules(spaceId) {
+      const container = document.getElementById('space-pricing-rules-list');
+      try {
+        const res = await PricingAPI.getRulesBySpace(spaceId);
+        const rules = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+
+        if (!rules || rules.length === 0) {
+          container.innerHTML = '<p class="mono text-muted">Standard base hourly rate applies with zero dynamic surges.</p>';
+          return;
+        }
+
+        container.innerHTML = rules.map(r => `
+          <div style="border-bottom:var(--border-light); padding:0.5rem 0; font-size:0.86rem;">
+            <span class="badge badge-rust" style="font-size:0.7rem;">${r.ruleType}</span>
+            <strong style="margin-left:0.35rem;">${r.name}</strong>: ${r.adjustmentType} (${r.priceAdjustment}) [Day: ${r.dayOfWeek || 'ALL'}]
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<p style="color:var(--accent-rust);">${err.message}</p>`;
+      }
+    }
+
+    async function loadSpaceSchedule(spaceId) {
+      const container = document.getElementById('space-operating-schedule-list');
+      try {
+        const res = await AvailabilityAPI.getRulesBySpace(spaceId);
+        const rules = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+
+        if (!rules || rules.length === 0) {
+          container.innerHTML = '<p class="mono text-muted">General 24/7 operating availability or standard daytime hours.</p>';
+          return;
+        }
+
+        container.innerHTML = rules.map(r => `
+          <div style="border-bottom:var(--border-light); padding:0.5rem 0; font-size:0.86rem; display:flex; justify-content:space-between;">
+            <strong>${r.dayOfWeek}</strong>
+            <span class="mono text-muted">${r.openTime} - ${r.closeTime}</span>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<p style="color:var(--accent-rust);">${err.message}</p>`;
+      }
+    }
+
+    document.getElementById('calc-quote-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const startTime = document.getElementById('quote-start').value;
+      const endTime = document.getElementById('quote-end').value;
+
+      const selectedResourceIds = [];
+      let totalItemsCount = 0;
+      document.querySelectorAll('.res-qty-input').forEach(input => {
+        const qty = parseInt(input.value, 10) || 0;
+        const resId = input.getAttribute('data-resource-id');
+        if (qty > 0 && resId) {
+          totalItemsCount += qty;
+          for (let i = 0; i < qty; i++) {
+            selectedResourceIds.push(resId);
+          }
+        }
+      });
+
+      try {
+        const payload = {
+          spaceId: currentSpaceId,
+          slotStartTime: startTime + ':00',
+          slotEndTime: endTime + ':00',
+          resourceIds: selectedResourceIds.length ? selectedResourceIds : null
+        };
+
+        const res = await PricingAPI.calculatePrice(payload);
+        const data = (res && res.data !== undefined) ? res.data : res;
+
+        const total = (data.finalTotalPrice !== undefined) ? data.finalTotalPrice : ((data.calculatedSpacePrice !== undefined) ? data.calculatedSpacePrice : (data.totalPrice || data.calculatedPrice || 0));
+        document.getElementById('quote-computed-total').textContent = `$${parseFloat(total).toFixed(2)}`;
+        document.getElementById('quote-breakdown-note').textContent = `Reservation window: ${startTime} to ${endTime} (${totalItemsCount} add-on hardware unit(s) selected).`;
+        document.getElementById('quote-result-card').classList.remove('d-none');
+        document.getElementById('quote-result-card').scrollIntoView({ behavior: 'smooth' });
+        showToast('Dynamic price calculated successfully!', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    function initiateBooking() {
+      showToast('Reservation initialized! Proceeding to booking session confirmation...', 'success');
+    }
+  </script>
+</body>
+</html>

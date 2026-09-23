@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BECOME A VERIFIED HOST // BOOKFORGE PLATFORM</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body style="background: var(--bg-warm);">
+
+  <!-- Global Loader Overlay -->
+  <div id="global-loader" class="loader-overlay">
+    <div class="vintage-spinner"></div>
+    <div class="loader-text" id="loader-text">EXECUTING TRANSACTION...</div>
+  </div>
+
+  <!-- Minimalist Vintage Header -->
+  <header class="vintage-nav">
+    <div class="container nav-inner">
+      <a href="../index.html" class="brand-logo">
+        BOOK<span class="logo-accent">FORGE</span>
+      </a>
+      <div class="nav-links">
+        <a href="../index.html" class="nav-link-item">Home</a>
+        <a href="../dashboard/customer.html" class="nav-link-item">My Console</a>
+        <button onclick="Auth.logout()" class="btn btn-sm btn-outline btn-pill">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Editorial Vintage Hero -->
+  <section class="container mt-4 mb-3">
+    <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+      <span class="badge badge-rust mb-1">HOST PRIVILEGES PIPELINE</span>
+      <h1 style="font-size: clamp(2rem, 4vw, 3rem); font-family: var(--font-serif); margin-top: 0.5rem;">
+        MONETIZE YOUR SPACES ON BOOKFORGE
+      </h1>
+      <p style="font-size: 1.05rem; color: var(--text-muted); margin-top: 0.75rem; line-height: 1.6;">
+        Submit your business registration and operating details. Once verified by our administration team, you unlock complete provider privileges: publish venues, deploy studios, configure dynamic pricing formulas, and receive hourly guest bookings.
+      </p>
+    </div>
+  </section>
+
+  <main class="container mb-5" style="max-width: 740px;">
+    
+    <!-- State 1: Already Approved Card -->
+    <div id="approved-card" class="card d-none" style="text-align: center; padding: 3rem 2rem; border-top: 4px solid var(--accent-rust);">
+      <span class="badge badge-approved" style="font-size: 0.9rem; padding: 0.4rem 1rem;">★ HOST VERIFICATION COMPLETE</span>
+      <h2 style="font-family: var(--font-serif); font-size: 2.2rem; margin-top: 1rem;">YOU ARE AN ACTIVE SPACE PROVIDER</h2>
+      <p style="color: var(--text-muted); max-width: 500px; margin: 0.75rem auto 2rem auto;">
+        Your business credentials have been audited and verified. You have full access to deploy venues, spaces, equipment, and pricing rules.
+      </p>
+      <a href="../dashboard/provider.html" class="btn btn-rust btn-pill" style="padding: 0.85rem 2.5rem;">
+        Enter Space Provider Console ➔
+      </a>
+    </div>
+
+    <!-- State 2: Application Pending Card -->
+    <div id="pending-card" class="card d-none" style="text-align: center; padding: 3rem 2rem; border-top: 4px solid #D97706;">
+      <span class="badge badge-pending" style="font-size: 0.9rem; padding: 0.4rem 1rem;">⏳ VERIFICATION UNDER AUDIT</span>
+      <h2 style="font-family: var(--font-serif); font-size: 2.2rem; margin-top: 1rem;">APPLICATION UNDER REVIEW</h2>
+      <p style="color: var(--text-muted); max-width: 500px; margin: 0.75rem auto 2rem auto;">
+        We have received your business registration details and operating facility credentials. An administrator is reviewing your submission.
+      </p>
+      <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
+        <button onclick="checkApplicationStatus()" class="btn btn-outline btn-pill">Refresh Audit Status ↻</button>
+        <a href="../dashboard/customer.html" class="btn btn-rust btn-pill">Return to Member Console ➔</a>
+      </div>
+    </div>
+
+    <!-- State 3: Application Form Card -->
+    <div id="application-form-card" class="card" style="padding: 2.5rem; border-radius: var(--radius-xs); border: var(--border-light); box-shadow: var(--shadow-hover);">
+      
+      <div style="border-bottom: var(--border-light); padding-bottom: 1.25rem; margin-bottom: 1.75rem;">
+        <h3 style="font-family: var(--font-serif); font-size: 1.6rem;">HOST VERIFICATION APPLICATION</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.25rem;">
+          Please provide registered commercial or studio identity. All fields are audited in accordance with BookForge trust guidelines.
+        </p>
+      </div>
+
+      <form id="apply-provider-form">
+        <div class="form-group">
+          <label class="form-label">BUSINESS OR TRADING STUDIO NAME</label>
+          <input type="text" id="app-business-name" class="form-input" placeholder="e.g. Apex Acoustic Facilities LLC" required>
+        </div>
+
+        <div class="grid grid-2 mb-2">
+          <div class="form-group">
+            <label class="form-label">TAX / GST / EIN IDENTIFICATION NUMBER</label>
+            <input type="text" id="app-tax-id" class="form-input mono" placeholder="e.g. 27ABCDE1234F1Z5" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">BUSINESS CONTACT PHONE (10 DIGITS)</label>
+            <input type="text" id="app-phone" class="form-input" maxlength="10" minlength="10" placeholder="e.g. 9876543210" required>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-warm); padding: 1.25rem; border-radius: var(--radius-xs); border: 1px solid var(--border-medium); margin-bottom: 1.5rem;">
+          <label class="form-label" style="font-weight: 700; color: var(--text-main); margin-bottom: 0.75rem;">
+            COMMERCIAL OPERATING FACILITY ADDRESS
+          </label>
+          <div class="form-group">
+            <label class="form-label" style="font-size: 0.75rem;">STREET ADDRESS</label>
+            <input type="text" id="app-street" class="form-input" placeholder="e.g. 742 Sound Studio Way, Suite 400" required>
+          </div>
+          <div class="grid grid-3">
+            <div class="form-group">
+              <label class="form-label" style="font-size: 0.75rem;">CITY</label>
+              <input type="text" id="app-city" class="form-input" placeholder="Mumbai" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-size: 0.75rem;">STATE / REGION</label>
+              <input type="text" id="app-state" class="form-input" placeholder="Maharashtra" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-size: 0.75rem;">POSTAL CODE</label>
+              <input type="number" id="app-postal" class="form-input" placeholder="400001" required>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-rust btn-block btn-pill" style="font-size: 0.95rem; padding: 0.85rem;">
+          Submit Application for Host Verification ➔
+        </button>
+      </form>
+
+    </div>
+
+  </main>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      Auth.redirectIfNotAuthenticated('../auth/login.html');
+      await checkApplicationStatus();
+    });
+
+    async function checkApplicationStatus() {
+      try {
+        const res = await AuthAPI.getProfile();
+        const p = (res && res.data !== undefined) ? res.data : res;
+
+        if (p) {
+          const roles = p.roles || [];
+          const status = p.providerStatus;
+
+          if (roles.includes('ROLE_PROVIDER') || status === 'APPROVED') {
+            document.getElementById('approved-card').classList.remove('d-none');
+            document.getElementById('pending-card').classList.add('d-none');
+            document.getElementById('application-form-card').classList.add('d-none');
+          } else if (status === 'PENDING') {
+            document.getElementById('approved-card').classList.add('d-none');
+            document.getElementById('pending-card').classList.remove('d-none');
+            document.getElementById('application-form-card').classList.add('d-none');
+          } else {
+            // Not yet applied - prefill phone if present
+            if (p.mobileNo) document.getElementById('app-phone').value = p.mobileNo;
+            if (p.address) {
+              if (p.address.address) document.getElementById('app-street').value = p.address.address;
+              if (p.address.city) document.getElementById('app-city').value = p.address.city;
+              if (p.address.state) document.getElementById('app-state').value = p.address.state;
+              if (p.address.postcode) document.getElementById('app-postal').value = p.address.postcode;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Status check notice:', err);
+      }
+    }
+
+    document.getElementById('apply-provider-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const payload = {
+        businessName: document.getElementById('app-business-name').value.trim(),
+        taxOrGstNumber: document.getElementById('app-tax-id').value.trim(),
+        mobileNo: document.getElementById('app-phone').value.trim(),
+        businessAddress: {
+          address: document.getElementById('app-street').value.trim(),
+          city: document.getElementById('app-city').value.trim(),
+          state: document.getElementById('app-state').value.trim(),
+          postcode: parseInt(document.getElementById('app-postal').value, 10) || 0
+        }
+      };
+
+      try {
+        await AuthAPI.applyProvider(payload);
+        showToast('Host application submitted for admin verification!', 'success');
+        document.getElementById('application-form-card').classList.add('d-none');
+        document.getElementById('pending-card').classList.remove('d-none');
+      } catch (err) {
+        showToast(err.message || 'Application submission failed', 'error');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEMBER CONSOLE // BOOKFORGE PLATFORM</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <!-- Global Loader Overlay -->
+  <div id="global-loader" class="loader-overlay">
+    <div class="vintage-spinner"></div>
+    <div class="loader-text" id="loader-text">EXECUTING TRANSACTION...</div>
+  </div>
+
+  <!-- Minimalist Vintage Header -->
+  <header class="vintage-nav">
+    <div class="container nav-inner">
+      <a href="../index.html" class="brand-logo">
+        BOOK<span class="logo-accent">FORGE</span>
+      </a>
+      <div class="nav-links">
+        <a href="../index.html" class="nav-link-item">Home</a>
+        <a href="../venues/become-provider.html" class="btn btn-sm btn-rust btn-pill">Monetize Space ★</a>
+        <button onclick="Auth.logout()" class="btn btn-sm btn-outline btn-pill">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Member Profile & Host Application Banner -->
+  <div class="container mt-3">
+    <div class="card" style="background: #FFFFFF; border-left: 4px solid var(--text-main);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge badge-rust" id="user-role-badge">ROLE_CUSTOMER</span>
+          <h2 style="font-family: var(--font-serif); margin-top: 0.4rem;" id="user-display-name">CUSTOMER // MEMBER CONSOLE</h2>
+          <p class="mono" style="font-size: 0.85rem; color: var(--text-muted);" id="user-display-email">Browse verified creative venues, explore hourly rates, and check live availability.</p>
+        </div>
+        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+          <a href="../venues/become-provider.html" class="btn btn-sm btn-rust btn-pill">Apply for Host Status ★</a>
+          <button onclick="toggleSection('profile-editor-panel')" class="btn btn-outline btn-sm btn-pill">Edit Profile & Address ✎</button>
+          <button onclick="Auth.logout()" class="btn btn-sm btn-outline btn-pill">Disconnect</button>
+        </div>
+      </div>
+
+      <!-- Host Application Pipeline Notice -->
+      <div class="mt-3" style="background: var(--bg-warm); padding: 1.25rem 1.5rem; border-radius: var(--radius-xs); border: 1px solid var(--border-medium);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <span class="badge badge-featured">HOST APPLICATION PIPELINE</span>
+            <h4 style="font-family: var(--font-serif); margin-top: 0.25rem;">Do you manage a studio, gallery, or creative loft?</h4>
+            <p style="font-size: 0.86rem; color: var(--text-muted); margin-top: 0.2rem;">
+              Unlock Space Provider privileges to publish your venues, configure dynamic pricing formulas, and manage hourly bookings.
+            </p>
+          </div>
+          <a href="../venues/become-provider.html" class="btn btn-sm btn-rust btn-pill">Submit Host Verification ➔</a>
+        </div>
+      </div>
+
+      <!-- Collapsible Profile & Address Edit Form -->
+      <div id="profile-editor-panel" class="d-none mt-3" style="border-top: var(--border-light); padding-top: 1.25rem;">
+        <h4 style="font-family: var(--font-serif); margin-bottom: 0.75rem;">MEMBER PROFILE & RESIDENTIAL ADDRESS</h4>
+        <form id="profile-update-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; align-items: flex-end;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">FULL NAME</label>
+            <input type="text" id="prof-full-name" class="form-input" placeholder="e.g. Shyam Member" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">MOBILE PHONE NUMBER</label>
+            <input type="text" id="prof-phone-num" class="form-input" placeholder="e.g. 9876543210" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">STREET ADDRESS</label>
+            <input type="text" id="prof-address-line" class="form-input" placeholder="e.g. 10 Creative Way" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">CITY</label>
+            <input type="text" id="prof-city" class="form-input" placeholder="e.g. Mumbai" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">STATE / REGION</label>
+            <input type="text" id="prof-state" class="form-input" placeholder="e.g. Maharashtra" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">POSTAL CODE</label>
+            <input type="number" id="prof-postcode" class="form-input" placeholder="e.g. 400001" required>
+          </div>
+          <div>
+            <button type="submit" class="btn btn-sm btn-rust btn-pill" style="height: 42px; width: 100%;">Save Address ➔</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <main class="container mt-3 mb-4">
+
+    <!-- Active Selection Crumb Banner -->
+    <div class="selection-banner">
+      <div class="selection-crumb">
+        <span>EXPLORE:</span>
+        <strong id="crumb-venue-name" style="color:var(--accent-rust);">Select a Venue Below</strong>
+        <span style="margin-left:0.5rem;">➔ SPACE:</span>
+        <strong id="crumb-space-name" style="color:var(--text-main);">Select a Space to Calculate Price</strong>
+      </div>
+      <div>
+        <span class="mono" style="font-size:0.8rem; color:var(--text-muted);">LIVE REPUTATION FLYWHEEL ACTIVE</span>
+      </div>
+    </div>
+
+    <!-- VENUES BROWSER -->
+    <div class="action-panel">
+      <div class="action-panel-header">
+        <div>
+          <h3 style="font-family: var(--font-serif);">VERIFIED PLATFORM VENUES</h3>
+          <p style="font-size: 0.86rem; color: var(--text-muted);">Select any architectural or media facility to inspect its available spaces and pricing.</p>
+        </div>
+        <div>
+          <button onclick="loadVenues()" class="btn btn-sm btn-outline btn-pill">Refresh Catalog ↻</button>
+        </div>
+      </div>
+
+      <div class="action-panel-body">
+        <div id="venues-list-grid" class="grid">
+          <div class="card text-center" style="grid-column: 1/-1;">
+            <div class="vintage-spinner" style="margin: 2rem auto;"></div>
+            <p class="mono text-muted">Retrieving catalog venues...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPACES FOR SELECTED VENUE -->
+    <div id="spaces-master-panel" class="action-panel d-none">
+      <div class="action-panel-header">
+        <div>
+          <h3 style="font-family: var(--font-serif);" id="spaces-panel-title">AVAILABLE SPACES</h3>
+          <p style="font-size: 0.86rem; color: var(--text-muted);">Select a space below to obtain a dynamic price quote or inspect equipment.</p>
+        </div>
+      </div>
+
+      <div class="action-panel-body">
+        <div id="spaces-list-grid" class="grid"></div>
+      </div>
+    </div>
+
+    <!-- DYNAMIC PRICING ESTIMATOR WORKBENCH -->
+    <div id="price-calculator-panel" class="action-panel d-none">
+      <div class="action-panel-header" style="background:#1A1816; color:#FAF7F2;">
+        <div>
+          <span class="badge badge-rust">LIVE PRICING ENGINE</span>
+          <h3 style="font-family: var(--font-serif); color:#FAF7F2; margin-top:0.3rem;" id="calc-space-title">ESTIMATE RESERVATION COST</h3>
+          <p style="font-size: 0.85rem; color: #A8A29A;" id="calc-space-details">Calculate exact pricing including peak surges and weekend multipliers via catalog service.</p>
+        </div>
+        <div>
+          <a href="#" id="link-public-space" class="btn btn-sm btn-outline btn-pill" style="border-color:#FAF7F2; color:#FAF7F2;">Full Space Profile ↗</a>
+        </div>
+      </div>
+
+      <div class="action-panel-body">
+        <form id="price-calc-form" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; align-items:flex-end;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">START DATE & TIME</label>
+            <input type="datetime-local" id="calc-start-time" class="form-input" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">END DATE & TIME</label>
+            <input type="datetime-local" id="calc-end-time" class="form-input" required>
+          </div>
+          <div>
+            <button type="submit" class="btn btn-rust btn-block btn-pill" style="height:42px;">
+              Compute Live Price ➔
+            </button>
+          </div>
+        </form>
+
+        <div id="calc-result-box" class="card mt-3 d-none" style="background:var(--bg-warm); border:1px solid var(--accent-rust);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <span class="badge badge-rust">QUOTE SUMMARY</span>
+              <h3 style="font-family: var(--font-serif); font-size:2rem; color:var(--accent-rust); margin-top:0.3rem;" id="quote-total-amount">$0.00</h3>
+              <p class="mono text-muted" style="font-size:0.85rem;" id="quote-details">Calculated based on base rate and active pricing rules.</p>
+            </div>
+            <div>
+              <a href="#" id="quote-book-btn" class="btn btn-rust btn-pill">Reserve This Space ➔</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    let globalVenues = [];
+    let selectedVenue = null;
+    let selectedSpace = null;
+
+    function toggleSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('d-none');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      Auth.redirectIfNotAuthenticated('../auth/login.html');
+      
+      const user = Auth.getUser();
+      if (user) {
+        document.getElementById('user-display-name').textContent = `CUSTOMER // ${(user.username || 'MEMBER').toUpperCase()}`;
+      }
+
+      await loadUserProfile();
+      await loadVenues();
+    });
+
+    async function loadUserProfile() {
+      try {
+        const res = await AuthAPI.getProfile();
+        const p = (res && res.data !== undefined) ? res.data : res;
+        if (p) {
+          if (p.fullName) document.getElementById('prof-full-name').value = p.fullName;
+          if (p.mobileNo) document.getElementById('prof-phone-num').value = p.mobileNo;
+          if (p.address) {
+            if (p.address.address) document.getElementById('prof-address-line').value = p.address.address;
+            if (p.address.city) document.getElementById('prof-city').value = p.address.city;
+            if (p.address.state) document.getElementById('prof-state').value = p.address.state;
+            if (p.address.postcode) document.getElementById('prof-postcode').value = p.address.postcode;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load remote profile', err);
+      }
+    }
+
+    async function loadVenues() {
+      try {
+        const res = await VenueAPI.getAll();
+        globalVenues = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+        renderVenuesGrid(globalVenues);
+      } catch (err) {
+        document.getElementById('venues-list-grid').innerHTML = `
+          <div class="card text-center" style="grid-column: 1/-1;">
+            <p style="color:var(--accent-rust);">${err.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderVenuesGrid(venues) {
+      const grid = document.getElementById('venues-list-grid');
+
+      if (!venues || venues.length === 0) {
+        grid.innerHTML = '<div class="card text-center" style="grid-column: 1/-1;"><h3>NO VENUES FOUND</h3><p>Platform venues will appear here once published by providers.</p></div>';
+        return;
+      }
+
+      grid.innerHTML = venues.map(v => {
+        const statusBadge = v.venueStatus === 'APPROVED' || v.venueStatus === 'PUBLISHED' ? 'badge-approved' : 'badge-rust';
+        const addr = v.address ? `${v.address.city || ''}, ${v.address.state || ''}` : 'Location unlisted';
+
+        return `
+          <div class="card venue-item-card" id="venue-card-${v.id}" style="display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
+                <span class="badge ${statusBadge}">${v.venueStatus || 'ACTIVE'}</span>
+                <span class="mono text-muted" style="font-size:0.75rem;">${addr}</span>
+              </div>
+              <h4 style="font-family: var(--font-serif); font-size:1.35rem; margin-bottom:0.4rem;">${v.name}</h4>
+              <p style="font-size:0.88rem; color:var(--text-muted); line-height:1.4; margin-bottom:1rem;">
+                ${v.description || 'Creative space facility.'}
+              </p>
+            </div>
+
+            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
+              <button onclick="selectVenue('${v.id}')" class="btn btn-sm btn-rust btn-pill" style="flex:1;">
+                Inspect Spaces ➔
+              </button>
+              <a href="../venues/venue-details.html?id=${v.id}" class="btn btn-sm btn-outline btn-pill">
+                Details ↗
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function selectVenue(venueId) {
+      selectedVenue = globalVenues.find(v => v.id === venueId);
+      if (!selectedVenue) return;
+
+      document.querySelectorAll('.venue-item-card').forEach(el => el.classList.remove('active-card-highlight'));
+      const activeCard = document.getElementById(`venue-card-${venueId}`);
+      if (activeCard) activeCard.classList.add('active-card-highlight');
+
+      document.getElementById('crumb-venue-name').textContent = selectedVenue.name;
+      document.getElementById('crumb-space-name').textContent = 'Select a Space Below';
+
+      document.getElementById('spaces-master-panel').classList.remove('d-none');
+      document.getElementById('price-calculator-panel').classList.add('d-none');
+
+      await loadVenueSpaces(selectedVenue.id);
+      document.getElementById('spaces-master-panel').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function loadVenueSpaces(venueId) {
+      const grid = document.getElementById('spaces-list-grid');
+      grid.innerHTML = '<div class="card text-center" style="grid-column: 1/-1;"><div class="vintage-spinner" style="margin: 1.5rem auto;"></div><p class="mono text-muted">Loading spaces for this venue...</p></div>';
+
+      try {
+        const res = await SpaceAPI.getByVenue(venueId);
+        const spaces = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+        renderSpacesGrid(spaces);
+      } catch (err) {
+        grid.innerHTML = `<div class="card text-center" style="grid-column: 1/-1;"><p style="color:var(--accent-rust);">${err.message}</p></div>`;
+      }
+    }
+
+    function renderSpacesGrid(spaces) {
+      const grid = document.getElementById('spaces-list-grid');
+
+      if (!spaces || spaces.length === 0) {
+        grid.innerHTML = '<div class="card text-center" style="grid-column: 1/-1;"><h4>NO SPACES LISTED IN THIS VENUE</h4></div>';
+        return;
+      }
+
+      grid.innerHTML = spaces.map(s => {
+        const imgTag = (s.imgUrls && s.imgUrls.length > 0)
+          ? `<img src="${s.imgUrls[0]}" style="width:100%; height:150px; object-fit:cover; border-radius:var(--radius-xs); margin-bottom:0.75rem;" alt="${s.name}">`
+          : "";
+
+        return `
+          <div class="card space-item-card" id="space-card-${s.id}">
+            ${imgTag}
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
+              <span class="badge badge-rust">CAPACITY: ${s.capacity || 1} GUESTS</span>
+              <span style="font-family: var(--font-serif); font-size:1.25rem; font-weight:700; color:var(--accent-rust);">
+                $${s.basePrice ? parseFloat(s.basePrice).toFixed(2) : '0.00'}/hr
+              </span>
+            </div>
+            <h4 style="font-family: var(--font-serif); font-size:1.2rem; margin-bottom:0.4rem;">${s.name}</h4>
+            <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.4; margin-bottom:1rem;">
+              ${s.description || 'Architectural room.'}
+            </p>
+
+            <div style="display:flex; gap:0.5rem; border-top:var(--border-light); padding-top:0.75rem;">
+              <button onclick="selectSpace('${s.id}', '${s.name.replace(/'/g, "\\'")}', '${s.basePrice}', '${s.capacity}')" class="btn btn-sm btn-rust btn-pill" style="flex:1;">
+                Calculate Price Quote ➔
+              </button>
+              <a href="../venues/space-details.html?id=${s.id}" class="btn btn-sm btn-outline btn-pill">
+                Details ↗
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectSpace(spaceId, spaceName, basePrice, capacity) {
+      selectedSpace = { id: spaceId, name: spaceName, basePrice, capacity };
+
+      document.querySelectorAll('.space-item-card').forEach(el => el.classList.remove('active-card-highlight'));
+      const activeCard = document.getElementById(`space-card-${spaceId}`);
+      if (activeCard) activeCard.classList.add('active-card-highlight');
+
+      document.getElementById('crumb-space-name').textContent = spaceName;
+      document.getElementById('calc-space-title').textContent = `${spaceName.toUpperCase()} // PRICE QUOTE`;
+      document.getElementById('calc-space-details').textContent = `Base Rate: $${basePrice}/hr • Capacity: ${capacity} Guests`;
+      document.getElementById('link-public-space').href = `../venues/space-details.html?id=${spaceId}`;
+
+      // Pre-fill tomorrow 10:00 to 14:00
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const yyyy = tomorrow.getFullYear();
+      const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+      const dd = String(tomorrow.getDate()).padStart(2, '0');
+
+      document.getElementById('calc-start-time').value = `${yyyy}-${mm}-${dd}T10:00`;
+      document.getElementById('calc-end-time').value = `${yyyy}-${mm}-${dd}T14:00`;
+
+      document.getElementById('price-calculator-panel').classList.remove('d-none');
+      document.getElementById('calc-result-box').classList.add('d-none');
+      document.getElementById('price-calculator-panel').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.getElementById('price-calc-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!selectedSpace) return;
+
+      const startVal = document.getElementById('calc-start-time').value;
+      const endVal = document.getElementById('calc-end-time').value;
+
+      try {
+        const payload = {
+          spaceId: selectedSpace.id,
+          slotStartTime: startVal + ':00',
+          slotEndTime: endVal + ':00'
+        };
+
+        const res = await PricingAPI.calculatePrice(payload);
+        const data = (res && res.data !== undefined) ? res.data : res;
+
+        const total = data.totalPrice || data.calculatedPrice || data.price || 0;
+        document.getElementById('quote-total-amount').textContent = `$${parseFloat(total).toFixed(2)}`;
+        document.getElementById('quote-details').textContent = `Time window: ${startVal} to ${endVal}. Dynamic surge multipliers applied.`;
+        document.getElementById('quote-book-btn').href = `../venues/space-details.html?id=${selectedSpace.id}`;
+        document.getElementById('calc-result-box').classList.remove('d-none');
+        showToast('Dynamic price quote calculated successfully!', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.getElementById('profile-update-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        fullName: document.getElementById('prof-full-name').value.trim(),
+        mobileNo: document.getElementById('prof-phone-num').value.trim(),
+        address: {
+          address: document.getElementById('prof-address-line').value.trim(),
+          city: document.getElementById('prof-city').value.trim(),
+          state: document.getElementById('prof-state').value.trim(),
+          postcode: parseInt(document.getElementById('prof-postcode').value, 10) || 0
+        }
+      };
+
+      try {
+        await AuthAPI.updateProfile(payload);
+        showToast('Profile & Address saved successfully!', 'success');
+        toggleSection('profile-editor-panel');
+        await loadUserProfile();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>

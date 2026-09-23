@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIGN IN // BOOKFORGE PLATFORM</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body style="background: var(--bg-warm);">
 
@@ -17,11 +17,11 @@
   <!-- Header -->
   <header class="vintage-nav">
     <div class="container nav-inner">
-      <a href="index.html" class="brand-logo">
+      <a href="../index.html" class="brand-logo">
         BOOK<span class="logo-accent">FORGE</span>
       </a>
       <div class="nav-links">
-        <a href="index.html" class="nav-link-item">Home</a>
+        <a href="../index.html" class="nav-link-item">Home</a>
         <a href="signup.html" class="btn btn-sm btn-outline btn-pill">Register</a>
       </div>
     </div>
@@ -35,8 +35,10 @@
       <div style="text-align: center; margin-bottom: 2rem;">
         <span class="badge badge-rust mb-1">SECURITY GATEWAY</span>
         <h1 style="font-size: 2.4rem; font-family: var(--font-serif); margin-top: 0.5rem;">SIGN IN</h1>
-        <p style="font-size: 0.92rem;">Enter your username and passphrase to access your console.</p>
+        <p style="font-size: 0.92rem; color: var(--text-muted);">Enter your username and passphrase to access your console.</p>
       </div>
+
+      <div id="alert-container"></div>
 
       <form id="login-form">
         <div class="form-group">
@@ -45,7 +47,10 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">PASSPHRASE</label>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <label class="form-label" style="margin-bottom: 0;">PASSPHRASE</label>
+            <a href="#" style="font-size: 0.8rem; color: var(--text-muted); text-decoration: underline;">Forgot passphrase?</a>
+          </div>
           <input type="password" id="login-password" class="form-input" placeholder="••••••••••••" required>
         </div>
 
@@ -84,9 +89,10 @@
 
   </main>
 
-  <script src="js/config.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/main.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/main.js"></script>
   <script>
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -97,8 +103,8 @@
         await AuthAPI.login({ username, password });
         showToast('Authentication approved! Navigating to console...', 'success');
         setTimeout(() => {
-          window.location.href = 'dashboard.html';
-        }, 500);
+          Auth.redirectBasedOnRole();
+        }, 400);
       } catch (err) {
         showToast(err.message || 'Invalid username or password', 'error');
       }

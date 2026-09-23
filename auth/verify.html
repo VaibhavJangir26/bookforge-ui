@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VERIFY OTP // BOOKFORGE PLATFORM</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body style="background: var(--bg-warm);">
 
@@ -16,11 +16,11 @@
 
   <header class="vintage-nav">
     <div class="container nav-inner">
-      <a href="index.html" class="brand-logo">
+      <a href="../index.html" class="brand-logo">
         BOOK<span class="logo-accent">FORGE</span>
       </a>
       <div class="nav-links">
-        <a href="index.html" class="nav-link-item">Home</a>
+        <a href="../index.html" class="nav-link-item">Home</a>
         <a href="login.html" class="btn btn-sm btn-outline btn-pill">Sign In</a>
       </div>
     </div>
@@ -33,7 +33,7 @@
       <div style="text-align: center; margin-bottom: 2rem;">
         <span class="badge badge-rust mb-1">TWO-FACTOR VALIDATION</span>
         <h1 style="font-size: 2.4rem; font-family: var(--font-serif); margin-top: 0.5rem;">VERIFY CODE</h1>
-        <p style="font-size: 0.92rem;">Enter the 6-digit OTP code sent to your email to activate your account.</p>
+        <p style="font-size: 0.92rem; color: var(--text-muted);">Enter the 6-digit OTP code sent to your email to activate your account.</p>
       </div>
 
       <form id="verify-form">
@@ -53,16 +53,17 @@
       </form>
 
       <div class="mt-3 text-center" style="font-size: 0.82rem; color: var(--text-muted);">
-        Development note: Check auth-service console logs for generated 6-digit OTP if email inbox is not checked.
+        Development note: Check auth-service terminal logs for generated 6-digit OTP.
       </div>
 
     </div>
 
   </main>
 
-  <script src="js/config.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/main.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/main.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const savedEmail = localStorage.getItem('pending_verify_email');
@@ -79,11 +80,10 @@
       try {
         const res = await AuthAPI.verify({ email, otp });
         showToast('OTP verified successfully! Access granted.', 'success');
-        
         localStorage.removeItem('pending_verify_email');
 
         setTimeout(() => {
-          window.location.href = 'dashboard.html';
+          Auth.redirectBasedOnRole();
         }, 500);
       } catch (err) {
         showToast(err.message || 'Verification failed. Please check OTP.', 'error');

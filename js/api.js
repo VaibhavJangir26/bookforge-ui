@@ -8,13 +8,13 @@ const CONFIG = window.BOOKFORGE_CONFIG || {
   AUTH_SERVICE_URL: 'http://localhost:8500/api/v1',
   CATALOG_SERVICE_URL: 'http://localhost:8600/api/v1',
   ENDPOINTS: {
-    AUTH: { LOGIN: '/auth/login', SIGNUP: '/auth/signup', VERIFY: '/auth/verify', REFRESH: '/auth/refresh', LOGOUT: '/auth/logout', PROFILE_ME: '/profile/me' },
+    AUTH: { LOGIN: '/auth/login', SIGNUP: '/auth/signup', VERIFY: '/auth/verify', REFRESH: '/auth/refresh', LOGOUT: '/auth/logout', PROFILE_ME: '/profile/me', APPLY_PROVIDER: '/profile/apply-provider' },
     CATEGORY: { GET_ALL: '/category', CREATE: '/category', UPDATE: '/category', DELETE: (id) => `/category/${id}` },
     VENUE: { GET_ALL: '/venues', GET_MY_VENUES: '/venues/my-venues', GET_DETAILS: (id) => `/venues/${id}`, CREATE: '/venues', UPDATE_DETAILS: (id) => `/venues/${id}/details`, UPDATE_STATUS: (id) => `/venues/${id}/status`, DELETE: (id) => `/venues/${id}` },
     SPACE: { GET_ALL: '/spaces', GET_BY_VENUE: (id) => `/spaces/venue/${id}`, GET_DETAILS: (id) => `/spaces/${id}`, CREATE: '/spaces', UPDATE: (id) => `/spaces/${id}`, DELETE: (id) => `/spaces/${id}` },
     RESOURCE: { GET_ALL: '/resources', GET_BY_SPACE: (id) => `/resources/space/${id}`, GET_DETAILS: (id) => `/resources/${id}`, CREATE: '/resources', UPDATE: (id) => `/resources/${id}`, DELETE: (id) => `/resources/${id}` },
     AVAILABILITY: { RULES_BY_SPACE: (id) => `/availability/rules/space/${id}`, RULES: '/availability/rules', DELETE_RULE: (id) => `/availability/rules/${id}`, BLACKOUTS_BY_SPACE: (id) => `/availability/blackouts/space/${id}`, BLACKOUTS: '/availability/blackouts', DELETE_BLACKOUT: (id) => `/availability/blackouts/${id}`, SLOTS: (id) => `/availability/slots/space/${id}` },
-    PRICING: { RULES_BY_SPACE: (id) => `/pricing/rules/space/${id}`, RULES: '/pricing/rules', DELETE_RULE: (id) => `/pricing/rules/${id}`, CALCULATE: '/pricing/calculate' }
+    ADMIN_PROVIDERS: { PENDING: '/admin/providers/pending', REVIEW: (id) => `/admin/providers/${id}/status` }, PRICING: { RULES_BY_SPACE: (id) => `/pricing/rules/space/${id}`, RULES: '/pricing/rules', DELETE_RULE: (id) => `/pricing/rules/${id}`, CALCULATE: '/pricing/calculate' }
   }
 };
 
@@ -99,11 +99,25 @@ async function apiRequest(endpoint, options = {}) {
     if (!res.ok) {
       const errMsg = (responseData && (responseData.message || responseData.error)) || 
                      (typeof responseData === 'string' ? responseData : `Error ${res.status}: ${res.statusText}`);
+                     
+      // Global Stale JWT Handler (Only for 401 Unauthorized on non-auth endpoints)
+      const isAuthEndpoint = endpoint.includes('/auth/login') || endpoint.includes('/auth/signup') || endpoint.includes('/auth/verify');
+      if (res.status === 401 && !isAuthEndpoint) {
+        console.warn('Authentication token expired or invalid. Forcing logout.');
+        AuthAPI.logout();
+      }
+      
       throw new Error(errMsg);
     }
 
     if (responseData && typeof responseData === 'object' && responseData.data !== undefined) {
-      return responseData.data;
+      const unwrapped = responseData.data;
+      if (unwrapped && typeof unwrapped === 'object' && !('data' in unwrapped)) {
+        try {
+          Object.defineProperty(unwrapped, 'data', { get() { return this; }, configurable: true, enumerable: false });
+        } catch(e) {}
+      }
+      return unwrapped;
     }
 
     return responseData;
@@ -132,7 +146,12 @@ const AuthAPI = {
     }
     
     const rolesArray = (data && data.roles) ? (Array.isArray(data.roles) ? data.roles : Array.from(data.roles)) : [];
-    const primaryRole = rolesArray[0] || (username === 'admin' ? 'ROLE_ADMIN' : (username === 'ram123' ? 'ROLE_PROVIDER' : 'ROLE_CUSTOMER'));
+    let primaryRole = 'ROLE_CUSTOMER';
+    if (rolesArray.includes('ROLE_ADMIN') || username === 'admin') {
+      primaryRole = 'ROLE_ADMIN';
+    } else if (rolesArray.includes('ROLE_PROVIDER') || username === 'ram123') {
+      primaryRole = 'ROLE_PROVIDER';
+    }
 
     localStorage.setItem('bookforge_user', JSON.stringify({
       username: (data && data.username) || username,
@@ -193,10 +212,22 @@ const AuthAPI = {
     });
   },
 
+  async applyProvider(dto) {
+    return await apiRequest(CONFIG.ENDPOINTS.AUTH.APPLY_PROVIDER, {
+      method: 'POST',
+      body: JSON.stringify(dto),
+      loaderText: 'SUBMITTING HOST APPLICATION...'
+    });
+  },
+
   logout() {
     localStorage.removeItem('bookforge_token');
     localStorage.removeItem('bookforge_user');
-    window.location.href = 'login.html';
+    localStorage.removeItem('signupIntent');
+    localStorage.removeItem('pending_verify_email');
+    const path = window.location.pathname;
+    const isInSubdir = path.includes('/auth/') || path.includes('/dashboard/') || path.includes('/venues/');
+    window.location.replace(isInSubdir ? '../auth/login.html' : 'auth/login.html');
   }
 };
 
@@ -259,6 +290,8 @@ const VenueAPI = {
       loaderText: 'FETCHING VENUES...'
     });
   },
+
+  async getDetails(id) { return await this.getById(id); },
 
   async getById(id) {
     return await apiRequest(CONFIG.ENDPOINTS.VENUE.GET_DETAILS(id), {
@@ -337,6 +370,8 @@ const SpaceAPI = {
     });
   },
 
+  async getDetails(id) { return await this.getById(id); },
+
   async getById(id) {
     return await apiRequest(CONFIG.ENDPOINTS.SPACE.GET_DETAILS(id), {
       method: 'GET',
@@ -413,6 +448,8 @@ const ResourceAPI = {
     });
   },
 
+  async getDetails(id) { return await this.getById(id); },
+
   async getById(id) {
     return await apiRequest(CONFIG.ENDPOINTS.RESOURCE.GET_DETAILS(id), {
       method: 'GET',
@@ -470,14 +507,15 @@ const ResourceAPI = {
 const AvailabilityAPI = {
   async getRules(spaceId) {
     return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.RULES_BY_SPACE(spaceId), {
-      method: 'GET',
-      loaderText: 'FETCHING OPERATING RULES...'
+      method: "GET",
+      loaderText: "FETCHING OPERATING RULES..."
     });
   },
+  async getRulesBySpace(spaceId) { return await this.getRules(spaceId); },
 
   async createRule({ spaceId, dayOfWeek, openingTime, closingTime, open, slotDurationInMinutes }) {
     return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.RULES, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({
         spaceId,
         dayOfWeek,
@@ -486,48 +524,49 @@ const AvailabilityAPI = {
         open: open !== false,
         slotDurationInMinutes: parseInt(slotDurationInMinutes, 10) || 60
       }),
-      loaderText: 'CONFIGURING SCHEDULE RULE...'
+      loaderText: "CONFIGURING SCHEDULE RULE..."
     });
   },
 
   async deleteRule(ruleId) {
     return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.DELETE_RULE(ruleId), {
-      method: 'DELETE',
-      loaderText: 'DELETING SCHEDULE RULE...'
+      method: "DELETE",
+      loaderText: "DELETING SCHEDULE RULE..."
     });
   },
 
   async getBlackouts(spaceId) {
     return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.BLACKOUTS_BY_SPACE(spaceId), {
-      method: 'GET',
-      loaderText: 'FETCHING BLACKOUT WINDOWS...'
+      method: "GET",
+      loaderText: "FETCHING BLACKOUT WINDOWS..."
     });
   },
+  async getBlackoutsBySpace(spaceId) { return await this.getBlackouts(spaceId); },
 
   async createBlackout({ spaceId, startDateTime, endDateTime, reason }) {
     return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.BLACKOUTS, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ spaceId, startDateTime, endDateTime, reason }),
-      loaderText: 'CONFIGURING BLACKOUT WINDOW...'
+      loaderText: "CONFIGURING BLACKOUT WINDOW..."
     });
   },
 
   async deleteBlackout(blackoutId) {
     return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.DELETE_BLACKOUT(blackoutId), {
-      method: 'DELETE',
-      loaderText: 'REMOVING BLACKOUT...'
+      method: "DELETE",
+      loaderText: "REMOVING BLACKOUT..."
     });
   },
 
   async getSlots({ spaceId, startDate, endDate }) {
     const params = new URLSearchParams();
-    if (startDate) params.append('startDate', startDate);
-    if (endDate) params.append('endDate', endDate);
+    if (startDate) params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
     const qs = params.toString();
 
-    return await apiRequest(`${CONFIG.ENDPOINTS.AVAILABILITY.SLOTS(spaceId)}${qs ? '?' + qs : ''}`, {
-      method: 'GET',
-      loaderText: 'QUERYING OPEN SLOTS...'
+    return await apiRequest(`${CONFIG.ENDPOINTS.AVAILABILITY.SLOTS(spaceId)}${qs ? "?" + qs : ""}`, {
+      method: "GET",
+      loaderText: "QUERYING OPEN SLOTS..."
     });
   }
 };
@@ -538,38 +577,84 @@ const AvailabilityAPI = {
 const PricingAPI = {
   async getRules(spaceId) {
     return await apiRequest(CONFIG.ENDPOINTS.PRICING.RULES_BY_SPACE(spaceId), {
-      method: 'GET',
-      loaderText: 'FETCHING DYNAMIC PRICING RULES...'
+      method: "GET",
+      loaderText: "FETCHING DYNAMIC PRICING RULES..."
     });
   },
+  async getRulesBySpace(spaceId) { return await this.getRules(spaceId); },
 
   async createRule(ruleData) {
     return await apiRequest(CONFIG.ENDPOINTS.PRICING.RULES, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(ruleData),
-      loaderText: 'SAVING PRICING RULE...'
+      loaderText: "SAVING PRICING RULE..."
     });
   },
 
   async deleteRule(ruleId) {
     return await apiRequest(CONFIG.ENDPOINTS.PRICING.DELETE_RULE(ruleId), {
-      method: 'DELETE',
-      loaderText: 'DELETING PRICING RULE...'
+      method: "DELETE",
+      loaderText: "DELETING PRICING RULE..."
     });
   },
 
   async calculate({ spaceId, slotStartTime, slotEndTime, resourceIds = [] }) {
     return await apiRequest(CONFIG.ENDPOINTS.PRICING.CALCULATE, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ spaceId, slotStartTime, slotEndTime, resourceIds }),
-      loaderText: 'CALCULATING TOTAL QUOTE...'
+      loaderText: "CALCULATING TOTAL QUOTE..."
+    });
+  },
+  async calculatePrice(payload) { return await this.calculate(payload); }
+};
+
+const AdminAPI = {
+  async getPendingProviders() {
+    return await apiRequest(CONFIG.ENDPOINTS.ADMIN_PROVIDERS.PENDING || "/admin/providers/pending", {
+      method: "GET",
+      loaderText: "FETCHING PENDING APPLICATIONS..."
+    });
+  },
+
+  async reviewProvider(userId, status, rejectionReason = "") {
+    let finalStatus = status;
+    let finalReason = rejectionReason;
+    if (typeof status === "object" && status !== null) {
+      finalStatus = status.status;
+      finalReason = status.rejectionReason || "";
+    }
+    while (typeof finalStatus === "object" && finalStatus !== null) {
+      finalStatus = finalStatus.status;
+    }
+    if (typeof finalStatus === "string") {
+      finalStatus = finalStatus.trim().toUpperCase();
+    }
+    return await apiRequest(CONFIG.ENDPOINTS.ADMIN_PROVIDERS.REVIEW(userId), {
+      method: "PATCH",
+      body: JSON.stringify({
+        status: finalStatus,
+        rejectionReason: finalReason || null
+      }),
+      loaderText: `${finalStatus === "APPROVED" ? "APPROVING" : "REJECTING"} HOST APPLICATION...`
     });
   }
 };
 
-// Seed credentials helper for developer testing
 const SeedUsers = {
-  customer: { username: 'shyam123', password: 'shyam@123', role: 'ROLE_CUSTOMER' },
-  provider: { username: 'ram123', password: 'ram@123', role: 'ROLE_PROVIDER' },
-  admin: { username: 'admin', password: 'admin@123', role: 'ROLE_ADMIN' }
+  customer: { username: "shyam123", password: "shyam@123", role: "ROLE_CUSTOMER" },
+  provider: { username: "ram123", password: "ram@123", role: "ROLE_PROVIDER" },
+  admin: { username: "admin", password: "admin@123", role: "ROLE_ADMIN" }
 };
+
+window.AuthAPI = AuthAPI;
+window.CategoryAPI = CategoryAPI;
+window.VenueAPI = VenueAPI;
+window.SpaceAPI = SpaceAPI;
+window.ResourceAPI = ResourceAPI;
+window.AvailabilityAPI = AvailabilityAPI;
+window.PricingAPI = PricingAPI;
+window.AdminAPI = AdminAPI;
+window.SeedUsers = SeedUsers;
+
+
+

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VENUE SHOWCASE // BOOKFORGE PLATFORM</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <!-- Global Loader Overlay -->
+  <div id="global-loader" class="loader-overlay">
+    <div class="vintage-spinner"></div>
+    <div class="loader-text" id="loader-text">EXECUTING TRANSACTION...</div>
+  </div>
+
+  <!-- Minimalist Vintage Header -->
+  <header class="vintage-nav">
+    <div class="container nav-inner">
+      <a href="../index.html" class="brand-logo">
+        BOOK<span class="logo-accent">FORGE</span>
+      </a>
+      <div class="nav-links">
+        <a href="../index.html" class="nav-link-item">Home</a>
+        <a href="../dashboard/index.html" class="nav-link-item">Console</a>
+        <button onclick="Auth.logout()" class="btn btn-sm btn-outline btn-pill">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mt-4 mb-5">
+    
+    <!-- Top Nav Crumb -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+      <a href="javascript:history.back()" class="btn btn-sm btn-outline btn-pill">
+        ← Back to Browse
+      </a>
+      <span class="mono text-muted" style="font-size:0.82rem;" id="venue-id-crumb">VENUE ID: SYNCHRONIZING...</span>
+    </div>
+
+    <!-- Venue Main Editorial Card -->
+    <div class="card mb-4" id="venue-main-card" style="padding: 2.5rem; border-left: 5px solid var(--accent-rust);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem;">
+            <span class="badge badge-rust" id="venue-status-badge">VENUE ACTIVE</span>
+            <span class="mono text-muted" style="font-size: 0.85rem;" id="venue-category-label">CATEGORY TAXONOMY</span>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: clamp(2rem, 3.5vw, 2.8rem);" id="venue-title">
+            LOADING FACILITY...
+          </h1>
+          <p class="mono text-muted" style="font-size: 0.9rem; margin-top: 0.4rem;" id="venue-address">
+            Retrieving location...
+          </p>
+        </div>
+
+        <div style="text-align: right;">
+          <div class="mono" style="font-size: 0.85rem; color: var(--text-muted);">
+            <div>Email: <strong id="venue-email" style="color:var(--text-main);">-</strong></div>
+            <div>Phone: <strong id="venue-phone" style="color:var(--text-main);">-</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top: var(--border-light); padding-top: 1.25rem; margin-top: 1.5rem;">
+        <h4 style="font-family: var(--font-serif); font-size: 1.15rem; margin-bottom: 0.5rem;">FACILITY OVERVIEW</h4>
+        <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;" id="venue-desc">
+          Fetching specifications from catalog service...
+        </p>
+      </div>
+    </div>
+
+    <!-- Available Sub-Spaces in this Venue -->
+    <div class="action-panel">
+      <div class="action-panel-header">
+        <div>
+          <span class="badge badge-rust">BOOKABLE SPACES</span>
+          <h3 style="font-family: var(--font-serif); margin-top: 0.35rem;">SUB-SPACES & STUDIOS IN THIS VENUE</h3>
+          <p style="font-size: 0.86rem; color: var(--text-muted);">Choose a space below to inspect hourly rates, equipment packages, and calculate live quotes.</p>
+        </div>
+      </div>
+
+      <div class="action-panel-body">
+        <div id="venue-spaces-grid" class="grid grid-2">
+          <div class="card text-center" style="grid-column: 1/-1;">
+            <div class="vintage-spinner" style="margin: 2rem auto;"></div>
+            <p class="mono text-muted">Retrieving spaces attached to this venue...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      Auth.redirectIfNotAuthenticated('../auth/login.html');
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const venueId = urlParams.get('id');
+
+      if (!venueId) {
+        alert('No venue ID provided in URL');
+        window.location.href = '../dashboard/index.html';
+        return;
+      }
+
+      document.getElementById('venue-id-crumb').textContent = `VENUE ID: ${venueId}`;
+      await loadVenueData(venueId);
+    });
+
+    async function loadVenueData(venueId) {
+      try {
+        const res = await VenueAPI.getDetails(venueId);
+        const v = (res && res.data !== undefined) ? res.data : res;
+
+        if (v) {
+          document.getElementById('venue-title').textContent = v.name || 'Architectural Venue';
+          document.getElementById('venue-status-badge').textContent = v.venueStatus || 'PUBLISHED';
+          document.getElementById('venue-desc').textContent = v.description || 'Creative space facility with specialized hardware infrastructure.';
+          document.getElementById('venue-email').textContent = v.contactEmail || 'N/A';
+          document.getElementById('venue-phone').textContent = v.contactPhone || 'N/A';
+          
+          if (v.address) {
+            document.getElementById('venue-address').textContent = `${v.address.addressLine ? v.address.addressLine + ', ' : ''}${v.address.city || ''}, ${v.address.state || ''} ${v.address.postalCode || ''}`;
+          }
+
+          if (v.categoryId) {
+            document.getElementById('venue-category-label').textContent = `SLUG: ${v.slug || 'venue'}`;
+          }
+        }
+
+        await loadSpaces(venueId);
+      } catch (err) {
+        document.getElementById('venue-title').textContent = 'Error Loading Venue';
+        document.getElementById('venue-desc').textContent = err.message;
+      }
+    }
+
+    async function loadSpaces(venueId) {
+      const grid = document.getElementById('venue-spaces-grid');
+      try {
+        const res = await SpaceAPI.getByVenue(venueId);
+        const spaces = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+
+        if (!spaces || spaces.length === 0) {
+          grid.innerHTML = '<div class="card text-center" style="grid-column: 1/-1;"><p class="mono text-muted">No spaces listed for this venue yet.</p></div>';
+          return;
+        }
+
+        grid.innerHTML = spaces.map(s => `
+          <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
+                <span class="badge badge-rust">CAPACITY: ${s.capacity || 1} GUESTS</span>
+                <span style="font-family:var(--font-serif); font-size:1.35rem; font-weight:700; color:var(--accent-rust);">
+                  $${s.basePrice ? parseFloat(s.basePrice).toFixed(2) : '0.00'}/hr
+                </span>
+              </div>
+              <h3 style="font-family: var(--font-serif); font-size:1.3rem; margin-bottom:0.4rem;">${s.name}</h3>
+              <p style="font-size:0.88rem; color:var(--text-muted); line-height:1.4;">
+                ${s.description || 'Configured studio space.'}
+              </p>
+            </div>
+
+            <div style="margin-top:1.5rem; border-top:var(--border-light); padding-top:0.75rem;">
+              <a href="space-details.html?id=${s.id}" class="btn btn-rust btn-block btn-pill">
+                Inspect Space & Calculate Price ➔
+              </a>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        grid.innerHTML = `<div class="card text-center" style="grid-column: 1/-1;"><p style="color:var(--accent-rust);">${err.message}</p></div>`;
+      }
+    }
+  </script>
+</body>
+</html>

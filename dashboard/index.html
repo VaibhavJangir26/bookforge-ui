@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CONSOLE REDIRECT // BOOKFORGE PLATFORM</title>
+  <script src="../js/auth.js"></script>
+  <script>
+    if (!Auth.isAuthenticated()) {
+      window.location.replace('../auth/login.html');
+    } else {
+      Auth.redirectBasedOnRole();
+    }
+  </script>
+</head>
+<body style="background: #FAF7F2; font-family: sans-serif; padding: 2rem;">
+  <p>Synchronizing console session...</p>
+</body>
+</html>
