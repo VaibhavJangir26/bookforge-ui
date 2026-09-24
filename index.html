@@ -1,552 +1,736 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BOOKFORGE // MONETIZE YOUR VENUES & CREATIVE SPACES</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta name="description" content="Transform underutilized recording studios, photography daylight bays, architectural halls, and team lofts into predictable hourly revenue." />
+  <link rel="icon" href="data:," />
+  
+  <!-- Fonts -->
+  <link href="https://db.onlinewebfonts.com/c/0e6de1ec911a2e267ff136bbdd384a44?family=Helvetica+Neue+Light" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Oswald:wght@500&family=Montserrat:wght@600;700&family=Roboto+Slab:wght@600&family=Raleway:wght@700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              primary: '#E25C37',   /* Terracotta Rust / Vibrant Sunset Orange */
+              secondary: '#1E3A2B', /* Forest Emerald Green */
+              dark: '#16241A',      /* Deep Obsidian Green */
+              green: '#1E3A2B',
+              light: '#f5f3ef',
+              cream: '#faf8f5',
+              rust: '#E25C37',
+            }
+          },
+          fontFamily: {
+            'helvetica-neue': ['"Helvetica Neue Light"', 'Helvetica', 'Arial', 'sans-serif'],
+            'serif': ['"Playfair Display"', 'Georgia', 'serif'],
+            'oswald': ['Oswald', 'sans-serif'],
+            'montserrat': ['Montserrat', 'sans-serif'],
+            'roboto-slab': ['"Roboto Slab"', 'serif'],
+            'raleway': ['Raleway', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Helvetica Neue Light', Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background-color: #faf8f5;
+      color: #2d3a2e;
+    }
+
+    /* Keyframe Animations */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-down {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-up   { animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .animate-fade-down { animation: fade-down 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .stagger-1 { animation-delay: 0ms; }
+    .stagger-2 { animation-delay: 120ms; }
+    .stagger-3 { animation-delay: 240ms; }
+    .stagger-4 { animation-delay: 360ms; }
+    .stagger-5 { animation-delay: 480ms; }
+    .stagger-6 { animation-delay: 600ms; }
+
+    /* Custom High-Visibility Range Slider */
+    #calc-hours {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 12px;
+      background: #e2ddd5;
+      border-radius: 999px;
+      outline: none;
+      border: 1px solid rgba(45, 58, 46, 0.15);
+      cursor: pointer;
+    }
+    #calc-hours::-webkit-slider-runnable-track {
+      height: 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #E25C37 var(--slider-pct, 32.5%), #e2ddd5 var(--slider-pct, 32.5%));
+    }
+    #calc-hours::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #E25C37;
+      border: 3.5px solid #ffffff;
+      box-shadow: 0 4px 12px rgba(226, 92, 55, 0.45), 0 2px 4px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      margin-top: -8px;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    #calc-hours::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      background: #cc4926;
+    }
+    #calc-hours::-moz-range-track {
+      height: 12px;
+      border-radius: 999px;
+      background: #e2ddd5;
+    }
+    #calc-hours::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #E25C37;
+      border: 3.5px solid #ffffff;
+      box-shadow: 0 4px 12px rgba(226, 92, 55, 0.45);
+      cursor: pointer;
+    }
+  </style>
 </head>
-<body>
+<body class="bg-brand-cream text-brand-dark font-helvetica-neue antialiased selection:bg-brand-rust selection:text-white">
 
-  <!-- Minimalist Vintage Header -->
-  <header class="vintage-nav">
-    <div class="container nav-inner">
-      
-      <!-- Brand Logo -->
-      <a href="index.html" class="brand-logo">
-        BOOK<span class="logo-accent">FORGE</span>
+  <!-- 1) Fixed Navbar -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-brand-dark/30 backdrop-blur-md border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+      <div class="relative flex items-center h-16 md:h-20">
+        
+        <!-- Desktop Left Links -->
+        <div class="hidden md:flex items-center gap-7 animate-fade-down stagger-1">
+          <a href="#how-it-works" class="text-xs uppercase tracking-wider text-white hover:text-brand-rust transition-colors font-semibold drop-shadow-sm">
+            How Hosting Works
+          </a>
+          <a href="#earnings-calculator" class="text-xs uppercase tracking-wider text-white hover:text-brand-rust transition-colors font-semibold drop-shadow-sm">
+            Host Earnings
+          </a>
+          <a href="#rating-engine" class="text-xs uppercase tracking-wider text-white hover:text-brand-rust transition-colors font-semibold drop-shadow-sm">
+            Rating Flywheel
+          </a>
+          <a href="#categories-section" class="text-xs uppercase tracking-wider text-white hover:text-brand-rust transition-colors font-semibold drop-shadow-sm">
+            Disciplines
+          </a>
+        </div>
+
+        <!-- Center Logo (Absolute Centered) -->
+        <a href="#hero" class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 animate-fade-down stagger-2 text-decoration-none">
+          <svg class="w-5 h-5 text-brand-rust fill-brand-rust drop-shadow-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+          </svg>
+          <span class="text-xl font-bold tracking-tight text-white font-helvetica-neue drop-shadow-sm">BOOK<span class="text-brand-rust">FORGE</span></span>
+        </a>
+
+        <!-- Desktop Right Links / CTA -->
+        <div class="hidden md:flex items-center gap-4 ml-auto animate-fade-down stagger-3">
+          <a href="auth/login.html" id="nav-signin-link" class="text-xs uppercase tracking-wider text-white hover:text-brand-rust transition-colors font-semibold drop-shadow-sm">
+            Sign In
+          </a>
+          <a href="auth/signup.html" id="nav-cta" class="inline-flex items-center px-5 py-2.5 bg-brand-rust text-white text-xs tracking-wider uppercase font-semibold rounded-full hover:bg-white hover:text-brand-dark transition-all shadow-md">
+            Get Started ➔
+          </a>
+        </div>
+
+        <!-- Mobile Hamburger Button -->
+        <button id="mobile-toggle" aria-label="Toggle menu" class="md:hidden ml-auto z-50 w-10 h-10 relative flex flex-col justify-center items-center focus:outline-none">
+          <span id="bar-top" class="w-6 h-[2px] bg-white rounded absolute top-[14px] transition-all duration-300 ease-[cubic-bezier(0.68,-0.6,0.32,1.6)]"></span>
+          <span id="bar-bottom" class="w-6 h-[2px] bg-white rounded absolute top-[22px] transition-all duration-300 ease-[cubic-bezier(0.68,-0.6,0.32,1.6)]"></span>
+        </button>
+
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Overlay -->
+  <div id="mobile-overlay" class="fixed inset-0 bg-brand-cream z-40 transition-opacity duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] opacity-0 pointer-events-none md:hidden">
+    <div id="mobile-menu-col" class="flex flex-col items-center justify-center h-full gap-7 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] delay-100 -translate-y-8 opacity-0 text-center px-6">
+      <a href="#how-it-works" class="mobile-nav-link text-2xl text-brand-dark font-medium font-helvetica-neue">How Hosting Works</a>
+      <a href="#earnings-calculator" class="mobile-nav-link text-2xl text-brand-dark font-medium font-helvetica-neue">Host Earnings</a>
+      <a href="#rating-engine" class="mobile-nav-link text-2xl text-brand-dark font-medium font-helvetica-neue">Rating Flywheel</a>
+      <a href="#categories-section" class="mobile-nav-link text-2xl text-brand-dark font-medium font-helvetica-neue">Disciplines</a>
+      <a href="auth/login.html" class="mobile-nav-link text-2xl text-brand-dark font-medium font-helvetica-neue">Sign In</a>
+      <a href="auth/signup.html" class="mobile-nav-link mt-4 inline-flex items-center px-8 py-3.5 bg-brand-dark text-white text-base tracking-wide rounded-full hover:bg-brand-rust transition-colors font-helvetica-neue font-medium">
+        Get Started ➔
       </a>
-
-      <!-- Navigation Links -->
-      <div class="nav-links" id="nav-links">
-        <a href="#how-it-works" class="nav-link-item">How Hosting Works</a>
-        <a href="#earnings-calculator" class="nav-link-item">Host Earnings</a>
-        <a href="#rating-engine" class="nav-link-item">Rating Flywheel</a>
-        <a href="#categories-section" class="nav-link-item">Disciplines</a>
-        <a href="auth/login.html" class="nav-link-item">Sign In</a>
-        <a href="auth/signup.html" class="btn btn-sm btn-rust btn-pill">Get Started ➔</a>
-      </div>
-
     </div>
-  </header>
+  </div>
 
-  <!-- Editorial Vintage Hero (No Photos in Hero - Pure Typographic & Value Metric Card) -->
-  <section class="editorial-hero">
-    <div class="container">
-      <div class="hero-grid-layout" style="align-items: center;">
+  <!-- 2) Hero Section (Spacious Premium Luxury Hero Layout) -->
+  <section id="hero" class="relative w-full min-h-[800px] md:min-h-screen overflow-hidden bg-brand-dark flex items-center">
+    
+    <!-- Video Background Layer -->
+    <div class="absolute inset-0">
+      <video
+        autoplay
+        muted
+        loop
+        playsinline
+        class="w-full h-full object-cover object-center filter brightness-[0.85]"
+      >
+        <source src="https://cdn.coverr.co/videos/coverr-a-luxurious-resort-in-the-maldives-5606/1080p.mp4" type="video/mp4" />
+        <source src="https://cdn.coverr.co/videos/coverr-swimming-pool-in-a-luxury-hotel-5802/1080p.mp4" type="video/mp4" />
+        <source src="https://cdn.coverr.co/videos/coverr-interior-design-studio-5847/1080p.mp4" type="video/mp4" />
+        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260624_210218_173f8eba-17ff-4e27-972b-d128af25bf49.mp4" type="video/mp4" />
+      </video>
+      <!-- Dark Contrast Tint Overlay for 100% Text Legibility -->
+      <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-black/60 to-black/40 pointer-events-none"></div>
+    </div>
+
+    <!-- Content Area: Spacious & Premium -->
+    <div class="relative z-10 w-full max-w-7xl mx-auto pt-28 md:pt-36 pb-20 px-6 lg:px-8">
+      <div class="max-w-3xl">
         
-        <!-- Left Column: Typography & Terracotta Circle Cutout -->
-        <div class="hero-title-wrap">
-          
-          <!-- Terracotta Geometric Accent Circle -->
-          <div class="hero-circle-shape"></div>
+        <!-- Announcement Pill (Primary Orange & Emerald Green Accents) -->
+        <a href="auth/signup.html" class="inline-flex items-center gap-3 px-6 py-2.5 rounded-full border border-white/20 bg-black/60 backdrop-blur-md hover:bg-black/80 transition-all mb-8 animate-fade-up stagger-2 shadow-xl text-white">
+          <span class="flex h-2.5 w-2.5 relative flex-shrink-0">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-primary"></span>
+          </span>
+          <span class="text-xs uppercase tracking-wider text-white font-bold whitespace-nowrap">Zero Listing Fees</span>
+          <span class="text-white/40 font-bold">•</span>
+          <span class="text-xs uppercase tracking-wider text-white font-bold bg-brand-secondary/90 px-3 py-1 rounded-full text-[10px] border border-white/25 whitespace-nowrap shadow-inner">Rating Boost Engine</span>
+          <svg class="w-3.5 h-3.5 text-brand-primary flex-shrink-0 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+          </svg>
+        </a>
 
-          <h1 class="hero-main-title">
-            <span>MONETIZE</span>
-            <span class="hero-word-offset">YOUR SPACES</span>
-            <span class="hero-word-indent">ON BOOKFORGE</span>
-          </h1>
+        <!-- Main Headline -->
+        <h1 class="text-left text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-white leading-[1.02] tracking-tight font-helvetica-neue font-extrabold animate-fade-up stagger-3 mb-6 drop-shadow-lg">
+          MONETIZE<br />
+          <span class="text-brand-primary font-serif italic font-normal drop-shadow">YOUR SPACES</span><br />
+          ON BOOKFORGE
+        </h1>
 
-          <div class="hero-description-block">
-            <p>
-              Transform underutilized recording studios, photography daylight bays, architectural halls, and team lofts into predictable hourly revenue. All members register easily with a secure customer identity. Submit a host request to unlock provider privileges, configure custom pricing rules, and let high guest ratings automatically elevate your venues into <strong>Prime Featured Placement</strong>.
-            </p>
-          </div>
-
-          <!-- Key Host Benefits Pills -->
-          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem;">
-            <span class="badge badge-rust">⚡ ZERO LISTING FEES</span>
-            <span class="badge badge-featured">★ RATING-DRIVEN FEATURED BOOST</span>
-            <span class="badge badge-approved">✓ DYNAMIC PRICING ENGINE</span>
-          </div>
-
-          <div style="display: flex; align-items: center; gap: 1.5rem; margin-top: 2.25rem; flex-wrap: wrap;">
-            <a href="auth/signup.html" class="btn btn-rust btn-pill" style="padding: 0.85rem 2.25rem;">
-              Create Member Account ➔
-            </a>
-            <a href="#earnings-calculator" class="btn btn-outline btn-pill" style="padding: 0.85rem 1.85rem;">
-              Calculate Earnings
-            </a>
-            
-            <!-- Rotating Vintage Stamp -->
-            <div class="retro-stamp" onclick="document.getElementById('earnings-calculator').scrollIntoView({behavior: 'smooth'})" title="Calculate Revenue">
-              <div class="retro-stamp-play"></div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Right Column: High-End Host Value & Rating Dashboard Card (NO Photos in Hero) -->
-        <div>
-          <div class="card" style="background: #FFFFFF; border: 1px solid var(--border-medium); border-left: 4px solid var(--accent-rust); padding: 2.25rem; box-shadow: var(--shadow-hover);">
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: var(--border-light); padding-bottom: 1rem;">
-              <div>
-                <span class="badge badge-featured">★ 4.98 SUPERHOST TIER</span>
-                <h3 style="font-family: var(--font-serif); margin-top: 0.4rem; font-size: 1.35rem;">ALGORITHMIC SPOTLIGHT</h3>
-              </div>
-              <div style="text-align: right;">
-                <span class="mono text-rust" style="font-size: 1.4rem; font-weight: 800;">4.5x</span>
-                <span style="display: block; font-size: 0.75rem; color: var(--text-muted);">MORE INQUIRIES</span>
-              </div>
-            </div>
-
-            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem;">
-              Our ranking engine puts top-performing hosts directly in front of thousands of active creators. Maintain 4.8+ ratings from verified guests and receive instant priority placement on the marketplace.
-            </p>
-
-            <div style="background: var(--bg-warm); padding: 1rem 1.25rem; border-radius: var(--radius-xs); margin-bottom: 1.5rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Provider Monetization Engine</span>
-                <span class="mono text-rust" style="font-weight: 700; font-size: 0.95rem;">SURGE & PEAK RULES</span>
-              </div>
-              <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
-                Set base rates and dynamic rules (weekend, seasonal, peak-hour) + optional hardware add-on charges.
-              </small>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.88rem;">
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span class="text-rust">✓</span> <strong>Hourly Schedule Rules:</strong> Providers configure opening & closing windows.
-              </div>
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span class="text-rust">✓</span> <strong>Add-on Hardware Fees:</strong> Monetize microphones, cameras, lighting & AV.
-              </div>
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span class="text-rust">✓</span> <strong>Dynamic Surge Multipliers:</strong> Weekend & peak-hour adjustments.
-              </div>
-            </div>
-
-            <div style="margin-top: 1.75rem; border-top: var(--border-light); padding-top: 1.25rem;">
-              <a href="auth/signup.html" class="btn btn-rust btn-block btn-pill" style="padding: 0.8rem;">
-                Apply to Become a Verified Host ➔
-              </a>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- Section: How Hosting Works -->
-  <section class="container mt-4 mb-4" id="how-it-works">
-    <div style="padding-top: 2rem;">
-      <div style="text-align: center; max-width: 760px; margin: 0 auto 3rem auto;">
-        <span class="badge badge-rust mb-1">OPERATOR BLUEPRINT</span>
-        <h2 style="font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3rem);">
-          HOW HOSTING WORKS ON BOOKFORGE
-        </h2>
-        <p style="font-size: 1.05rem; color: var(--text-muted); margin-top: 0.75rem;">
-          From your initial registration to full hourly monetization in three streamlined milestones.
+        <!-- Subhead Copy -->
+        <p class="text-white/90 text-lg md:text-xl leading-relaxed max-w-2xl mb-10 animate-fade-up stagger-4 drop-shadow font-light">
+          Transform underutilized luxury venues, daylight bays, recording suites, lofts, and architectural facilities into predictable hourly income. Configure automated pricing and let verified guest ratings elevate your listing.
         </p>
-      </div>
 
-      <div class="grid grid-3" style="gap: 1.5rem;">
-        <div class="card" style="padding: 2.25rem 1.75rem; border-top: 4px solid var(--accent-rust);">
-          <div class="mono text-rust" style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.75rem;">01</div>
-          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin-bottom: 0.6rem;">REGISTER & VERIFY</h3>
-          <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.55;">
-            Create your member account in 60 seconds. Submit your facility credentials through our host verification pipeline for administrator review.
-          </p>
-          <div style="margin-top: 1.5rem;">
-            <span class="badge badge-approved" style="font-size: 0.75rem;">FAST TRACK AUDIT</span>
+        <!-- CTA Buttons Row (Primary Orange + Secondary Emerald) -->
+        <div class="flex flex-wrap items-center gap-4 animate-fade-up stagger-5 mb-14">
+          <a href="auth/signup.html" class="inline-flex items-center px-8 py-4 bg-brand-primary text-white text-xs md:text-sm font-bold tracking-wider uppercase rounded-full hover:bg-white hover:text-brand-dark transition-all shadow-xl hover:scale-[1.02]">
+            Create Member Account ➔
+          </a>
+          <a href="#earnings-calculator" class="inline-flex items-center px-7 py-4 bg-brand-secondary/90 border border-white/20 text-white text-xs md:text-sm font-bold tracking-wider uppercase rounded-full hover:bg-white hover:text-brand-dark transition-all backdrop-blur-md shadow-lg hover:scale-[1.02]">
+            Calculate Host Earnings
+          </a>
+        </div>
+
+        <!-- Live Host Metrics Bar (Premium Floating Glass Strip) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 md:p-6 bg-white/10 border border-white/20 rounded-2xl backdrop-blur-md animate-fade-up stagger-6 shadow-2xl max-w-4xl">
+          <div class="border-r border-white/15 pr-3">
+            <span class="text-2xl md:text-3xl font-extrabold text-white font-mono block">$6,120/mo</span>
+            <span class="text-[10px] md:text-xs uppercase tracking-wider text-brand-primary font-bold">Avg Host Revenue</span>
           </div>
-        </div>
-
-        <div class="card" style="padding: 2.25rem 1.75rem; border-top: 4px solid var(--text-main);">
-          <div class="mono" style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-main);">02</div>
-          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin-bottom: 0.6rem;">LIST & CONFIGURE</h3>
-          <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.55;">
-            Deploy your creative studios, sound stages, or lofts. Attach add-on hardware inventory, configure weekly operating schedules, and set dynamic peak multipliers.
-          </p>
-          <div style="margin-top: 1.5rem;">
-            <span class="badge badge-rust" style="font-size: 0.75rem;">SURGE FORMULAS</span>
+          <div class="border-r border-white/15 pr-3 pl-2">
+            <span class="text-2xl md:text-3xl font-extrabold text-white font-mono block">0%</span>
+            <span class="text-[10px] md:text-xs uppercase tracking-wider text-white/80 font-bold">Upfront Listing Fee</span>
           </div>
-        </div>
-
-        <div class="card" style="padding: 2.25rem 1.75rem; border-top: 4px solid var(--accent-rust);">
-          <div class="mono text-rust" style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.75rem;">03</div>
-          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin-bottom: 0.6rem;">EARN & ELEVATE</h3>
-          <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.55;">
-            Welcome verified creatives and production crews. High guest ratings automatically elevate your venues into Prime Featured Placement on the marketplace.
-          </p>
-          <div style="margin-top: 1.5rem;">
-            <span class="badge badge-featured" style="font-size: 0.75rem;">★ RATING FLYWHEEL</span>
+          <div class="border-r border-white/15 pr-3 pl-2">
+            <span class="text-2xl md:text-3xl font-extrabold text-brand-primary font-mono block">4.98 ★</span>
+            <span class="text-[10px] md:text-xs uppercase tracking-wider text-white/80 font-bold">Superhost Rating</span>
           </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section 1: The Rating & Growth Flywheel -->
-  <section class="container mt-4 mb-4" id="rating-engine">
-    <div style="padding-top: 2rem;">
-      <div style="text-align: center; max-width: 760px; margin: 0 auto 3rem auto;">
-        <span class="badge badge-rust mb-1">THE HOST FLYWHEEL</span>
-        <h2 style="font-family: var(--font-serif); font-size: clamp(2rem, 4.5vw, 3.2rem);">
-          HOW YOUR RATING UNLOCKS GLOBAL FEATURED STATUS
-        </h2>
-        <p style="font-size: 1.05rem; margin-top: 0.75rem;">
-          We reward quality and guest satisfaction. All new accounts register as standard members. Once you apply and are verified as a provider by our administrator, every 5-star review propels your venue higher in our marketplace rankings.
-        </p>
-      </div>
-
-      <div class="grid">
-        
-        <!-- Step 1 -->
-        <div class="flywheel-step">
-          <div class="flywheel-step-number">01</div>
-          <span class="badge mb-1">STEP 1 // ONBOARDING</span>
-          <h3 style="font-family: var(--font-serif); margin-top: 0.5rem;">Register & Apply</h3>
-          <p style="font-size: 0.92rem; margin-top: 0.5rem;">
-            Create your member account in 60 seconds. Submit your Provider Verification Request in the console for administrator confirmation.
-          </p>
-        </div>
-
-        <!-- Step 2 -->
-        <div class="flywheel-step">
-          <div class="flywheel-step-number">02</div>
-          <span class="badge mb-1">STEP 2 // PUBLISHING</span>
-          <h3 style="font-family: var(--font-serif); margin-top: 0.5rem;">Deploy Venue & Spaces</h3>
-          <p style="font-size: 0.92rem; margin-top: 0.5rem;">
-            List venues across disciplines—Sound Studios, Photography Lofts, Auditoriums, Boardrooms. Configure hourly base prices and attach equipment.
-          </p>
-        </div>
-
-        <!-- Step 3 -->
-        <div class="flywheel-step">
-          <div class="flywheel-step-number">03</div>
-          <span class="badge mb-1">STEP 3 // DYNAMIC PRICING</span>
-          <h3 style="font-family: var(--font-serif); margin-top: 0.5rem;">Configure Pricing Rules</h3>
-          <p style="font-size: 0.92rem; margin-top: 0.5rem;">
-            Set dynamic pricing rules for peak hours and weekends. Guests pay exact rates calculated in real time by the engine.
-          </p>
-        </div>
-
-        <!-- Step 4 -->
-        <div class="flywheel-step" style="border-left: 3px solid var(--accent-rust);">
-          <div class="flywheel-step-number">04</div>
-          <span class="badge badge-featured mb-1">STEP 4 // FEATURED</span>
-          <h3 style="font-family: var(--font-serif); margin-top: 0.5rem;">Automatic Featured Spotlight</h3>
-          <p style="font-size: 0.92rem; margin-top: 0.5rem;">
-            Venues maintaining a <strong>4.8+ rating</strong> are algorithmically featured on the BookForge landing page, unlocking <strong>4.5x more bookings</strong> with zero ad spend.
-          </p>
+          <div class="pl-2">
+            <span class="text-2xl md:text-3xl font-extrabold text-white font-mono block">10,000+</span>
+            <span class="text-[10px] md:text-xs uppercase tracking-wider text-white/80 font-bold">Bookings Hosted</span>
+          </div>
         </div>
 
       </div>
     </div>
   </section>
 
-  <!-- Section 2: Interactive Host Earnings Estimator -->
-  <section class="container mt-4 mb-4" id="earnings-calculator">
-    <div style="border-top: var(--border-light); padding-top: 3.5rem;">
+  <!-- 3) How Hosting Works (Step-by-Step) -->
+  <section id="how-it-works" class="py-24 px-6 lg:px-8 max-w-7xl mx-auto border-t border-brand-dark/10">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <span class="text-xs tracking-[0.25em] uppercase text-brand-rust font-bold block mb-2">SYSTEM WORKFLOW</span>
+      <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-brand-dark font-helvetica-neue mb-4">
+        HOW HOSTING WORKS ON BOOKFORGE
+      </h2>
+      <p class="text-brand-dark/70 text-base leading-relaxed">
+        Three simple milestones to take underutilized facilities from idle square footage to reliable cash flow.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       
-      <div class="calculator-card">
-        <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2.5rem; align-items: center;">
-          
-          <div>
-            <span class="badge badge-rust mb-1">REVENUE PROJECTION</span>
-            <h2 style="font-family: var(--font-serif); margin-top: 0.5rem;">ESTIMATE YOUR MONTHLY HOST INCOME</h2>
-            <p style="margin-top: 0.5rem; font-size: 0.98rem;">
-              See what space operators can earn. Choose your discipline and adjust estimated booked hours to calculate revenue with dynamic pricing rules.
-            </p>
+      <div class="bg-white border border-brand-dark/10 rounded-2xl p-8 hover:shadow-md transition-shadow">
+        <span class="text-3xl font-serif text-brand-rust font-bold block mb-4">01</span>
+        <h3 class="text-xl font-bold text-brand-dark mb-3">Register & Apply as Host</h3>
+        <p class="text-brand-dark/70 text-sm leading-relaxed mb-4">
+          All members start with a clean customer profile. Complete our quick host verification form to unlock venue management tools and direct booking privileges.
+        </p>
+        <span class="text-xs uppercase tracking-wider text-brand-rust font-bold">Step 1 • 60 Seconds</span>
+      </div>
 
-            <div class="form-group mt-3">
-              <label class="form-label">SELECT SPACE DISCIPLINE</label>
-              <select id="calc-type" class="form-select" onchange="recalculateEarnings()">
-                <option value="85">Photography / Film Daylight Loft ($85 / hr benchmark)</option>
-                <option value="95">Acoustic Audio & Podcast Suite ($95 / hr benchmark)</option>
-                <option value="160">Architectural Event Auditorium ($160 / hr benchmark)</option>
-                <option value="60">Executive Coworking & Team Suite ($60 / hr benchmark)</option>
-              </select>
+      <div class="bg-white border border-brand-dark/10 rounded-2xl p-8 hover:shadow-md transition-shadow">
+        <span class="text-3xl font-serif text-brand-rust font-bold block mb-4">02</span>
+        <h3 class="text-xl font-bold text-brand-dark mb-3">Configure Space & Pricing</h3>
+        <p class="text-brand-dark/70 text-sm leading-relaxed mb-4">
+          Publish photos, square footage, technical hardware inventory, and setup hourly base rates alongside optional dynamic surge multipliers.
+        </p>
+        <span class="text-xs uppercase tracking-wider text-brand-rust font-bold">Step 2 • Zero Upfront Cost</span>
+      </div>
+
+      <div class="bg-white border border-brand-dark/10 rounded-2xl p-8 hover:shadow-md transition-shadow">
+        <span class="text-3xl font-serif text-brand-rust font-bold block mb-4">03</span>
+        <h3 class="text-xl font-bold text-brand-dark mb-3">Earn, Review & Climb Tiers</h3>
+        <p class="text-brand-dark/70 text-sm leading-relaxed mb-4">
+          Accept verified reservations, receive direct automated payouts, and collect 5-star ratings to trigger algorithm-driven featured homepage placement.
+        </p>
+        <span class="text-xs uppercase tracking-wider text-brand-rust font-bold">Step 3 • Automated Payouts</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4) Rating Flywheel & Algorithmic Boost -->
+  <section id="rating-engine" class="py-20 px-6 lg:px-8 max-w-7xl mx-auto border-t border-brand-dark/10">
+    <div class="bg-brand-dark text-white rounded-3xl p-8 md:p-14">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        <div class="lg:col-span-7">
+          <span class="text-xs uppercase tracking-[0.25em] text-brand-rust font-bold block mb-3">THE RATING FLYWHEEL</span>
+          <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-white mb-5 font-helvetica-neue">
+            Top Rated Hosts Get Disproportionate Demand
+          </h2>
+          <p class="text-white/75 text-base leading-relaxed mb-6">
+            Unlike legacy rental portals that hide great spaces behind costly sponsored ads, BookForge uses an algorithmic spotlight that rewards hospitality, clean facilities, and prompt communication.
+          </p>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-4 border-t border-white/10">
+            <div>
+              <span class="block text-3xl font-bold font-mono text-brand-rust">4.8+</span>
+              <span class="text-xs text-white/60 uppercase tracking-wider">Required for Boost</span>
             </div>
+            <div>
+              <span class="block text-3xl font-bold font-mono text-brand-rust">100%</span>
+              <span class="text-xs text-white/60 uppercase tracking-wider">Verified Reviews</span>
+            </div>
+            <div>
+              <span class="block text-3xl font-bold font-mono text-brand-rust">4.5x</span>
+              <span class="text-xs text-white/60 uppercase tracking-wider">Conversion Velocity</span>
+            </div>
+          </div>
+        </div>
 
-            <div class="form-group">
-              <div style="display: flex; justify-content: space-between;">
-                <label class="form-label">BOOKED HOURS PER WEEK</label>
-                <span class="mono text-rust" id="calc-hours-label" style="font-weight: 700;">18 Hours / Week</span>
+        <div class="lg:col-span-5 bg-white/10 border border-white/15 rounded-2xl p-6 backdrop-blur-sm">
+          <div class="text-xs uppercase tracking-widest text-brand-rust font-bold mb-3">Ranking Algorithm Rules</div>
+          <ul class="space-y-3 text-sm text-white/80">
+            <li class="flex items-start gap-2">
+              <span class="text-brand-rust">★</span> <span><strong>Verified Guest Reviews:</strong> Only paid, verified bookings can submit reviews.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-brand-rust">★</span> <span><strong>Prompt Response Metric:</strong> Responding in &lt;1 hour increases search visibility.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-brand-rust">★</span> <span><strong>Calendar Health:</strong> Up-to-date availability prevents booking cancellations.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5) Disciplines Taxonomy Grid -->
+  <section id="categories-section" class="py-24 px-6 lg:px-8 max-w-7xl mx-auto border-t border-brand-dark/10">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <span class="text-xs tracking-[0.25em] uppercase text-brand-rust font-bold block mb-2">VENUE CATEGORIES</span>
+      <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-brand-dark font-helvetica-neue mb-4">
+        SUPPORTED CREATIVE DISCIPLINES
+      </h2>
+      <p class="text-brand-dark/70 text-base leading-relaxed">
+        Our category taxonomy is engineered to surface the technical characteristics creators search for.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- Disc 01 -->
+      <article class="bg-white border border-brand-dark/10 rounded-2xl p-6 hover:shadow-lg hover:border-brand-rust/40 transition-all">
+        <span class="text-xs uppercase tracking-widest text-brand-rust font-bold block mb-2">DISCIPLINE 01</span>
+        <h3 class="text-xl font-bold text-brand-dark mb-2">Photography & Film Daylight Lofts</h3>
+        <p class="text-brand-dark/70 text-sm leading-relaxed mb-6">
+          High ceilings, northern exposure daylight glass, motorized cycloramas, and blackout capability for commercial editorial productions.
+        </p>
+        <div class="flex justify-between items-center border-t border-brand-dark/10 pt-4 text-xs font-semibold">
+          <span class="text-brand-rust">$85 / HR BENCHMARK</span>
+          <a href="auth/signup.html" class="text-brand-dark hover:text-brand-rust">List Loft ➔</a>
+        </div>
+      </article>
+
+      <!-- Disc 02 -->
+      <article class="bg-white border border-brand-dark/10 rounded-2xl p-6 hover:shadow-lg hover:border-brand-rust/40 transition-all">
+        <span class="text-xs uppercase tracking-widest text-brand-rust font-bold block mb-2">DISCIPLINE 02</span>
+        <h3 class="text-xl font-bold text-brand-dark mb-2">Acoustic Audio & Podcast Suites</h3>
+        <p class="text-brand-dark/70 text-sm leading-relaxed mb-6">
+          Decoupled control rooms, isolated vocal booths, and multi-track mastering setups with professional audio engineer support.
+        </p>
+        <div class="flex justify-between items-center border-t border-brand-dark/10 pt-4 text-xs font-semibold">
+          <span class="text-brand-rust">$95 / HR BENCHMARK</span>
+          <a href="auth/signup.html" class="text-brand-dark hover:text-brand-rust">List Studio ➔</a>
+        </div>
+      </article>
+
+      <!-- Disc 03 -->
+      <article class="bg-white border border-brand-dark/10 rounded-2xl p-6 hover:shadow-lg hover:border-brand-rust/40 transition-all">
+        <span class="text-xs uppercase tracking-widest text-brand-rust font-bold block mb-2">DISCIPLINE 03</span>
+        <h3 class="text-xl font-bold text-brand-dark mb-2">Architectural Event Auditoriums</h3>
+        <p class="text-brand-dark/70 text-sm leading-relaxed mb-6">
+          Vaulted timber presentation halls, tiered seating, stage DMX lighting, and live stream rigs for summits, showcases, and launches.
+        </p>
+        <div class="flex justify-between items-center border-t border-brand-dark/10 pt-4 text-xs font-semibold">
+          <span class="text-brand-rust">$160 / HR BENCHMARK</span>
+          <a href="auth/signup.html" class="text-brand-dark hover:text-brand-rust">List Hall ➔</a>
+        </div>
+      </article>
+
+      <!-- Disc 04 -->
+      <article class="bg-white border border-brand-dark/10 rounded-2xl p-6 hover:shadow-lg hover:border-brand-rust/40 transition-all">
+        <span class="text-xs uppercase tracking-widest text-brand-rust font-bold block mb-2">DISCIPLINE 04</span>
+        <h3 class="text-xl font-bold text-brand-dark mb-2">Executive Coworking & Team Suites</h3>
+        <p class="text-brand-dark/70 text-sm leading-relaxed mb-6">
+          Private design sprint rooms, executive telepresence boardrooms, and creative agency offsite spaces with high-speed fiber.
+        </p>
+        <div class="flex justify-between items-center border-t border-brand-dark/10 pt-4 text-xs font-semibold">
+          <span class="text-brand-rust">$60 / HR BENCHMARK</span>
+          <a href="auth/signup.html" class="text-brand-dark hover:text-brand-rust">List Suite ➔</a>
+        </div>
+      </article>
+
+      <!-- Disc 05 -->
+      <article class="bg-white border border-brand-dark/10 rounded-2xl p-6 hover:shadow-lg hover:border-brand-rust/40 transition-all">
+        <span class="text-xs uppercase tracking-widest text-brand-rust font-bold block mb-2">DISCIPLINE 05</span>
+        <h3 class="text-xl font-bold text-brand-dark mb-2">Production Hardware & AV Add-Ons</h3>
+        <p class="text-brand-dark/70 text-sm leading-relaxed mb-6">
+          Condenser microphones, 4K RED cinema cameras, Profoto strobe packages, and wireless audio setups monetized as hourly attachments.
+        </p>
+        <div class="flex justify-between items-center border-t border-brand-dark/10 pt-4 text-xs font-semibold">
+          <span class="text-brand-rust">HOURLY ATTACHMENT</span>
+          <a href="auth/signup.html" class="text-brand-dark hover:text-brand-rust">Monetize Gear ➔</a>
+        </div>
+      </article>
+
+      <!-- Disc 06 -->
+      <article class="bg-white border border-brand-dark/10 rounded-2xl p-6 hover:shadow-lg hover:border-brand-rust/40 transition-all">
+        <span class="text-xs uppercase tracking-widest text-brand-rust font-bold block mb-2">DISCIPLINE 06</span>
+        <h3 class="text-xl font-bold text-brand-dark mb-2">Custom Architectural Venues</h3>
+        <p class="text-brand-dark/70 text-sm leading-relaxed mb-6">
+          Industrial warehouses, rooftop atriums, or historic stone ateliars. Our flexible engine handles bespoke venue configurations.
+        </p>
+        <div class="flex justify-between items-center border-t border-brand-dark/10 pt-4 text-xs font-semibold">
+          <span class="text-brand-rust">CUSTOM TAXONOMY</span>
+          <a href="auth/signup.html" class="text-brand-dark hover:text-brand-rust">Deploy Space ➔</a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- 6) Host Earnings Revenue Estimator -->
+  <section id="earnings-calculator" class="py-24 px-6 lg:px-8 max-w-7xl mx-auto border-t border-brand-dark/10">
+    <div class="bg-brand-light border border-brand-dark/15 rounded-3xl p-8 md:p-14 shadow-sm">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <!-- Left: Sliders & Form -->
+        <div class="lg:col-span-7">
+          <span class="text-xs tracking-[0.25em] uppercase text-brand-rust font-bold block mb-2">REVENUE ESTIMATOR</span>
+          <h2 class="text-3xl md:text-4xl font-bold text-brand-dark tracking-tight font-helvetica-neue mb-4">
+            Estimate Your Monthly Host Income
+          </h2>
+          <p class="text-brand-dark/70 text-base leading-relaxed mb-8">
+            Choose your space discipline and adjust estimated weekly booked hours to see how dynamic pricing rules and add-on hardware maximize revenue.
+          </p>
+
+          <!-- Space Discipline Dropdown with Fixed Spacious Padding -->
+          <div class="mb-8">
+            <label for="calc-type" class="block text-xs uppercase tracking-wider text-brand-dark/70 font-bold mb-3">SELECT SPACE DISCIPLINE</label>
+            <div class="relative">
+              <select id="calc-type" class="w-full bg-white border border-brand-dark/25 rounded-2xl px-6 py-4.5 pr-12 text-brand-dark text-base md:text-lg font-medium shadow-sm focus:outline-none focus:border-brand-rust focus:ring-2 focus:ring-brand-rust/20 transition-all cursor-pointer appearance-none">
+                <option value="85" class="py-2">Photography / Film Daylight Loft ($85 / hr benchmark)</option>
+                <option value="95" class="py-2">Acoustic Audio & Podcast Suite ($95 / hr benchmark)</option>
+                <option value="160" class="py-2">Architectural Event Auditorium ($160 / hr benchmark)</option>
+                <option value="60" class="py-2">Executive Coworking & Team Suite ($60 / hr benchmark)</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-5 text-brand-dark/60">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
               </div>
-              <input type="range" id="calc-hours" min="5" max="45" value="18" step="1" style="width: 100%; accent-color: var(--accent-rust);" oninput="recalculateEarnings()">
             </div>
           </div>
 
-          <div style="background: var(--bg-warm); padding: 2.25rem; border-radius: var(--radius-xs); text-align: center; border: 1px solid var(--border-medium);">
-            <span style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600;">
-              Projected Monthly Host Revenue
-            </span>
-            <div class="earnings-display" id="calc-revenue-result">$6,120</div>
-            <p style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+          <!-- Range Slider with Custom High-Visibility Styling -->
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <label for="calc-hours" class="text-xs uppercase tracking-wider text-brand-dark/70 font-bold">BOOKED HOURS PER WEEK</label>
+              <span id="calc-hours-label" class="text-base font-bold text-brand-rust font-mono">18 Hours / Week</span>
+            </div>
+            <input type="range" id="calc-hours" min="5" max="45" value="18" step="1" />
+          </div>
+        </div>
+
+        <!-- Right: Revenue Readout Card -->
+        <div class="lg:col-span-5">
+          <div class="bg-brand-dark text-white rounded-2xl p-8 md:p-10 text-center shadow-xl">
+            <span class="text-xs uppercase tracking-[0.2em] text-white/60 font-bold block mb-3">Projected Monthly Host Revenue</span>
+            <div id="calc-revenue-result" class="text-4xl md:text-6xl font-bold tracking-tight text-white mb-3 font-helvetica-neue">
+              $6,120
+            </div>
+            <p class="text-xs text-white/70 leading-relaxed mb-8">
               Based on base rate + dynamic surge rules and add-on hardware usage.
             </p>
-            <a href="auth/signup.html" class="btn btn-rust btn-block btn-pill" style="padding: 0.85rem;">
+            <a href="auth/signup.html" class="inline-flex items-center justify-center w-full py-4 px-6 bg-brand-cream text-brand-dark text-xs font-bold uppercase tracking-wider rounded-full hover:bg-white transition-colors">
               Register to Host Your Space ➔
             </a>
           </div>
-
         </div>
-      </div>
 
+      </div>
     </div>
   </section>
 
-  <!-- Section 3: Categories & Disciplines with High-Resolution Network Photography -->
-  <section class="container mt-4 mb-4" id="categories-section">
-    <div style="border-top: var(--border-light); padding-top: 3.5rem; margin-top: 3.5rem;">
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.25rem; flex-wrap: wrap; gap: 1rem;">
+  <!-- 7) Community Reviews / Host Testimonials -->
+  <section class="py-24 px-6 lg:px-8 max-w-7xl mx-auto border-t border-brand-dark/10">
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <span class="text-xs tracking-[0.25em] uppercase text-brand-rust font-bold block mb-2">COMMUNITY REVIEWS</span>
+      <h2 class="text-3xl md:text-4xl font-bold text-brand-dark tracking-tight font-helvetica-neue mb-3">
+        WHAT OUR SPACE OPERATORS SAY
+      </h2>
+      <p class="text-brand-dark/70 text-sm">Real feedback from hosts who leveraged our rating algorithm to build full-time venue businesses.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      
+      <div class="bg-white border border-brand-dark/10 rounded-2xl p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
         <div>
-          <span class="badge badge-rust mb-1">INVENTORY DISCIPLINES</span>
-          <h2 style="font-family: var(--font-serif);">WHAT YOU CAN PUBLISH ON BOOKFORGE</h2>
-          <p>Curated architectural and media categories equipped with live availability and dynamic pricing.</p>
-        </div>
-        <a href="auth/signup.html" class="btn btn-outline btn-sm btn-pill">Publish in Any Category</a>
-      </div>
-
-      <div class="grid">
-        
-        <!-- Category 1: Sound & Audio Studios -->
-        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
-          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
-            <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80" alt="Audio & Sound Production Studio" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
-            <div style="position: absolute; top: 12px; left: 12px;">
-              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 01</span>
-            </div>
-          </div>
-          <div style="padding: 1.5rem;">
-            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Sound & Broadcast Studios</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
-              Acoustically isolated tracking control rooms, live broadcast suites, and vocal isolation booths calibrated for vinyl mastering and podcasts.
-            </p>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
-              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">DYNAMIC PRICING RULES</span>
-              <a href="auth/signup.html" class="btn btn-sm btn-outline btn-pill">Publish Studio</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Category 2: Photography Bays & Daylight Lofts -->
-        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
-          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
-            <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80" alt="Daylight Photography Studio Loft" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
-            <div style="position: absolute; top: 12px; left: 12px;">
-              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 02</span>
-            </div>
-          </div>
-          <div style="padding: 1.5rem;">
-            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Photography & Daylight Lofts</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
-              High-ceiling daylight spaces with motorized cycloramas, northern exposure glass, and industrial polished concrete backdrops.
-            </p>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
-              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">SLOT GRANULARITY</span>
-              <a href="auth/signup.html" class="btn btn-sm btn-outline btn-pill">Publish Loft</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Category 3: Auditoriums, Event Halls & Theaters -->
-        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
-          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
-            <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80" alt="Heritage Auditorium Hall" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
-            <div style="position: absolute; top: 12px; left: 12px;">
-              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 03</span>
-            </div>
-          </div>
-          <div style="padding: 1.5rem;">
-            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Auditoriums & Event Halls</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
-              Double-height timber vaulted halls, presentation amphitheaters, and full-scale exhibition spaces with stage lighting and tiered seating.
-            </p>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
-              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">CAPACITY MANAGEMENT</span>
-              <a href="auth/signup.html" class="btn btn-sm btn-outline btn-pill">Publish Hall</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Category 4: Executive Coworking & Boardrooms -->
-        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
-          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
-            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80" alt="Executive Workspace Suite" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
-            <div style="position: absolute; top: 12px; left: 12px;">
-              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 04</span>
-            </div>
-          </div>
-          <div style="padding: 1.5rem;">
-            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Executive Boardrooms & Suites</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
-              Collaborative hubs, boardroom suites, and executive workstations tailored for remote tech teams, client presentations, and offsites.
-            </p>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
-              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">HOURLY CALENDAR</span>
-              <a href="auth/signup.html" class="btn btn-sm btn-outline btn-pill">Publish Suite</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Category 5: Add-on Equipment & AV Hardware Kits -->
-        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
-          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
-            <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80" alt="Camera and Sound Equipment" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
-            <div style="position: absolute; top: 12px; left: 12px;">
-              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 05</span>
-            </div>
-          </div>
-          <div style="padding: 1.5rem;">
-            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Add-on Hardware & Equipment</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
-              Provision high-grade studio condenser microphones, strobe power packs, 4K cinema cameras, and motorized projectors as hourly or fixed fees.
-            </p>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
-              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">INVENTORY QUANTITIES</span>
-              <a href="auth/signup.html" class="btn btn-sm btn-outline btn-pill">Attach Gear</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Category 6: Unique Architectural Spaces -->
-        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light);">
-          <div style="height: 200px; width: 100%; overflow: hidden; position: relative;">
-            <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80" alt="Architectural Commercial Space" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
-            <div style="position: absolute; top: 12px; left: 12px;">
-              <span class="badge badge-rust" style="background: rgba(26,24,22,0.85); color: #fff; border: none;">DISCIPLINE 06</span>
-            </div>
-          </div>
-          <div style="padding: 1.5rem;">
-            <h3 style="font-family: var(--font-serif); font-size: 1.25rem;">Custom Architectural Venues</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
-              Have an industrial warehouse, rooftop atrium, or bespoke gallery? Our taxonomy accommodates custom space configurations with dynamic pricing.
-            </p>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: var(--border-light); padding-top: 0.75rem; margin-top: 1rem;">
-              <span class="mono text-rust" style="font-size: 0.82rem; font-weight: 700;">CUSTOM TAXONOMY</span>
-              <a href="auth/signup.html" class="btn btn-sm btn-rust btn-pill">Deploy Space</a>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- Section 4: Host Testimonials & Verified Ratings -->
-  <section class="container mt-4 mb-4">
-    <div style="border-top: var(--border-light); padding-top: 3.5rem; margin-top: 3.5rem;">
-      <div style="text-align: center; max-width: 680px; margin: 0 auto 3rem auto;">
-        <span class="badge badge-rust mb-1">COMMUNITY REVIEWS</span>
-        <h2 style="font-family: var(--font-serif);">WHAT OUR SPACE OPERATORS SAY</h2>
-        <p style="margin-top: 0.5rem;">Real feedback from hosts who leveraged our rating algorithm to build full-time venue businesses.</p>
-      </div>
-
-      <div class="grid">
-        
-        <div class="quote-card">
-          <div class="rating-stars mb-1">★★★★★ 5.0</div>
-          <p style="font-style: italic; color: var(--text-main); font-size: 0.95rem;">
+          <div class="text-brand-rust text-base mb-3">★★★★★ 5.0</div>
+          <p class="text-brand-dark/80 text-sm leading-relaxed italic mb-6">
             "We had our sound studio sitting empty on weekdays. Within two weeks on BookForge, our 5-star rating earned us the top featured spot on the homepage. We now average consistent bookings in off-peak hours!"
           </p>
-          <div style="margin-top: 1.25rem; border-top: var(--border-light); padding-top: 0.75rem;">
-            <strong>Marcus Vance</strong>
-            <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Operator, Monolith Sound Studios • Berlin</span>
-          </div>
         </div>
+        <div class="border-t border-brand-dark/10 pt-4">
+          <strong class="block text-brand-dark text-sm font-semibold">Marcus Vance</strong>
+          <span class="text-xs text-brand-dark/60">Operator, Monolith Sound Studios • Berlin</span>
+        </div>
+      </div>
 
-        <div class="quote-card">
-          <div class="rating-stars mb-1">★★★★★ 4.9</div>
-          <p style="font-style: italic; color: var(--text-main); font-size: 0.95rem;">
+      <div class="bg-white border border-brand-dark/10 rounded-2xl p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
+        <div>
+          <div class="text-brand-rust text-base mb-3">★★★★★ 4.9</div>
+          <p class="text-brand-dark/80 text-sm leading-relaxed italic mb-6">
             "The ability to attach add-on camera and strobe hardware as hourly fees doubled our per-booking revenue. BookForge handles scheduling and dynamic surge flawlessly."
           </p>
-          <div style="margin-top: 1.25rem; border-top: var(--border-light); padding-top: 0.75rem;">
-            <strong>Elena Rostova</strong>
-            <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Owner, Solarium Daylight Loft • London</span>
-          </div>
         </div>
+        <div class="border-t border-brand-dark/10 pt-4">
+          <strong class="block text-brand-dark text-sm font-semibold">Elena Rostova</strong>
+          <span class="text-xs text-brand-dark/60">Owner, Solarium Daylight Loft • London</span>
+        </div>
+      </div>
 
-        <div class="quote-card">
-          <div class="rating-stars mb-1">★★★★★ 4.95</div>
-          <p style="font-style: italic; color: var(--text-main); font-size: 0.95rem;">
+      <div class="bg-white border border-brand-dark/10 rounded-2xl p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
+        <div>
+          <div class="text-brand-rust text-base mb-3">★★★★★ 4.95</div>
+          <p class="text-brand-dark/80 text-sm leading-relaxed italic mb-6">
             "Transparent and seamless. No hidden cuts, clean calendar blackout controls for our maintenance team, and verified guests who respect architectural spaces."
           </p>
-          <div style="margin-top: 1.25rem; border-top: var(--border-light); padding-top: 0.75rem;">
-            <strong>Julian Croft</strong>
-            <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Director, Heritage Venue Group • San Francisco</span>
-          </div>
         </div>
-
+        <div class="border-t border-brand-dark/10 pt-4">
+          <strong class="block text-brand-dark text-sm font-semibold">Julian Croft</strong>
+          <span class="text-xs text-brand-dark/60">Director, Heritage Venue Group • San Francisco</span>
+        </div>
       </div>
+
     </div>
   </section>
 
-  <!-- Section 5: High-Converting Retro CTA Banner -->
-  <section class="container mt-4 mb-4">
-    <div class="card" style="background: var(--bg-dark); color: #FAF7F2; padding: 4rem 2.5rem; text-align: center; border-radius: var(--radius-xs);">
-      <span class="badge" style="background: rgba(226, 92, 55, 0.2); color: var(--accent-rust); border-color: rgba(226, 92, 55, 0.4);">START TODAY</span>
-      <h2 style="font-family: var(--font-serif); color: #FAF7F2; font-size: clamp(2rem, 4.5vw, 3.4rem); margin-top: 0.75rem; margin-bottom: 1rem;">
+  <!-- 8) High-Converting Retro CTA Banner -->
+  <section class="py-16 px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="bg-brand-dark text-white rounded-3xl p-10 md:p-16 text-center shadow-lg">
+      <span class="inline-block px-4 py-1.5 bg-brand-rust/20 border border-brand-rust/40 text-brand-rust text-xs uppercase tracking-widest font-bold rounded-full mb-4">
+        START TODAY
+      </span>
+      <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-white mb-4 font-helvetica-neue">
         JOIN 850+ VENUE OPERATORS GROWING ON BOOKFORGE
       </h2>
-      <p style="color: #A8A29A; max-width: 620px; margin: 0 auto 2.25rem auto; font-size: 1.05rem;">
+      <p class="text-white/70 text-base max-w-2xl mx-auto leading-relaxed mb-8">
         Register your account in 60 seconds, submit your host verification application, and let our rating algorithm put your spaces in front of thousands of active creators.
       </p>
-      <div style="display: flex; gap: 1.25rem; justify-content: center; flex-wrap: wrap;">
-        <a href="auth/signup.html" class="btn btn-rust btn-pill" style="padding: 0.85rem 2.5rem;">
+      <div class="flex flex-wrap items-center justify-center gap-4">
+        <a href="auth/signup.html" class="inline-flex items-center px-8 py-3.5 bg-brand-rust text-white text-xs tracking-wider uppercase font-bold rounded-full hover:bg-opacity-90 transition-colors shadow-sm">
           Register as Member ➔
         </a>
-        <a href="auth/login.html" class="btn btn-outline btn-pill" style="border-color: #FAF7F2; color: #FAF7F2; padding: 0.85rem 2rem;">
+        <a href="auth/login.html" class="inline-flex items-center px-8 py-3.5 bg-transparent border border-white/50 text-white text-xs tracking-wider uppercase font-bold rounded-full hover:bg-white/10 transition-colors">
           Operator Sign In
         </a>
       </div>
     </div>
   </section>
 
-  <!-- Vintage Footer -->
-  <footer>
-    <div class="container footer-inner">
+  <!-- 9) Vintage / Editorial Footer -->
+  <footer class="border-t border-brand-dark/10 py-14 px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+      
+      <!-- Brand -->
       <div>
-        <a href="index.html" class="brand-logo" style="font-size: 1.5rem;">
-          BOOK<span class="logo-accent">FORGE</span>
+        <a href="index.html" class="text-xl font-bold text-brand-dark tracking-tight">
+          BOOK<span class="text-brand-rust">FORGE</span>
         </a>
-        <p style="font-size: 0.86rem; color: var(--text-muted); margin-top: 0.35rem;">
+        <p class="text-xs text-brand-dark/60 mt-1">
           The Premier Venue & Creative Space Reservation Engine
         </p>
       </div>
-      <div style="font-size: 0.85rem; color: var(--text-muted); text-align: right; display: flex; flex-direction: column; gap: 0.35rem;">
-        <div>© 2026 BOOKFORGE • All rights reserved</div>
-        <div style="display: flex; gap: 1.25rem; justify-content: flex-end; flex-wrap: wrap;">
-          <a href="#how-it-works" style="color: var(--text-muted); text-decoration: none;">How It Works</a>
-          <a href="#rating-engine" style="color: var(--text-muted); text-decoration: none;">Rating Boost</a>
-          <a href="#earnings-calculator" style="color: var(--text-muted); text-decoration: none;">Host Earnings</a>
-          <a href="auth/signup.html" style="color: var(--accent-rust); text-decoration: none; font-weight: 600;">Become a Provider</a>
-        </div>
+
+      <!-- Links -->
+      <div class="flex flex-wrap items-center gap-6 text-xs text-brand-dark/70 font-semibold uppercase tracking-wider">
+        <a href="#how-it-works" class="hover:text-brand-rust transition-colors">How It Works</a>
+        <a href="#rating-engine" class="hover:text-brand-rust transition-colors">Rating Boost</a>
+        <a href="#earnings-calculator" class="hover:text-brand-rust transition-colors">Host Earnings</a>
+        <a href="#categories-section" class="hover:text-brand-rust transition-colors">Disciplines</a>
+        <a href="auth/signup.html" class="text-brand-rust hover:text-opacity-80 transition-colors font-bold">Become a Provider</a>
       </div>
+
+      <!-- Copyright -->
+      <div class="text-xs text-brand-dark/50">
+        © 2026 BOOKFORGE • All rights reserved
+      </div>
+
     </div>
   </footer>
 
+  <!-- Scripts -->
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/main.js"></script>
   <script>
-    function recalculateEarnings() {
-      const rate = parseFloat(document.getElementById('calc-type').value) || 85;
-      const hours = parseInt(document.getElementById('calc-hours').value, 10) || 18;
-      document.getElementById('calc-hours-label').textContent = `${hours} Hours / Week`;
-      
-      const weekly = rate * hours;
-      const monthly = Math.round(weekly * 4);
-      document.getElementById('calc-revenue-result').textContent = `$${monthly.toLocaleString()}`;
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      recalculateEarnings();
-      if (typeof Auth !== "undefined" && Auth.isAuthenticated()) {
-        const nav = document.getElementById("nav-links");
-        if (nav) {
-          const user = Auth.getUser();
-          const uname = (user && user.username) ? user.username : "Member";
-          nav.innerHTML = '<a href="#how-it-works" class="nav-link-item">How Hosting Works</a><a href="#earnings-calculator" class="nav-link-item">Host Earnings</a><a href="#categories-section" class="nav-link-item">Disciplines</a><span style="font-size: 0.88rem; font-weight: 600; color: var(--text-muted); align-self: center;">👋 ' + uname + '</span><a href="javascript:void(0)" onclick="Auth.redirectBasedOnRole()" class="btn btn-sm btn-rust btn-pill">My Dashboard ➔</a><a href="javascript:void(0)" onclick="Auth.logout()" class="btn btn-sm btn-outline btn-pill">Sign Out</a>';
-        }
+    // 1) Navbar Scroll State (Persistent High-Contrast Dark Glass Header)
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 20) {
+        navbar.classList.add('bg-brand-dark/95', 'backdrop-blur-xl', 'border-b', 'border-white/10', 'shadow-xl');
+        navbar.classList.remove('bg-brand-dark/40');
+      } else {
+        navbar.classList.remove('bg-brand-dark/95', 'shadow-xl');
+        navbar.classList.add('bg-brand-dark/40');
       }
     });
+
+    // 2) Mobile Hamburger Toggle
+    const mobileToggle = document.getElementById('mobile-toggle');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const mobileMenuCol = document.getElementById('mobile-menu-col');
+    const barTop = document.getElementById('bar-top');
+    const barBottom = document.getElementById('bar-bottom');
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+    let isMenuOpen = false;
+
+    function toggleMenu() {
+      isMenuOpen = !isMenuOpen;
+      if (isMenuOpen) {
+        barTop.classList.add('rotate-45', 'translate-y-[4px]');
+        barBottom.classList.add('-rotate-45', '-translate-y-[4px]');
+        mobileOverlay.classList.remove('opacity-0', 'pointer-events-none');
+        mobileOverlay.classList.add('opacity-100', 'pointer-events-auto');
+        mobileMenuCol.classList.remove('-translate-y-8', 'opacity-0');
+        mobileMenuCol.classList.add('translate-y-0', 'opacity-100');
+        document.body.style.overflow = 'hidden';
+      } else {
+        barTop.classList.remove('rotate-45', 'translate-y-[4px]');
+        barBottom.classList.remove('-rotate-45', '-translate-y-[4px]');
+        mobileOverlay.classList.remove('opacity-100', 'pointer-events-auto');
+        mobileOverlay.classList.add('opacity-0', 'pointer-events-none');
+        mobileMenuCol.classList.remove('translate-y-0', 'opacity-100');
+        mobileMenuCol.classList.add('-translate-y-8', 'opacity-0');
+        document.body.style.overflow = '';
+      }
+    }
+
+    if (mobileToggle) {
+      mobileToggle.addEventListener('click', toggleMenu);
+    }
+    mobileNavLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (isMenuOpen) toggleMenu();
+      });
+    });
+
+    // 3) Host Revenue Estimator & Dynamic Slider Fill
+    const calcType = document.getElementById('calc-type');
+    const calcHours = document.getElementById('calc-hours');
+    const calcHoursLabel = document.getElementById('calc-hours-label');
+    const calcRevenueResult = document.getElementById('calc-revenue-result');
+
+    function updateEarnings() {
+      if (!calcType || !calcHours) return;
+      const rate = parseFloat(calcType.value) || 85;
+      const hours = parseInt(calcHours.value, 10) || 18;
+      calcHoursLabel.textContent = `${hours} Hours / Week`;
+
+      // Update Slider Dynamic Track Percentage for WebKit
+      const pct = ((hours - 5) / (45 - 5)) * 100;
+      calcHours.style.setProperty('--slider-pct', `${pct}%`);
+
+      const weekly = rate * hours;
+      const monthly = Math.round(weekly * 4);
+      calcRevenueResult.textContent = `$${monthly.toLocaleString()}`;
+    }
+
+    if (calcType && calcHours) {
+      calcType.addEventListener('change', updateEarnings);
+      calcHours.addEventListener('input', updateEarnings);
+      updateEarnings();
+    }
+
+    // 4) Check Auth session
+    if (typeof Auth !== "undefined" && Auth.isAuthenticated()) {
+      const user = Auth.getUser();
+      const uname = (user && user.username) ? user.username : "Host";
+      const signinLink = document.getElementById('nav-signin-link');
+      const ctaBtn = document.getElementById('nav-cta');
+      if (signinLink) {
+        signinLink.textContent = `👋 ${uname}`;
+        signinLink.href = "javascript:void(0)";
+        signinLink.onclick = () => Auth.redirectBasedOnRole();
+      }
+      if (ctaBtn) {
+        ctaBtn.textContent = "My Dashboard ➔";
+        ctaBtn.onclick = () => Auth.redirectBasedOnRole();
+      }
+    }
   </script>
 </body>
 </html>
