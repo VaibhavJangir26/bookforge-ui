@@ -513,7 +513,16 @@ const AvailabilityAPI = {
   },
   async getRulesBySpace(spaceId) { return await this.getRules(spaceId); },
 
-  async createRule({ spaceId, dayOfWeek, openingTime, closingTime, open, slotDurationInMinutes }) {
+  async createRule(payload) {
+    const spaceId = payload.spaceId;
+    const dayOfWeek = payload.dayOfWeek;
+    let openingTime = payload.openingTime || payload.openTime || "09:00:00";
+    let closingTime = payload.closingTime || payload.closeTime || "18:00:00";
+    if (openingTime && openingTime.length === 5) openingTime += ":00";
+    if (closingTime && closingTime.length === 5) closingTime += ":00";
+    const open = payload.open !== undefined ? Boolean(payload.open) : true;
+    const slotDurationInMinutes = parseInt(payload.slotDurationInMinutes || payload.slotDurationMinutes || 60, 10);
+
     return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.RULES, {
       method: "POST",
       body: JSON.stringify({
@@ -521,8 +530,8 @@ const AvailabilityAPI = {
         dayOfWeek,
         openingTime,
         closingTime,
-        open: open !== false,
-        slotDurationInMinutes: parseInt(slotDurationInMinutes, 10) || 60
+        open,
+        slotDurationInMinutes
       }),
       loaderText: "CONFIGURING SCHEDULE RULE..."
     });
@@ -543,7 +552,14 @@ const AvailabilityAPI = {
   },
   async getBlackoutsBySpace(spaceId) { return await this.getBlackouts(spaceId); },
 
-  async createBlackout({ spaceId, startDateTime, endDateTime, reason }) {
+  async createBlackout(payload) {
+    const spaceId = payload.spaceId;
+    let startDateTime = payload.startDateTime || payload.startTime;
+    let endDateTime = payload.endDateTime || payload.endTime;
+    if (startDateTime && startDateTime.length === 16) startDateTime += ":00";
+    if (endDateTime && endDateTime.length === 16) endDateTime += ":00";
+    const reason = payload.reason || "Scheduled maintenance";
+
     return await apiRequest(CONFIG.ENDPOINTS.AVAILABILITY.BLACKOUTS, {
       method: "POST",
       body: JSON.stringify({ spaceId, startDateTime, endDateTime, reason }),

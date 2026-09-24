@@ -2,7 +2,7 @@
  * Global UI Helper & State Management (Vintage Retro Edition)
  */
 
-const SeedUsers = {
+var SeedUsers = window.SeedUsers || {
   admin: { username: 'admin', password: 'admin@123', role: 'ROLE_ADMIN' },
   provider: { username: 'ram123', password: 'ram@123', role: 'ROLE_PROVIDER' },
   customer: { username: 'shyam123', password: 'shyam@123', role: 'ROLE_CUSTOMER' }

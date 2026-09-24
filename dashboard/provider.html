@@ -834,7 +834,8 @@
             </a>
           </div>
         </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function updateSpaceDropdowns(spaces) {
@@ -941,7 +942,8 @@
               </button>
             </div>
           </div>
-        `).join('');
+        `;
+      }).join('');
       } catch (err) {
         grid.innerHTML = `<div class="card text-center" style="grid-column: 1/-1;"><p style="color:var(--accent-rust);">${err.message}</p></div>`;
       }
@@ -1142,13 +1144,17 @@
       const spaceId = document.getElementById('schedule-space-selector').value;
       if (!spaceId) return;
 
+      let startVal = document.getElementById('bo-start').value;
+      let endVal = document.getElementById('bo-end').value;
+      if (startVal && startVal.length === 16) startVal += ':00';
+      if (endVal && endVal.length === 16) endVal += ':00';
+
       const blackoutDto = {
         spaceId: spaceId,
-        startDateTime: document.getElementById('bo-start').value,
-        endDateTime: document.getElementById('bo-end').value,
+        startDateTime: startVal,
+        endDateTime: endVal,
         reason: document.getElementById('bo-reason').value.trim()
       };
-
       try {
         await AvailabilityAPI.createBlackout(blackoutDto);
         showToast('Blackout window registered!', 'success');
@@ -1176,14 +1182,19 @@
       const spaceId = document.getElementById('schedule-space-selector').value;
       if (!spaceId) return;
 
+      let openVal = document.getElementById('rule-open').value;
+      let closeVal = document.getElementById('rule-close').value;
+      if (openVal && openVal.length === 5) openVal += ':00';
+      if (closeVal && closeVal.length === 5) closeVal += ':00';
+
       const ruleDto = {
         spaceId: spaceId,
         dayOfWeek: document.getElementById('rule-day').value,
-        openTime: document.getElementById('rule-open').value + ':00',
-        closeTime: document.getElementById('rule-close').value + ':00',
-        slotDurationMinutes: parseInt(document.getElementById('rule-duration').value, 10)
+        openingTime: openVal,
+        closingTime: closeVal,
+        open: true,
+        slotDurationInMinutes: parseInt(document.getElementById('rule-duration').value, 10) || 60
       };
-
       try {
         await AvailabilityAPI.createRule(ruleDto);
         showToast('Operating schedule saved!', 'success');
