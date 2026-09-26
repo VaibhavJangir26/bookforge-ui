@@ -152,9 +152,17 @@
           return;
         }
 
-        grid.innerHTML = spaces.map(s => `
+        grid.innerHTML = spaces.map(s => {
+          const imgTag = (s.imgUrls && s.imgUrls.length > 0)
+            ? `<div style="display:flex; overflow-x:auto; gap:0.5rem; margin-bottom:0.75rem; padding-bottom:0.25rem;">
+                 ${s.imgUrls.map(img => `<img src="${img}" style="min-width:180px; height:130px; object-fit:cover; border-radius:var(--radius-xs);" alt="${s.name}">`).join('')}
+               </div>`
+            : "";
+            
+          return `
           <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
             <div>
+              ${imgTag}
               <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
                 <span class="badge badge-rust">CAPACITY: ${s.capacity || 1} GUESTS</span>
                 <span style="font-family:var(--font-serif); font-size:1.35rem; font-weight:700; color:var(--accent-rust);">

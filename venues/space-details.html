@@ -82,15 +82,17 @@
 
       <div class="action-panel-body">
         <form id="calc-quote-form">
-          <div class="grid grid-2 mb-3">
-            <div class="form-group">
-              <label class="form-label">SLOT START DATE & TIME</label>
-              <input type="datetime-local" id="quote-start" class="form-input" required>
+          <div style="display:grid; grid-template-columns: 1fr; gap:1rem; align-items:flex-start; margin-bottom:1rem;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">SELECT RESERVATION DATE</label>
+              <input type="date" id="quote-date-input" class="form-input" required onchange="renderAvailabilitySlotsForDate()">
             </div>
-            <div class="form-group">
-              <label class="form-label">SLOT END DATE & TIME</label>
-              <input type="datetime-local" id="quote-end" class="form-input" required>
-            </div>
+          </div>
+          <div id="availability-slots-container" class="d-none" style="margin-bottom:1.5rem;">
+            <label class="form-label mb-2">SELECT AVAILABLE TIMESLOT</label>
+            <div id="slots-chips-wrapper" style="display:flex; flex-wrap:wrap; gap:0.5rem;"></div>
+            <input type="hidden" id="quote-start" required>
+            <input type="hidden" id="quote-end" required>
           </div>
 
           <!-- Add-on Hardware Selection -->
@@ -454,11 +456,14 @@
       }
     }
 
+    let spaceAvailabilityRules = [];
+
     async function loadSpaceSchedule(spaceId) {
       const container = document.getElementById('space-operating-schedule-list');
       try {
         const res = await AvailabilityAPI.getRulesBySpace(spaceId);
         const rules = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+        spaceAvailabilityRules = rules;
 
         if (!rules || rules.length === 0) {
           container.innerHTML = '<p class="mono text-muted">General 24/7 operating availability or standard daytime hours.</p>';
@@ -468,12 +473,84 @@
         container.innerHTML = rules.map(r => `
           <div style="border-bottom:var(--border-light); padding:0.5rem 0; font-size:0.86rem; display:flex; justify-content:space-between;">
             <strong>${r.dayOfWeek}</strong>
-            <span class="mono text-muted">${r.openTime} - ${r.closeTime}</span>
+            <span class="mono text-muted">${r.openingTime || r.openTime} - ${r.closingTime || r.closeTime}</span>
           </div>
         `).join('');
       } catch (err) {
+        spaceAvailabilityRules = [];
         container.innerHTML = `<p style="color:var(--accent-rust);">${err.message}</p>`;
       }
+    }
+
+    function renderAvailabilitySlotsForDate() {
+      const dateStr = document.getElementById('quote-date-input').value;
+      const container = document.getElementById('availability-slots-container');
+      const wrapper = document.getElementById('slots-chips-wrapper');
+      
+      if (!dateStr) {
+        container.classList.add('d-none');
+        return;
+      }
+      
+      const d = new Date(dateStr);
+      const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+      const dayOfWeek = days[d.getDay()];
+      
+      const rule = spaceAvailabilityRules.find(r => r.dayOfWeek === dayOfWeek && r.open === true);
+      
+      container.classList.remove('d-none');
+      
+      if (!rule) {
+        wrapper.innerHTML = `<p class="mono text-muted" style="font-size:0.85rem;">No availability set by provider for ${dayOfWeek}.</p>`;
+        return;
+      }
+      
+      const openTimeStr = rule.openingTime || rule.openTime; // HH:mm:ss
+      const closeTimeStr = rule.closingTime || rule.closeTime; // HH:mm:ss
+      const durationMin = rule.slotDurationInMinutes || rule.slotDuration || 60;
+      
+      const openParts = openTimeStr.split(':');
+      const closeParts = closeTimeStr.split(':');
+      
+      let currentMin = parseInt(openParts[0])*60 + parseInt(openParts[1]);
+      const endMin = parseInt(closeParts[0])*60 + parseInt(closeParts[1]);
+      
+      let html = '';
+      while (currentMin + durationMin <= endMin) {
+        const startH = String(Math.floor(currentMin / 60)).padStart(2, '0');
+        const startM = String(currentMin % 60).padStart(2, '0');
+        const nextMin = currentMin + durationMin;
+        const endH = String(Math.floor(nextMin / 60)).padStart(2, '0');
+        const endM = String(nextMin % 60).padStart(2, '0');
+        
+        const startTimeStr = `${dateStr}T${startH}:${startM}`;
+        const endTimeStr = `${dateStr}T${endH}:${endM}`;
+        
+        const timeLabel = `${startH}:${startM} - ${endH}:${endM}`;
+        
+        html += `<button type="button" class="btn btn-sm btn-outline btn-pill slot-chip" style="font-family:var(--font-mono); font-size:0.8rem; border-color:var(--border-medium); color:var(--text-main);" onclick="selectTimeSlot(this, '${startTimeStr}', '${endTimeStr}')">${timeLabel}</button>`;
+        currentMin = nextMin;
+      }
+      
+      if (!html) {
+        wrapper.innerHTML = `<p class="mono text-muted" style="font-size:0.85rem;">No slots fit within ${openTimeStr} to ${closeTimeStr}.</p>`;
+      } else {
+        wrapper.innerHTML = html;
+      }
+    }
+    
+    function selectTimeSlot(btnEl, startStr, endStr) {
+      document.querySelectorAll('.slot-chip').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = 'var(--text-main)';
+        b.style.borderColor = 'var(--border-medium)';
+      });
+      btnEl.style.background = 'var(--accent-rust)';
+      btnEl.style.color = '#FFFFFF';
+      btnEl.style.borderColor = 'var(--accent-rust)';
+      
+      document.getElementById('quote-start').value = startStr;
+      document.getElementById('quote-end').value = endStr;
     }
 
     let currentQuote = null;

@@ -340,10 +340,10 @@
                   <div class="form-group">
                     <label class="form-label">RULE TRIGGER TYPE</label>
                     <select id="pr-rule-type" class="form-select" required>
-                      <option value="PEAK_HOURS">PEAK_HOURS</option>
+                      <option value="PEAK_HOUR">PEAK_HOUR</option>
                       <option value="WEEKEND">WEEKEND</option>
                       <option value="SEASONAL">SEASONAL</option>
-                      <option value="CUSTOM">CUSTOM</option>
+                      <option value="SPECIFIC_DATE">SPECIFIC_DATE</option>
                     </select>
                   </div>
                   <div class="form-group">
@@ -1159,7 +1159,7 @@
             <div style="border-bottom:var(--border-light); padding:0.6rem 0; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <span class="badge badge-rust" style="font-size:0.7rem;">${r.dayOfWeek}</span>
-                <span class="mono text-muted" style="font-size:0.8rem; margin-left:0.4rem;">${r.openTime} - ${r.closeTime}</span>
+                <span class="mono text-muted" style="font-size:0.8rem; margin-left:0.4rem;">${r.openingTime || r.openTime} - ${r.closingTime || r.closeTime}</span>
               </div>
               <button onclick="deleteScheduleRule('${r.id}')" class="btn btn-sm btn-outline btn-pill" style="color:var(--accent-rust); font-size:0.72rem; padding:0.2rem 0.5rem;">✕</button>
             </div>

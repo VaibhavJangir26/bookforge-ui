@@ -214,7 +214,10 @@
             <h3 style="font-family: var(--font-serif);">VERIFIED PLATFORM VENUES</h3>
             <p style="font-size: 0.86rem; color: var(--text-muted);">Select any architectural or media facility to inspect its available spaces and pricing.</p>
           </div>
-          <div>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <select id="venue-category-filter" class="form-input" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" onchange="filterVenuesByCategory(this.value)">
+              <option value="ALL">All Categories</option>
+            </select>
             <button onclick="loadVenues()" class="btn btn-sm btn-outline btn-pill">Refresh Catalog ↻</button>
           </div>
         </div>
@@ -257,14 +260,18 @@
         </div>
 
         <div class="action-panel-body">
-          <form id="price-calc-form" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; align-items:flex-end;">
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">START DATE & TIME</label>
-              <input type="datetime-local" id="calc-start-time" class="form-input" required>
+          <form id="price-calc-form">
+            <div style="display:grid; grid-template-columns: 1fr; gap:1rem; align-items:flex-start; margin-bottom:1rem;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">SELECT RESERVATION DATE</label>
+                <input type="date" id="calc-date-input" class="form-input" required onchange="renderAvailabilitySlotsForDate()">
+              </div>
             </div>
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">END DATE & TIME</label>
-              <input type="datetime-local" id="calc-end-time" class="form-input" required>
+            <div id="availability-slots-container" class="d-none" style="margin-bottom:1rem;">
+              <label class="form-label mb-2">SELECT AVAILABLE TIMESLOT</label>
+              <div id="slots-chips-wrapper" style="display:flex; flex-wrap:wrap; gap:0.5rem;"></div>
+              <input type="hidden" id="calc-start-time" required>
+              <input type="hidden" id="calc-end-time" required>
             </div>
             <div>
               <button type="submit" class="btn btn-rust btn-block btn-pill" style="height:42px;">
@@ -846,14 +853,41 @@
     async function loadVenues() {
       try {
         const res = await VenueAPI.getAll();
-        globalVenues = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+        const allVenues = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+        // Only show PUBLISHED or APPROVED venues to customers
+        globalVenues = allVenues.filter(v => v.venueStatus === 'APPROVED' || v.venueStatus === 'PUBLISHED');
         renderVenuesGrid(globalVenues);
+        
+        // Also populate categories if available
+        try {
+          const catRes = await CategoryAPI.getAll();
+          const categories = Array.isArray(catRes) ? catRes : (catRes && catRes.data ? catRes.data : []);
+          const catSelect = document.getElementById('venue-category-filter');
+          if (catSelect && categories.length > 0) {
+            const currentVal = catSelect.value;
+            catSelect.innerHTML = '<option value="ALL">All Categories</option>' + 
+              categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            catSelect.value = currentVal;
+          }
+        } catch (e) {
+          console.warn('Could not load categories for filter', e);
+        }
       } catch (err) {
         document.getElementById('venues-list-grid').innerHTML = `
           <div class="card text-center" style="grid-column: 1/-1;">
             <p style="color:var(--accent-rust);">${err.message}</p>
           </div>
         `;
+      }
+    }
+
+    function filterVenuesByCategory(categoryId) {
+      if (!globalVenues) return;
+      if (categoryId === 'ALL') {
+        renderVenuesGrid(globalVenues);
+      } else {
+        const filtered = globalVenues.filter(v => v.categoryId === categoryId);
+        renderVenuesGrid(filtered);
       }
     }
 
@@ -936,7 +970,9 @@
 
       grid.innerHTML = spaces.map(s => {
         const imgTag = (s.imgUrls && s.imgUrls.length > 0)
-          ? `<img src="${s.imgUrls[0]}" style="width:100%; height:150px; object-fit:cover; border-radius:var(--radius-xs); margin-bottom:0.75rem;" alt="${s.name}">`
+          ? `<div style="display:flex; overflow-x:auto; gap:0.5rem; margin-bottom:0.75rem; padding-bottom:0.25rem;">
+               ${s.imgUrls.map(img => `<img src="${img}" style="min-width:180px; height:130px; object-fit:cover; border-radius:var(--radius-xs);" alt="${s.name}">`).join('')}
+             </div>`
           : "";
 
         return `
@@ -966,7 +1002,9 @@
       }).join('');
     }
 
-    function selectSpace(spaceId, spaceName, basePrice, capacity) {
+    let spaceAvailabilityRules = [];
+
+    async function selectSpace(spaceId, spaceName, basePrice, capacity) {
       selectedSpace = { id: spaceId, name: spaceName, basePrice, capacity };
 
       document.querySelectorAll('.space-item-card').forEach(el => el.classList.remove('active-card-highlight'));
@@ -978,19 +1016,101 @@
       document.getElementById('calc-space-details').textContent = `Base Rate: $${basePrice}/hr • Capacity: ${capacity} Guests`;
       document.getElementById('link-public-space').href = `../venues/space-details.html?id=${spaceId}`;
 
-      // Pre-fill tomorrow 10:00 to 14:00
+      // Pre-fill tomorrow
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const yyyy = tomorrow.getFullYear();
       const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
       const dd = String(tomorrow.getDate()).padStart(2, '0');
 
-      document.getElementById('calc-start-time').value = `${yyyy}-${mm}-${dd}T10:00`;
-      document.getElementById('calc-end-time').value = `${yyyy}-${mm}-${dd}T14:00`;
+      document.getElementById('calc-date-input').value = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('calc-start-time').value = ``;
+      document.getElementById('calc-end-time').value = ``;
+      
+      // Load rules for this space
+      try {
+        const res = await AvailabilityAPI.getRulesBySpace(spaceId);
+        spaceAvailabilityRules = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+      } catch (err) {
+        spaceAvailabilityRules = [];
+      }
+      
+      renderAvailabilitySlotsForDate();
 
       document.getElementById('price-calculator-panel').classList.remove('d-none');
       document.getElementById('calc-result-box').classList.add('d-none');
       document.getElementById('price-calculator-panel').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function renderAvailabilitySlotsForDate() {
+      const dateStr = document.getElementById('calc-date-input').value;
+      const container = document.getElementById('availability-slots-container');
+      const wrapper = document.getElementById('slots-chips-wrapper');
+      
+      if (!dateStr) {
+        container.classList.add('d-none');
+        return;
+      }
+      
+      const d = new Date(dateStr);
+      const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+      const dayOfWeek = days[d.getDay()];
+      
+      const rule = spaceAvailabilityRules.find(r => r.dayOfWeek === dayOfWeek && r.open === true);
+      
+      container.classList.remove('d-none');
+      
+      if (!rule) {
+        wrapper.innerHTML = `<p class="mono text-muted" style="font-size:0.85rem;">No availability set by provider for ${dayOfWeek}.</p>`;
+        return;
+      }
+      
+      const openTimeStr = rule.openingTime; // HH:mm:ss
+      const closeTimeStr = rule.closingTime; // HH:mm:ss
+      const durationMin = rule.slotDurationInMinutes || 60;
+      
+      const openParts = openTimeStr.split(':');
+      const closeParts = closeTimeStr.split(':');
+      
+      let currentMin = parseInt(openParts[0])*60 + parseInt(openParts[1]);
+      const endMin = parseInt(closeParts[0])*60 + parseInt(closeParts[1]);
+      
+      let html = '';
+      while (currentMin + durationMin <= endMin) {
+        const startH = String(Math.floor(currentMin / 60)).padStart(2, '0');
+        const startM = String(currentMin % 60).padStart(2, '0');
+        const nextMin = currentMin + durationMin;
+        const endH = String(Math.floor(nextMin / 60)).padStart(2, '0');
+        const endM = String(nextMin % 60).padStart(2, '0');
+        
+        const startTimeStr = `${dateStr}T${startH}:${startM}`;
+        const endTimeStr = `${dateStr}T${endH}:${endM}`;
+        
+        const timeLabel = `${startH}:${startM} - ${endH}:${endM}`;
+        
+        html += `<button type="button" class="btn btn-sm btn-outline btn-pill slot-chip" style="font-family:var(--font-mono); font-size:0.8rem; border-color:var(--border-medium); color:var(--text-main);" onclick="selectTimeSlot(this, '${startTimeStr}', '${endTimeStr}')">${timeLabel}</button>`;
+        currentMin = nextMin;
+      }
+      
+      if (!html) {
+        wrapper.innerHTML = `<p class="mono text-muted" style="font-size:0.85rem;">No slots fit within ${openTimeStr} to ${closeTimeStr}.</p>`;
+      } else {
+        wrapper.innerHTML = html;
+      }
+    }
+    
+    function selectTimeSlot(btnEl, startStr, endStr) {
+      document.querySelectorAll('.slot-chip').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = 'var(--text-main)';
+        b.style.borderColor = 'var(--border-medium)';
+      });
+      btnEl.style.background = 'var(--accent-rust)';
+      btnEl.style.color = '#FFFFFF';
+      btnEl.style.borderColor = 'var(--accent-rust)';
+      
+      document.getElementById('calc-start-time').value = startStr;
+      document.getElementById('calc-end-time').value = endStr;
     }
 
     document.getElementById('price-calc-form').addEventListener('submit', async (e) => {

@@ -102,19 +102,37 @@ async function apiRequest(endpoint, options = {}) {
   const primaryUrl = `${API_BASE_URL}${endpoint}`;
   candidateUrls.push(primaryUrl);
 
-  // If endpoint is booking or payment, add alternative fallback URLs
-  if (endpoint.startsWith('/booking')) {
-    // Plural route through gateway if gateway predicates use /bookings/**
-    const pluralEndpoint = `/booking${endpoint.substring('/booking'.length)}`;
-    candidateUrls.push(`${API_BASE_URL}${pluralEndpoint}`);
-    // Direct service URL fallback (port 8700)
+  // If endpoint is booking or payment, add alternative fallback URLs (handling both singular /booking and plural /bookings)
+  if (endpoint.startsWith('/booking') && !endpoint.startsWith('/bookings')) {
+    const pluralEndpoint = `/bookings${endpoint.substring('/booking'.length)}`;
+    if (!candidateUrls.includes(`${API_BASE_URL}${pluralEndpoint}`)) {
+      candidateUrls.push(`${API_BASE_URL}${pluralEndpoint}`);
+    }
     const directUrl = `${CONFIG.BOOKING_SERVICE_URL || 'http://localhost:8700/api/v1'}${endpoint}`;
     if (!candidateUrls.includes(directUrl)) candidateUrls.push(directUrl);
-  } else if (endpoint.startsWith('/payment')) {
-    // Plural route through gateway if gateway predicates use /payments/**
+    const directPluralUrl = `${CONFIG.BOOKING_SERVICE_URL || 'http://localhost:8700/api/v1'}${pluralEndpoint}`;
+    if (!candidateUrls.includes(directPluralUrl)) candidateUrls.push(directPluralUrl);
+  } else if (endpoint.startsWith('/bookings')) {
+    const singularEndpoint = `/booking${endpoint.substring('/bookings'.length)}`;
+    if (!candidateUrls.includes(`${API_BASE_URL}${singularEndpoint}`)) {
+      candidateUrls.push(`${API_BASE_URL}${singularEndpoint}`);
+    }
+    const directUrl = `${CONFIG.BOOKING_SERVICE_URL || 'http://localhost:8700/api/v1'}${endpoint}`;
+    if (!candidateUrls.includes(directUrl)) candidateUrls.push(directUrl);
+    const directSingularUrl = `${CONFIG.BOOKING_SERVICE_URL || 'http://localhost:8700/api/v1'}${singularEndpoint}`;
+    if (!candidateUrls.includes(directSingularUrl)) candidateUrls.push(directSingularUrl);
+  } else if (endpoint.startsWith('/payment') && !endpoint.startsWith('/payments')) {
     const pluralEndpoint = `/payments${endpoint.substring('/payment'.length)}`;
-    candidateUrls.push(`${API_BASE_URL}${pluralEndpoint}`);
-    // Direct service URL fallback (port 8800)
+    if (!candidateUrls.includes(`${API_BASE_URL}${pluralEndpoint}`)) {
+      candidateUrls.push(`${API_BASE_URL}${pluralEndpoint}`);
+    }
+    const directUrl = `${CONFIG.PAYMENT_SERVICE_URL || 'http://localhost:8800/api/v1'}${endpoint}`;
+    if (!candidateUrls.includes(directUrl)) candidateUrls.push(directUrl);
+  } else if (endpoint.startsWith('/payments')) {
+    const singularEndpoint = `/payment${endpoint.substring('/payments'.length)}`;
+    if (!candidateUrls.includes(`${API_BASE_URL}${singularEndpoint}`)) {
+      candidateUrls.push(`${API_BASE_URL}${singularEndpoint}`);
+    }
     const directUrl = `${CONFIG.PAYMENT_SERVICE_URL || 'http://localhost:8800/api/v1'}${endpoint}`;
     if (!candidateUrls.includes(directUrl)) candidateUrls.push(directUrl);
   }
