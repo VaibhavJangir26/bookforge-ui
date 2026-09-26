@@ -733,6 +733,16 @@
           cancellationReason: reason
         });
 
+        // If the booking was confirmed and paid, trigger the payment refund endpoint
+        const targetBooking = myBookings.find(b => b.id === bookingId);
+        if (targetBooking && targetBooking.status === 'CONFIRMED') {
+          try {
+            await PaymentAPI.refund({ bookingId });
+          } catch (rErr) {
+            console.warn('Direct payment refund endpoint trigger:', rErr.message);
+          }
+        }
+
         const msg = (res && res.message) ? res.message : 'Booking cancellation processed successfully.';
         showToast(msg, 'success');
         closeCustModal('cust-cancel-modal');
