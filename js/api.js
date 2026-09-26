@@ -7,6 +7,9 @@ const CONFIG = window.BOOKFORGE_CONFIG || {
   API_BASE_URL: 'http://localhost:8900/api/v1',
   AUTH_SERVICE_URL: 'http://localhost:8500/api/v1',
   CATALOG_SERVICE_URL: 'http://localhost:8600/api/v1',
+  BOOKING_SERVICE_URL: 'http://localhost:8700/api/v1',
+  PAYMENT_SERVICE_URL: 'http://localhost:8800/api/v1',
+  STRIPE_PUBLISHABLE_KEY: localStorage.getItem('stripe_publishable_key') || 'pk_test_51MockStripePublishableKeyForBookForgeUI123456789',
   ENDPOINTS: {
     AUTH: { LOGIN: '/auth/login', SIGNUP: '/auth/signup', VERIFY: '/auth/verify', REFRESH: '/auth/refresh', LOGOUT: '/auth/logout', PROFILE_ME: '/profile/me', APPLY_PROVIDER: '/profile/apply-provider' },
     CATEGORY: { GET_ALL: '/category', CREATE: '/category', UPDATE: '/category', DELETE: (id) => `/category/${id}` },
@@ -14,7 +17,10 @@ const CONFIG = window.BOOKFORGE_CONFIG || {
     SPACE: { GET_ALL: '/spaces', GET_BY_VENUE: (id) => `/spaces/venue/${id}`, GET_DETAILS: (id) => `/spaces/${id}`, CREATE: '/spaces', UPDATE: (id) => `/spaces/${id}`, DELETE: (id) => `/spaces/${id}` },
     RESOURCE: { GET_ALL: '/resources', GET_BY_SPACE: (id) => `/resources/space/${id}`, GET_DETAILS: (id) => `/resources/${id}`, CREATE: '/resources', UPDATE: (id) => `/resources/${id}`, DELETE: (id) => `/resources/${id}` },
     AVAILABILITY: { RULES_BY_SPACE: (id) => `/availability/rules/space/${id}`, RULES: '/availability/rules', DELETE_RULE: (id) => `/availability/rules/${id}`, BLACKOUTS_BY_SPACE: (id) => `/availability/blackouts/space/${id}`, BLACKOUTS: '/availability/blackouts', DELETE_BLACKOUT: (id) => `/availability/blackouts/${id}`, SLOTS: (id) => `/availability/slots/space/${id}` },
-    ADMIN_PROVIDERS: { PENDING: '/admin/providers/pending', REVIEW: (id) => `/admin/providers/${id}/status` }, PRICING: { RULES_BY_SPACE: (id) => `/pricing/rules/space/${id}`, RULES: '/pricing/rules', DELETE_RULE: (id) => `/pricing/rules/${id}`, CALCULATE: '/pricing/calculate' }
+    ADMIN_PROVIDERS: { PENDING: '/admin/providers/pending', REVIEW: (id) => `/admin/providers/${id}/status` },
+    PRICING: { RULES_BY_SPACE: (id) => `/pricing/rules/space/${id}`, RULES: '/pricing/rules', DELETE_RULE: (id) => `/pricing/rules/${id}`, CALCULATE: '/pricing/calculate' },
+    BOOKING: { BASE: '/booking', CREATE: '/booking/create-booking', CANCEL: '/booking/cancel-booking', GET_MY_HISTORY: '/booking', GET_DETAILS: (id) => `/booking/${id}`, GET_BY_SPACE: (id) => `/booking/space/${id}`, UPDATE_STATUS: (id) => `/booking/${id}/status` },
+    PAYMENT: { BASE: '/payment', CHECKOUT: '/payment/checkout', VERIFY: (id) => `/payment/verify/${id}`, REFUND: '/payment/refund' }
   }
 };
 
@@ -66,7 +72,7 @@ function hideLoader() {
   if (overlay) overlay.classList.remove('active');
 }
 
-// Low-level fetch wrapper with automatic CommonApiResponse unwrapping
+// Low-level fetch wrapper with automatic CommonApiResponse unwrapping and microservice routing
 async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('bookforge_token');
   const headers = { ...options.headers };
@@ -79,21 +85,78 @@ async function apiRequest(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  try {
-    showLoader(options.loaderText || 'EXECUTING TRANSACTION...');
-    const url = `${API_BASE_URL}${endpoint}`;
-    const res = await fetch(url, {
-      method: options.method || 'GET',
-      headers,
-      body: options.body
-    });
+  // Populate trusted user identity headers for direct downstream filter validation
+  const user = window.Auth ? window.Auth.getUser() : null;
+  const userId = window.Auth ? window.Auth.getUserId() : null;
+  if (userId) {
+    headers['X-User-Id'] = userId;
+  }
+  if (user && user.username) {
+    headers['X-User-Name'] = user.username;
+  }
+  if (user && user.roles) {
+    headers['X-User-Roles'] = Array.isArray(user.roles) ? user.roles.join(',') : user.roles;
+  }
 
-    const contentType = res.headers.get('content-type') || '';
-    let responseData;
-    if (contentType.includes('application/json')) {
-      responseData = await res.json();
-    } else {
-      responseData = await res.text();
+  const candidateUrls = [];
+  const primaryUrl = `${API_BASE_URL}${endpoint}`;
+  candidateUrls.push(primaryUrl);
+
+  // If endpoint is booking or payment, add alternative fallback URLs
+  if (endpoint.startsWith('/booking')) {
+    // Plural route through gateway if gateway predicates use /bookings/**
+    const pluralEndpoint = `/booking${endpoint.substring('/booking'.length)}`;
+    candidateUrls.push(`${API_BASE_URL}${pluralEndpoint}`);
+    // Direct service URL fallback (port 8700)
+    const directUrl = `${CONFIG.BOOKING_SERVICE_URL || 'http://localhost:8700/api/v1'}${endpoint}`;
+    if (!candidateUrls.includes(directUrl)) candidateUrls.push(directUrl);
+  } else if (endpoint.startsWith('/payment')) {
+    // Plural route through gateway if gateway predicates use /payments/**
+    const pluralEndpoint = `/payments${endpoint.substring('/payment'.length)}`;
+    candidateUrls.push(`${API_BASE_URL}${pluralEndpoint}`);
+    // Direct service URL fallback (port 8800)
+    const directUrl = `${CONFIG.PAYMENT_SERVICE_URL || 'http://localhost:8800/api/v1'}${endpoint}`;
+    if (!candidateUrls.includes(directUrl)) candidateUrls.push(directUrl);
+  }
+
+  showLoader(options.loaderText || 'EXECUTING TRANSACTION...');
+  try {
+    let lastError = null;
+    let res = null;
+    let responseData = null;
+
+    for (let i = 0; i < candidateUrls.length; i++) {
+      const targetUrl = candidateUrls[i];
+      try {
+        res = await fetch(targetUrl, {
+          method: options.method || 'GET',
+          headers,
+          body: options.body
+        });
+
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          responseData = await res.json();
+        } else {
+          responseData = await res.text();
+        }
+
+        // If 404 or connection refused and we have another candidate URL to try, continue
+        if (res.status === 404 && i < candidateUrls.length - 1) {
+          console.warn(`[API] 404 on ${targetUrl}, trying fallback candidate...`);
+          continue;
+        }
+
+        // We got a definitive response from server
+        break;
+      } catch (networkErr) {
+        lastError = networkErr;
+        if (i < candidateUrls.length - 1) {
+          console.warn(`[API] Network failure on ${targetUrl}, trying fallback candidate...`);
+          continue;
+        }
+        throw networkErr;
+      }
     }
 
     if (!res.ok) {
@@ -128,6 +191,7 @@ async function apiRequest(endpoint, options = {}) {
     hideLoader();
   }
 }
+
 
 // -------------------------------------------------------------
 // AUTH & PROFILE SERVICE
@@ -656,6 +720,195 @@ const AdminAPI = {
   }
 };
 
+// -------------------------------------------------------------
+// BOOKING MODULE
+// -------------------------------------------------------------
+const BookingAPI = {
+  async createBooking(dto) {
+    // Generate idempotency key if not provided
+    const idempotencyKey = dto.idempotencyKey || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'idemp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9));
+    const customerId = dto.customerId || (window.Auth ? window.Auth.getUserId() : '');
+
+    const payload = {
+      idempotencyKey,
+      customerId,
+      venueId: dto.venueId,
+      spaceId: dto.spaceId,
+      basePriceAmount: parseFloat(dto.basePriceAmount || 0),
+      slotStartTime: dto.slotStartTime,
+      slotEndTime: dto.slotEndTime,
+      bookingResourceItem: Array.isArray(dto.bookingResourceItem) ? dto.bookingResourceItem : []
+    };
+
+    return await apiRequest(CONFIG.ENDPOINTS.BOOKING.CREATE || '/booking/create-booking', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      loaderText: 'SECURING 5-MINUTE CHECKOUT HOLD...'
+    });
+  },
+
+  async cancelBooking({ bookingId, cancellationReason = 'Customer requested cancellation' }) {
+    return await apiRequest(CONFIG.ENDPOINTS.BOOKING.CANCEL || '/booking/cancel-booking', {
+      method: 'POST',
+      body: JSON.stringify({ bookingId, cancellationReason }),
+      loaderText: 'PROCESSING CANCELLATION & POLICY VERIFICATION...'
+    });
+  },
+
+  async getMyBookings() {
+    return await apiRequest(CONFIG.ENDPOINTS.BOOKING.GET_MY_HISTORY || '/booking', {
+      method: 'GET',
+      loaderText: 'FETCHING RESERVATION HISTORY...'
+    });
+  },
+
+  async getById(bookingId) {
+    const endpoint = (CONFIG.ENDPOINTS.BOOKING.GET_DETAILS) 
+      ? CONFIG.ENDPOINTS.BOOKING.GET_DETAILS(bookingId) 
+      : `/booking/${bookingId}`;
+    return await apiRequest(endpoint, {
+      method: 'GET',
+      loaderText: 'RETRIEVING RESERVATION LEDGER...'
+    });
+  },
+
+  async getBySpace(spaceId) {
+    const endpoint = (CONFIG.ENDPOINTS.BOOKING.GET_BY_SPACE) 
+      ? CONFIG.ENDPOINTS.BOOKING.GET_BY_SPACE(spaceId) 
+      : `/booking/space/${spaceId}`;
+    return await apiRequest(endpoint, {
+      method: 'GET',
+      loaderText: 'LOADING SPACE RESERVATION ROSTER...'
+    });
+  },
+
+  async updateStatus(bookingId, bookingStatus) {
+    const endpoint = (CONFIG.ENDPOINTS.BOOKING.UPDATE_STATUS) 
+      ? CONFIG.ENDPOINTS.BOOKING.UPDATE_STATUS(bookingId) 
+      : `/booking/${bookingId}/status`;
+    return await apiRequest(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify({ bookingStatus }),
+      loaderText: `UPDATING BOOKING STATUS TO ${bookingStatus}...`
+    });
+  }
+};
+
+// -------------------------------------------------------------
+// PAYMENT MODULE
+// -------------------------------------------------------------
+const PaymentAPI = {
+  async checkout({ bookingId }) {
+    return await apiRequest(CONFIG.ENDPOINTS.PAYMENT.CHECKOUT || '/payment/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ bookingId }),
+      loaderText: 'INITIALIZING STRIPE CHECKOUT INTENT...'
+    });
+  },
+
+  async verify(bookingId) {
+    const endpoint = (CONFIG.ENDPOINTS.PAYMENT.VERIFY) 
+      ? CONFIG.ENDPOINTS.PAYMENT.VERIFY(bookingId) 
+      : `/payment/verify/${bookingId}`;
+    return await apiRequest(endpoint, {
+      method: 'POST',
+      loaderText: 'VERIFYING STRIPE SETTLEMENT...'
+    });
+  },
+
+  async refund({ bookingId }) {
+    return await apiRequest(CONFIG.ENDPOINTS.PAYMENT.REFUND || '/payment/refund', {
+      method: 'POST',
+      body: JSON.stringify({ bookingId }),
+      loaderText: 'INITIATING REVERSAL TO PAYMENT CARD...'
+    });
+  }
+};
+
+// -------------------------------------------------------------
+// STRIPE INTEGRATION CLIENT
+// -------------------------------------------------------------
+const StripeClient = {
+  _stripe: null,
+
+  getPublishableKey() {
+    return localStorage.getItem('stripe_publishable_key') || 
+           (window.BOOKFORGE_CONFIG && window.BOOKFORGE_CONFIG.STRIPE_PUBLISHABLE_KEY) || 
+           CONFIG.STRIPE_PUBLISHABLE_KEY || 
+           '';
+  },
+
+  setPublishableKey(key) {
+    if (key) {
+      localStorage.setItem('stripe_publishable_key', key.trim());
+      if (window.BOOKFORGE_CONFIG) window.BOOKFORGE_CONFIG.STRIPE_PUBLISHABLE_KEY = key.trim();
+      this._stripe = null;
+    }
+  },
+
+  async loadScript() {
+    if (window.Stripe) return true;
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector('script[src*="stripe.com"]');
+      if (existing) {
+        existing.addEventListener('load', () => resolve(true));
+        existing.addEventListener('error', (e) => reject(e));
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://js.stripe.com/v3/';
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => reject(new Error('Failed to load Stripe.js from stripe.com'));
+      document.head.appendChild(script);
+    });
+  },
+
+  async getStripe() {
+    await this.loadScript();
+    const key = this.getPublishableKey();
+    if (!key) {
+      throw new Error('Stripe Publishable Key not configured. Please supply your Stripe key.');
+    }
+    if (!this._stripe) {
+      this._stripe = window.Stripe(key);
+    }
+    return this._stripe;
+  },
+
+  async createElements(clientSecret) {
+    const stripe = await this.getStripe();
+    const elements = stripe.elements({
+      clientSecret,
+      appearance: {
+        theme: 'flat',
+        variables: {
+          colorPrimary: '#E25C37',
+          colorBackground: '#FFFFFF',
+          colorText: '#1A1816',
+          colorDanger: '#E25C37',
+          fontFamily: 'Playfair Display, Plus Jakarta Sans, sans-serif',
+          spacingUnit: '4px',
+          borderRadius: '2px'
+        },
+        rules: {
+          '.Input': {
+            border: '1px solid #D5CCC0',
+            boxShadow: 'none',
+            padding: '12px'
+          },
+          '.Input:focus': {
+            border: '1px solid #1A1816',
+            boxShadow: 'none'
+          }
+        }
+      }
+    });
+
+    return { stripe, elements };
+  }
+};
+
 const SeedUsers = {
   customer: { username: "shyam123", password: "shyam@123", role: "ROLE_CUSTOMER" },
   provider: { username: "ram123", password: "ram@123", role: "ROLE_PROVIDER" },
@@ -670,7 +923,11 @@ window.ResourceAPI = ResourceAPI;
 window.AvailabilityAPI = AvailabilityAPI;
 window.PricingAPI = PricingAPI;
 window.AdminAPI = AdminAPI;
+window.BookingAPI = BookingAPI;
+window.PaymentAPI = PaymentAPI;
+window.StripeClient = StripeClient;
 window.SeedUsers = SeedUsers;
+
 
 
 

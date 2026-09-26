@@ -8,17 +8,58 @@ const Auth = {
 
   getUser: () => {
     const userStr = localStorage.getItem('bookforge_user');
-    if (!userStr) return null;
-    try {
-      return JSON.parse(userStr);
-    } catch (e) {
-      return null;
+    let user = null;
+    if (userStr) {
+      try {
+        user = JSON.parse(userStr);
+      } catch (e) {
+        user = null;
+      }
     }
+    // Augment with userId from token if missing
+    if (!user || !user.userId) {
+      const token = Auth.getToken();
+      if (token) {
+        try {
+          const parts = token.split('.');
+          if (parts.length >= 2) {
+            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+            if (payload) {
+              user = user || {};
+              user.userId = payload.userId || payload.id || payload.sub;
+              if (!user.username) user.username = payload.sub;
+              if (!user.roles && payload.roles) user.roles = payload.roles;
+            }
+          }
+        } catch (e) {
+          // Ignore parse errors
+        }
+      }
+    }
+    return user;
+  },
+
+  getUserId: () => {
+    const user = Auth.getUser();
+    if (user && user.userId) return user.userId;
+    if (user && user.id) return user.id;
+    const token = Auth.getToken();
+    if (token) {
+      try {
+        const parts = token.split('.');
+        if (parts.length >= 2) {
+          const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+          return payload.userId || payload.id || payload.sub || null;
+        }
+      } catch (e) {}
+    }
+    return (user && user.username) || null;
   },
 
   getToken: () => {
     return localStorage.getItem('bookforge_token');
   },
+
 
   logout: () => {
     localStorage.removeItem('bookforge_token');

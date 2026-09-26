@@ -124,10 +124,15 @@
             <span>📅 Schedule & Blackouts</span>
           </div>
 
+          <div class="prov-nav-item" id="nav-btn-bookings" onclick="showProvSection('sec-bookings', this)">
+            <span>📑 Space Reservations</span>
+          </div>
+
           <div class="prov-nav-item" id="nav-btn-profile" onclick="showProvSection('sec-profile', this)">
             <span>👤 Operator Profile</span>
           </div>
         </nav>
+
 
         <div style="border-top: var(--border-light); padding-top: 1.25rem; margin-top: 1.5rem; padding-left: 0.5rem;">
           <button onclick="loadInitialProviderData()" class="btn btn-sm btn-outline btn-pill" style="width: 100%;">
@@ -602,11 +607,166 @@
           </div>
         </section>
 
+        <!-- 7. SPACE RESERVATIONS SECTION -->
+        <section id="sec-bookings" class="prov-section d-none">
+          <div class="content-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; border-bottom:var(--border-light); padding-bottom:1.25rem;">
+              <div>
+                <h3 class="section-title">SPACE RESERVATIONS & ROSTER</h3>
+                <p style="font-size:0.86rem; color:var(--text-muted); margin-top:0.25rem;">Inspect confirmed guest reservations and manage hourly schedules across your creative spaces.</p>
+              </div>
+              <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                <label style="font-size:0.82rem; font-weight:700; color:var(--text-muted);">FILTER BY STUDIO:</label>
+                <select id="prov-booking-space-select" class="form-input" style="padding:0.4rem 0.85rem; font-size:0.85rem;" onchange="loadBookingsForSelectedSpace()">
+                  <option value="">Select a studio space...</option>
+                </select>
+                <button onclick="loadBookingsForSelectedSpace()" class="btn btn-sm btn-outline btn-pill">Refresh Roster ↻</button>
+              </div>
+            </div>
+
+            <!-- Host Cancellation Policy Terms Callout -->
+            <div class="cancellation-policy-card">
+              <h4>🛡️ Space Host Cancellation Guarantee Terms</h4>
+              <p style="font-size:0.86rem; color:var(--text-muted); margin-top:0.25rem;">
+                When a space host cancels a confirmed reservation, the customer is immediately issued a <strong>100% full refund</strong> via Stripe, the Redis inventory lock is released, and the customer is notified.
+              </p>
+            </div>
+
+            <!-- Table of Bookings for Space -->
+            <div class="data-table-container mt-3">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Booking Reference</th>
+                    <th>Customer Reference</th>
+                    <th>Date Created</th>
+                    <th>Total Revenue</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="prov-space-bookings-tbody">
+                  <tr>
+                    <td colspan="6" class="text-center" style="padding:2.5rem;">
+                      <p class="mono text-muted">Select a studio space from the dropdown above to inspect reservations.</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
       </div>
 
     </div>
 
-  </main>
+    <!-- PROVIDER MODAL 1: BOOKING DETAILS & RECEIPT -->
+    <div id="prov-booking-details-modal" class="modal-backdrop-custom">
+      <div class="modal-dialog-custom">
+        <div class="modal-header-custom">
+          <div>
+            <span class="badge badge-rust">GUEST RESERVATION ROSTER</span>
+            <h3 style="margin-top: 0.35rem;">BOOKING RECEIPT</h3>
+          </div>
+          <button type="button" class="modal-close-btn" onclick="closeProvModal('prov-booking-details-modal')">✕</button>
+        </div>
+        <div class="modal-body-custom">
+          <div class="receipt-card">
+            <div class="receipt-header">
+              <h3 style="font-family: var(--font-serif); font-size: 1.4rem;">BOOKFORGE PLATFORM RECEIPT</h3>
+              <span class="mono text-muted" style="font-size: 0.8rem;" id="prov-dtl-created">DATE: -</span>
+            </div>
+            <div class="receipt-row">
+              <span class="text-muted">Booking Reference:</span>
+              <strong class="mono" id="prov-dtl-booking-id">-</strong>
+            </div>
+            <div class="receipt-row">
+              <span class="text-muted">Customer UUID:</span>
+              <span class="mono" id="prov-dtl-customer-id">-</span>
+            </div>
+            <div class="receipt-row">
+              <span class="text-muted">Studio Space:</span>
+              <span class="mono" id="prov-dtl-space-id">-</span>
+            </div>
+            <div class="receipt-row">
+              <span class="text-muted">Status:</span>
+              <span id="prov-dtl-status" class="badge">-</span>
+            </div>
+
+            <!-- Hardware Equipment Add-ons -->
+            <div id="prov-dtl-resources-section" style="border-top:1px dashed var(--border-medium); margin-top:0.75rem; padding-top:0.75rem;">
+              <span class="text-muted" style="font-size:0.82rem; font-weight:700;">REQUESTED HARDWARE EQUIPMENT:</span>
+              <div id="prov-dtl-resources-list" style="margin-top:0.35rem;"></div>
+            </div>
+
+            <!-- Cancellation note if cancelled -->
+            <div id="prov-dtl-cancellation-section" class="d-none" style="background:#FEF2F2; border:1px solid #FCA5A5; padding:0.75rem; border-radius:var(--radius-xs); margin-top:0.75rem;">
+              <span style="font-size:0.82rem; font-weight:700; color:#B91C1C;">CANCELLATION REASON:</span>
+              <p style="font-size:0.85rem; color:#991B1B; margin-top:0.25rem;" id="prov-dtl-cancellation-reason">-</p>
+            </div>
+
+            <!-- Total Revenue Settlement -->
+            <div style="border-top: 1px dashed var(--border-medium); margin-top: 0.75rem; padding-top: 0.75rem;">
+              <div class="receipt-row">
+                <span class="text-muted">Base Rate Amount:</span>
+                <span class="mono" id="prov-dtl-base-price">$0.00</span>
+              </div>
+              <div class="receipt-row">
+                <span class="text-muted">Equipment Total:</span>
+                <span class="mono" id="prov-dtl-equipment-price">$0.00</span>
+              </div>
+              <div class="receipt-total-row">
+                <span>Total Host Revenue:</span>
+                <span id="prov-dtl-total">$0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+            <button type="button" onclick="window.print()" class="btn btn-outline btn-pill">Print Record 🖨️</button>
+            <button type="button" onclick="closeProvModal('prov-booking-details-modal')" class="btn btn-rust btn-pill">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROVIDER MODAL 2: HOST CANCEL BOOKING -->
+    <div id="prov-cancel-modal" class="modal-backdrop-custom">
+      <div class="modal-dialog-custom">
+        <div class="modal-header-custom">
+          <div>
+            <span class="badge badge-rust">HOST CANCELLATION OVERRIDE</span>
+            <h3 style="margin-top: 0.35rem;">CANCEL GUEST RESERVATION</h3>
+          </div>
+          <button type="button" class="modal-close-btn" onclick="closeProvModal('prov-cancel-modal')">✕</button>
+        </div>
+        <div class="modal-body-custom">
+          <div class="cancellation-policy-card" style="margin-top:0; border-left-color:#B91C1C;">
+            <h4>⚠️ Important Host Cancellation Impact</h4>
+            <p style="font-size:0.86rem; color:var(--text-muted); margin-top:0.25rem;">
+              Cancelling a confirmed guest booking will automatically initiate a <strong>100% full refund</strong> via Stripe to the customer's card and clear the reservation schedule.
+            </p>
+          </div>
+
+          <form id="prov-cancel-form">
+            <input type="hidden" id="prov-cancel-booking-id">
+            <div class="form-group">
+              <label class="form-label">CANCELLATION REASON (DISCLOSED TO GUEST)</label>
+              <textarea id="prov-cancel-reason" class="form-input" rows="3" placeholder="e.g. Unforeseen studio pipe maintenance or equipment fault..." required></textarea>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
+              <button type="button" onclick="closeProvModal('prov-cancel-modal')" class="btn btn-outline btn-pill">Keep Reservation</button>
+              <button type="submit" id="prov-confirm-cancel-btn" class="btn btn-rust btn-pill" style="background:#B91C1C; border-color:#B91C1C;">
+                Confirm Cancellation & Full Refund
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
 
   <script src="../js/config.js"></script>
   <script src="../js/api.js"></script>
@@ -843,10 +1003,11 @@
       const opts = '<option value="">-- Choose Space --</option>' +
         allMySpaces.map(s => `<option value="${s.id}">${s.name} ($${s.basePrice}/hr)</option>`).join('');
 
-      ['pricing-space-selector', 'resources-space-selector', 'schedule-space-selector'].forEach(id => {
+      ['pricing-space-selector', 'resources-space-selector', 'schedule-space-selector', 'prov-booking-space-select'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.innerHTML = opts;
       });
+
     }
 
     function goToPricing(spaceId) {
@@ -1238,6 +1399,179 @@
         showToast(err.message, 'error');
       }
     });
+
+    // -------------------------------------------------------------
+    // PROVIDER SPACE RESERVATIONS MANAGEMENT
+    // -------------------------------------------------------------
+    let provSpaceBookings = [];
+
+    async function loadBookingsForSelectedSpace() {
+      const spaceSelect = document.getElementById('prov-booking-space-select');
+      const spaceId = spaceSelect ? spaceSelect.value : '';
+      const tbody = document.getElementById('prov-space-bookings-tbody');
+
+      if (!spaceId) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center" style="padding:2.5rem;">
+              <p class="mono text-muted">Please select a studio space from the dropdown above to inspect reservations.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center" style="padding:2rem;">
+            <div class="vintage-spinner" style="margin:1rem auto;"></div>
+            <p class="mono text-muted">Retrieving space reservation ledger...</p>
+          </td>
+        </tr>
+      `;
+
+      try {
+        const res = await BookingAPI.getBySpace(spaceId);
+        const list = Array.isArray(res) ? res : ((res && res.data) ? (Array.isArray(res.data) ? res.data : []) : []);
+        provSpaceBookings = list;
+
+        if (!list || list.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="text-center" style="padding:2.5rem;">
+                <h4 style="font-family: var(--font-serif); margin-bottom: 0.35rem;">NO RESERVATIONS RECORDED</h4>
+                <p class="mono text-muted" style="font-size:0.85rem;">This space has no active or past guest bookings yet.</p>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = list.map(b => {
+          let statusBadgeClass = 'badge-status-pending';
+          if (b.status === 'CONFIRMED') statusBadgeClass = 'badge-status-confirmed';
+          else if (b.status === 'CANCELLED') statusBadgeClass = 'badge-status-cancelled';
+          else if (b.status === 'EXPIRED') statusBadgeClass = 'badge-status-expired';
+          else if (b.status === 'REFUNDED') statusBadgeClass = 'badge-status-refunded';
+
+          const dateStr = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '-';
+          const totalStr = `$${parseFloat(b.totalAmount || 0).toFixed(2)}`;
+
+          let actions = `
+            <button onclick="openProvBookingDetails('${b.id}')" class="btn btn-sm btn-outline btn-pill" style="padding:0.25rem 0.65rem; font-size:0.8rem;">
+              Receipt
+            </button>
+          `;
+
+          if (b.status === 'CONFIRMED') {
+            actions += `
+              <button onclick="openProvCancelBookingModal('${b.id}')" class="btn btn-sm btn-outline btn-pill" style="padding:0.25rem 0.65rem; font-size:0.8rem; color:#B91C1C; border-color:#B91C1C; margin-left:0.35rem;">
+                Cancel (Refund)
+              </button>
+            `;
+          }
+
+          return `
+            <tr>
+              <td><strong class="mono" style="font-size:0.84rem;">${b.id.substring(0, 8)}... 📋</strong></td>
+              <td><span class="mono" style="font-size:0.82rem;">${b.customerId ? b.customerId.substring(0, 8) + '...' : 'Guest'}</span></td>
+              <td class="mono" style="font-size:0.84rem;">${dateStr}</td>
+              <td><strong class="mono" style="font-size:0.95rem; color:var(--text-main);">${totalStr}</strong></td>
+              <td><span class="badge ${statusBadgeClass}" style="font-size:0.75rem;">${b.status}</span></td>
+              <td><div style="display:flex; align-items:center;">${actions}</div></td>
+            </tr>
+          `;
+        }).join('');
+
+      } catch (err) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center" style="padding:2rem; color:var(--accent-rust);">
+              ${err.message || 'Failed to fetch space bookings.'}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function openProvBookingDetails(bookingId) {
+      const b = provSpaceBookings.find(x => x.id === bookingId);
+      if (!b) return;
+
+      document.getElementById('prov-dtl-created').textContent = `DATE: ${b.createdAt ? new Date(b.createdAt).toLocaleString() : '-'}`;
+      document.getElementById('prov-dtl-booking-id').textContent = b.id;
+      document.getElementById('prov-dtl-customer-id').textContent = b.customerId || '-';
+      document.getElementById('prov-dtl-space-id').textContent = b.spaceId || '-';
+
+      const statusBadge = document.getElementById('prov-dtl-status');
+      statusBadge.textContent = b.status;
+      statusBadge.className = `badge badge-status-${b.status.toLowerCase().replace('_', '-')}`;
+
+      document.getElementById('prov-dtl-base-price').textContent = `$${parseFloat(b.basePriceAmount || 0).toFixed(2)}`;
+      document.getElementById('prov-dtl-equipment-price').textContent = `$${parseFloat(b.resourceTotalAmount || 0).toFixed(2)}`;
+      document.getElementById('prov-dtl-total').textContent = `$${parseFloat(b.totalAmount || 0).toFixed(2)}`;
+
+      const cancelSec = document.getElementById('prov-dtl-cancellation-section');
+      if (b.status === 'CANCELLED' && b.cancellationReason) {
+        cancelSec.classList.remove('d-none');
+        document.getElementById('prov-dtl-cancellation-reason').textContent = b.cancellationReason;
+      } else {
+        cancelSec.classList.add('d-none');
+      }
+
+      const resSec = document.getElementById('prov-dtl-resources-section');
+      const resList = document.getElementById('prov-dtl-resources-list');
+      if (b.resourceItems && b.resourceItems.length > 0) {
+        resSec.classList.remove('d-none');
+        resList.innerHTML = b.resourceItems.map(item => `
+          <div style="display:flex; justify-content:space-between; font-size:0.86rem; margin-bottom:0.25rem;">
+            <span>• ${item.name} (x${item.quantity})</span>
+            <span class="mono">$${(parseFloat(item.pricePerUnit || 0) * item.quantity).toFixed(2)}</span>
+          </div>
+        `).join('');
+      } else {
+        resSec.classList.add('d-none');
+      }
+
+      document.getElementById('prov-booking-details-modal').classList.add('active');
+    }
+
+    function openProvCancelBookingModal(bookingId) {
+      document.getElementById('prov-cancel-booking-id').value = bookingId;
+      document.getElementById('prov-cancel-reason').value = '';
+      document.getElementById('prov-cancel-modal').classList.add('active');
+    }
+
+    document.getElementById('prov-cancel-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const bookingId = document.getElementById('prov-cancel-booking-id').value;
+      const reason = document.getElementById('prov-cancel-reason').value.trim();
+
+      const btn = document.getElementById('prov-confirm-cancel-btn');
+      btn.disabled = true;
+      btn.textContent = 'Processing Cancellation & Full Refund...';
+
+      try {
+        const res = await BookingAPI.cancelBooking({
+          bookingId,
+          cancellationReason: '[HOST CANCELLATION] ' + reason
+        });
+        showToast((res && res.message) ? res.message : 'Reservation cancelled and full automated refund issued.', 'success');
+        closeProvModal('prov-cancel-modal');
+        await loadBookingsForSelectedSpace();
+      } catch (err) {
+        showToast(err.message || 'Failed to cancel reservation.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Confirm Cancellation & Full Refund';
+      }
+    });
+
+    function closeProvModal(modalId) {
+      const el = document.getElementById(modalId);
+      if (el) el.classList.remove('active');
+    }
   </script>
+
 </body>
 </html>

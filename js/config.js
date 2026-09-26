@@ -89,6 +89,26 @@ window.BOOKFORGE_CONFIG = {
       RULES_BY_SPACE: (spaceId) => `/pricing/rules/space/${spaceId}`,
       DELETE_RULE: (id) => `/pricing/rules/${id}`,
       CALCULATE: '/pricing/calculate'
+    },
+    BOOKING: {
+      BASE: '/booking',
+      CREATE: '/booking/create-booking',
+      CANCEL: '/booking/cancel-booking',
+      GET_MY_HISTORY: '/booking',
+      GET_DETAILS: (bookingId) => `/booking/${bookingId}`,
+      GET_BY_SPACE: (spaceId) => `/booking/space/${spaceId}`,
+      UPDATE_STATUS: (bookingId) => `/booking/${bookingId}/status`
+    },
+    PAYMENT: {
+      BASE: '/payment',
+      CHECKOUT: '/payment/checkout',
+      VERIFY: (bookingId) => `/payment/verify/${bookingId}`,
+      REFUND: '/payment/refund'
     }
-  }
+  },
+
+  // Stripe Gateway Configuration
+  // Fallbacks: localStorage -> config default -> placeholder
+  STRIPE_PUBLISHABLE_KEY: localStorage.getItem('stripe_publishable_key') || 'pk_test_51MockStripePublishableKeyForBookForgeUI123456789'
 };
+

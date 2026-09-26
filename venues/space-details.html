@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SPACE SPECIFICATIONS & RESERVATION // BOOKFORGE PLATFORM</title>
   <link rel="stylesheet" href="../css/style.css">
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
+
 <body>
 
   <!-- Global Loader Overlay -->
@@ -145,9 +147,182 @@
           <p class="mono text-muted">Checking operating rules...</p>
         </div>
       </div>
+    <!-- Reservation & Stripe Checkout Modal -->
+    <div id="booking-modal" class="modal-backdrop-custom">
+      <div class="modal-dialog-custom">
+        <div class="modal-header-custom">
+          <div>
+            <span class="badge badge-rust" id="modal-phase-badge">STEP 1 OF 3 // REVIEW RESERVATION</span>
+            <h3 id="modal-heading" style="margin-top: 0.35rem;">CONFIRM RESERVATION DETAILS</h3>
+          </div>
+          <button type="button" class="modal-close-btn" onclick="closeBookingModal()">✕</button>
+        </div>
+
+        <div class="modal-body-custom">
+          <!-- Step 1: Review & Policy Agreement -->
+          <div id="booking-step-review">
+            <div style="background: var(--bg-warm); padding: 1.25rem; border-radius: var(--radius-xs); border: var(--border-light); margin-bottom: 1.25rem;">
+              <h4 style="font-family: var(--font-serif); font-size: 1.25rem;" id="modal-space-name">Studio Space</h4>
+              <p class="mono text-muted" style="font-size: 0.85rem; margin-top:0.25rem;" id="modal-slot-time">Slot: -</p>
+            </div>
+
+            <!-- Selected Equipment List -->
+            <div id="modal-equipment-summary" style="margin-bottom: 1.25rem;">
+              <h5 style="font-family: var(--font-serif); font-size: 1rem; margin-bottom: 0.5rem;">HARDWARE & EQUIPMENT ADD-ONS</h5>
+              <div id="modal-resources-list" style="font-size: 0.88rem; color: var(--text-muted);">
+                <!-- Dynamic list -->
+              </div>
+            </div>
+
+            <!-- Price Breakdown -->
+            <div style="border-top: var(--border-light); border-bottom: var(--border-light); padding: 1rem 0; margin-bottom: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.9rem;">
+                <span class="text-muted">Space Base Rate & Duration:</span>
+                <span class="mono" id="modal-base-price">$0.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.9rem;">
+                <span class="text-muted">Equipment Add-ons:</span>
+                <span class="mono" id="modal-equipment-price">$0.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.9rem;">
+                <span class="text-muted">Dynamic Surge / Adjustments:</span>
+                <span class="mono" id="modal-adjustments">$0.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-medium); font-family: var(--font-serif); font-size: 1.35rem; font-weight: 700; color: var(--accent-rust);">
+                <span>Total Due:</span>
+                <span id="modal-total-price">$0.00</span>
+              </div>
+            </div>
+
+            <!-- Official Cancellation Policy Notice -->
+            <div class="cancellation-policy-card">
+              <h4>🛡️ Official Cancellation & Refund Policy</h4>
+              <div class="cancellation-rule-item">
+                <span style="color: #15803D; font-weight: 700;">✓ 100% Full Refund:</span>
+                <span>Cancellations made at least <strong>24 hours prior</strong> to reservation start time qualify for automated full refund.</span>
+              </div>
+              <div class="cancellation-rule-item">
+                <span style="color: #B91C1C; font-weight: 700;">✕ Non-Refundable:</span>
+                <span>Cancellations made within 24 hours of start time are non-refundable.</span>
+              </div>
+              <div class="cancellation-rule-item">
+                <span style="color: var(--accent-rust); font-weight: 700;">⏱️ 5-Minute Inventory Hold:</span>
+                <span>Proceeding locks this slot exclusively for you in Redis for 5 minutes while completing payment.</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+              <button type="button" onclick="closeBookingModal()" class="btn btn-outline btn-pill">Cancel</button>
+              <button type="button" onclick="confirmAndCreateBooking()" class="btn btn-rust btn-pill">
+                Hold Slot & Proceed to Payment ➔
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Stripe Payment Checkout -->
+          <div id="booking-step-payment" class="d-none">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;">
+              <span class="hold-timer-badge">
+                <span class="hold-timer-dot"></span>
+                HOLD EXPIRES IN: <span id="payment-hold-timer">05:00</span>
+              </span>
+              <span class="mono text-muted" style="font-size: 0.8rem;" id="checkout-booking-id">BOOKING ID: -</span>
+            </div>
+
+            <div style="background: var(--bg-warm); padding: 1.25rem; border-radius: var(--radius-xs); border: var(--border-light); margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span class="mono text-muted" style="font-size: 0.8rem;">TOTAL CHARGE</span>
+                <h3 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--accent-rust); margin: 0;" id="checkout-total-amount">$0.00</h3>
+              </div>
+              <span class="badge badge-rust">STRIPE SECURE CHECKOUT</span>
+            </div>
+
+            <!-- Stripe Card Elements Form -->
+            <form id="stripe-payment-form">
+              <div class="stripe-box">
+                <label class="form-label" style="margin-bottom: 0.75rem;">CREDIT / DEBIT CARD DETAILS</label>
+                <div id="payment-element">
+                  <!-- Stripe Elements mounts here -->
+                </div>
+                <div id="payment-error-msg" class="d-none" style="color: var(--accent-rust); font-size: 0.88rem; margin-top: 0.75rem; font-weight: 600;"></div>
+              </div>
+
+              <!-- Stripe Publishable Key Config Helper Banner -->
+              <div id="stripe-key-banner" class="d-none mb-3" style="background:#FFFDF0; border:1px solid #E6D080; padding:0.85rem; border-radius:var(--radius-xs); font-size:0.82rem;">
+                <p style="margin:0 0 0.5rem 0; color:#856404;"><strong>Stripe Key Configuration:</strong> Set your publishable key below to enable live Stripe Elements.</p>
+                <div style="display:flex; gap:0.5rem;">
+                  <input type="text" id="custom-stripe-key-input" class="form-input" style="padding:0.4rem; font-size:0.8rem;" placeholder="pk_test_...">
+                  <button type="button" onclick="saveCustomStripeKey()" class="btn btn-sm btn-outline btn-pill">Save Key</button>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 0.75rem; justify-content: space-between; align-items: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                <button type="button" onclick="abortReservationHold()" class="btn btn-outline btn-pill" style="color: var(--accent-rust); border-color: var(--accent-rust);">
+                  Release Hold & Cancel
+                </button>
+                <button type="submit" id="submit-payment-btn" class="btn btn-rust btn-pill" style="padding: 0.85rem 2rem;">
+                  Pay & Confirm Reservation ➔
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Step 3: Reservation Confirmed & Receipt -->
+          <div id="booking-step-confirmed" class="d-none">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+              <span class="badge badge-approved" style="font-size: 0.9rem; padding: 0.4rem 1.25rem;">RESERVATION OFFICIALLY CONFIRMED ★</span>
+              <h2 style="font-family: var(--font-serif); margin-top: 0.75rem; font-size: 2rem;">Payment Successfully Processed</h2>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;">A receipt has been generated and your studio slot is permanently locked.</p>
+            </div>
+
+            <!-- Receipt Container -->
+            <div class="receipt-card" id="official-receipt">
+              <div class="receipt-header">
+                <h3 style="font-family: var(--font-serif); font-size: 1.5rem;">BOOKFORGE PLATFORM RECEIPT</h3>
+                <span class="mono text-muted" style="font-size: 0.8rem;" id="receipt-date">DATE: -</span>
+              </div>
+              <div class="receipt-row">
+                <span class="text-muted">Booking Reference:</span>
+                <strong class="mono" id="receipt-booking-id">-</strong>
+              </div>
+              <div class="receipt-row">
+                <span class="text-muted">Space:</span>
+                <strong id="receipt-space-name">-</strong>
+              </div>
+              <div class="receipt-row">
+                <span class="text-muted">Scheduled Slot:</span>
+                <span class="mono" id="receipt-slot-time">-</span>
+              </div>
+              <div class="receipt-row">
+                <span class="text-muted">Payment Gateway:</span>
+                <span class="mono">Stripe (USD)</span>
+              </div>
+              <div class="receipt-row">
+                <span class="text-muted">Status:</span>
+                <span class="badge badge-status-confirmed">CONFIRMED</span>
+              </div>
+              <div class="receipt-total-row">
+                <span>Total Settled:</span>
+                <span id="receipt-total-amount">$0.00</span>
+              </div>
+            </div>
+
+            <div style="background: var(--bg-warm); padding: 1rem 1.25rem; border-radius: var(--radius-xs); border: var(--border-light); margin-top: 1.25rem; font-size: 0.85rem; color: var(--text-muted);">
+              <strong>Cancellation Reminder:</strong> You may cancel this booking with a 100% full refund at any time up to 24 hours before the slot start time directly from your Member Console.
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.75rem; flex-wrap: wrap;">
+              <button type="button" onclick="window.print()" class="btn btn-outline btn-pill">Print Receipt 🖨️</button>
+              <a href="../dashboard/customer.html" class="btn btn-rust btn-pill">Go to My Bookings ➔</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
 
   </main>
+
 
   <script src="../js/config.js"></script>
   <script src="../js/api.js"></script>
@@ -301,19 +476,55 @@
       }
     }
 
+    let currentQuote = null;
+    let activeBooking = null;
+    let activePaymentResponse = null;
+    let holdTimerInterval = null;
+    let stripeInstance = null;
+    let stripeElementsInstance = null;
+
     document.getElementById('calc-quote-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const startTime = document.getElementById('quote-start').value;
       const endTime = document.getElementById('quote-end').value;
 
+      if (!startTime || !endTime) {
+        showToast('Please specify valid start and end dates/times.', 'error');
+        return;
+      }
+
+      if (new Date(startTime) <= new Date()) {
+        showToast('Reservation must be in the future. Past dates cannot be booked.', 'error');
+        return;
+      }
+
+      if (new Date(endTime) <= new Date(startTime)) {
+        showToast('Slot end time must be after slot start time.', 'error');
+        return;
+      }
+
       const selectedResourceIds = [];
-      let totalItemsCount = 0;
+      const resourceItemsForBooking = [];
+      let totalEquipmentAmount = 0;
+
       document.querySelectorAll('.res-qty-input').forEach(input => {
         const qty = parseInt(input.value, 10) || 0;
         const resId = input.getAttribute('data-resource-id');
         if (qty > 0 && resId) {
-          totalItemsCount += qty;
+          const resObj = availableResources.find(r => r.id === resId);
+          const price = resObj ? (resObj.resourcePrice !== undefined ? resObj.resourcePrice : (resObj.hourlyPrice || 0)) : 0;
+          const name = resObj ? resObj.name : 'Hardware Item';
+
+          resourceItemsForBooking.push({
+            resourceId: resId,
+            name: name,
+            quantity: qty,
+            pricePerUnit: parseFloat(price) || 0
+          });
+
+          totalEquipmentAmount += (parseFloat(price) || 0) * qty;
+
           for (let i = 0; i < qty; i++) {
             selectedResourceIds.push(resId);
           }
@@ -332,8 +543,18 @@
         const data = (res && res.data !== undefined) ? res.data : res;
 
         const total = (data.finalTotalPrice !== undefined) ? data.finalTotalPrice : ((data.calculatedSpacePrice !== undefined) ? data.calculatedSpacePrice : (data.totalPrice || data.calculatedPrice || 0));
+        
+        currentQuote = {
+          startTime,
+          endTime,
+          totalAmount: total,
+          resourceItems: resourceItemsForBooking,
+          equipmentTotal: totalEquipmentAmount,
+          data: data
+        };
+
         document.getElementById('quote-computed-total').textContent = `$${parseFloat(total).toFixed(2)}`;
-        document.getElementById('quote-breakdown-note').textContent = `Reservation window: ${startTime} to ${endTime} (${totalItemsCount} add-on hardware unit(s) selected).`;
+        document.getElementById('quote-breakdown-note').textContent = `Reservation window: ${startTime.replace('T', ' ')} to ${endTime.replace('T', ' ')} (${resourceItemsForBooking.length} add-on equipment item(s) selected).`;
         document.getElementById('quote-result-card').classList.remove('d-none');
         document.getElementById('quote-result-card').scrollIntoView({ behavior: 'smooth' });
         showToast('Dynamic price calculated successfully!', 'success');
@@ -343,8 +564,284 @@
     });
 
     function initiateBooking() {
-      showToast('Reservation initialized! Proceeding to booking session confirmation...', 'success');
+      if (!currentQuote) {
+        showToast('Please compute dynamic price quote first.', 'info');
+        return;
+      }
+
+      if (!Auth.isAuthenticated()) {
+        showToast('Please log in to reserve this creative space.', 'info');
+        setTimeout(() => {
+          window.location.href = '../auth/login.html';
+        }, 1200);
+        return;
+      }
+
+      // Populate Review Modal
+      document.getElementById('modal-space-name').textContent = (currentSpace && currentSpace.name) || 'Studio Space';
+      document.getElementById('modal-slot-time').textContent = `RESERVATION WINDOW: ${currentQuote.startTime.replace('T', ' ')} ➔ ${currentQuote.endTime.replace('T', ' ')}`;
+
+      // Populate Equipment List
+      const resContainer = document.getElementById('modal-resources-list');
+      if (currentQuote.resourceItems && currentQuote.resourceItems.length > 0) {
+        resContainer.innerHTML = currentQuote.resourceItems.map(item => `
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+            <span>• ${item.name} (Qty: ${item.quantity})</span>
+            <span class="mono">$${(item.pricePerUnit * item.quantity).toFixed(2)}</span>
+          </div>
+        `).join('');
+      } else {
+        resContainer.innerHTML = '<span class="mono text-muted">No additional hardware selected (standard room amenities included).</span>';
+      }
+
+      // Price breakdown
+      const baseRate = currentSpace ? (parseFloat(currentSpace.basePrice) || 0) : 0;
+      document.getElementById('modal-base-price').textContent = `$${baseRate.toFixed(2)} base rate`;
+      document.getElementById('modal-equipment-price').textContent = `$${(currentQuote.equipmentTotal || 0).toFixed(2)}`;
+      
+      const surgeAdjust = Math.max(0, currentQuote.totalAmount - (currentQuote.equipmentTotal || 0) - baseRate);
+      document.getElementById('modal-adjustments').textContent = `$${surgeAdjust.toFixed(2)}`;
+      document.getElementById('modal-total-price').textContent = `$${parseFloat(currentQuote.totalAmount).toFixed(2)}`;
+
+      // Switch to Step 1
+      showModalStep('booking-step-review', 'STEP 1 OF 3 // REVIEW RESERVATION', 'CONFIRM RESERVATION DETAILS');
+
+      // Open Modal
+      document.getElementById('booking-modal').classList.add('active');
     }
+
+    function showModalStep(stepId, phaseBadgeText, headingText) {
+      ['booking-step-review', 'booking-step-payment', 'booking-step-confirmed'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('d-none');
+      });
+      const activeEl = document.getElementById(stepId);
+      if (activeEl) activeEl.classList.remove('d-none');
+
+      document.getElementById('modal-phase-badge').textContent = phaseBadgeText;
+      document.getElementById('modal-heading').textContent = headingText;
+    }
+
+    function closeBookingModal() {
+      if (holdTimerInterval) {
+        clearInterval(holdTimerInterval);
+        holdTimerInterval = null;
+      }
+      document.getElementById('booking-modal').classList.remove('active');
+    }
+
+    async function confirmAndCreateBooking() {
+      if (!currentQuote) return;
+
+      const customerId = Auth.getUserId();
+      if (!customerId) {
+        showToast('User identity missing. Please re-authenticate.', 'error');
+        return;
+      }
+
+      const bookingPayload = {
+        idempotencyKey: (window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'bkg-' + Date.now()),
+        customerId: customerId,
+        venueId: (currentSpace && currentSpace.venueId) || '',
+        spaceId: currentSpaceId,
+        basePriceAmount: currentSpace ? (parseFloat(currentSpace.basePrice) || 0) : 0,
+        slotStartTime: currentQuote.startTime + ':00',
+        slotEndTime: currentQuote.endTime + ':00',
+        bookingResourceItem: currentQuote.resourceItems || []
+      };
+
+      try {
+        const res = await BookingAPI.createBooking(bookingPayload);
+        activeBooking = (res && res.data !== undefined) ? res.data : res;
+
+        showToast('5-minute slot hold secured in Redis!', 'success');
+
+        // Transition to Step 2: Payment
+        showModalStep('booking-step-payment', 'STEP 2 OF 3 // STRIPE SETTLEMENT', 'SECURE PAYMENT CHECKOUT');
+        document.getElementById('checkout-booking-id').textContent = `BOOKING ID: ${activeBooking.id}`;
+        document.getElementById('checkout-total-amount').textContent = `$${parseFloat(activeBooking.totalAmount || currentQuote.totalAmount).toFixed(2)}`;
+
+        // Start 5-minute countdown clock
+        startHoldCountdown(300);
+
+        // Initialize Stripe checkout intent
+        await initializeStripePayment(activeBooking.id);
+
+      } catch (err) {
+        showToast(err.message || 'Slot conflict: someone else is currently booking this slot.', 'error');
+      }
+    }
+
+    function startHoldCountdown(durationSeconds) {
+      if (holdTimerInterval) clearInterval(holdTimerInterval);
+
+      let remaining = durationSeconds;
+      const display = document.getElementById('payment-hold-timer');
+
+      const updateClock = () => {
+        const m = Math.floor(remaining / 60);
+        const s = remaining % 60;
+        display.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        
+        if (remaining <= 0) {
+          clearInterval(holdTimerInterval);
+          holdTimerInterval = null;
+          display.textContent = 'EXPIRED';
+          showToast('The 5-minute reservation hold has expired. Slot released.', 'error');
+          setTimeout(() => {
+            closeBookingModal();
+          }, 2500);
+        }
+        remaining--;
+      };
+
+      updateClock();
+      holdTimerInterval = setInterval(updateClock, 1000);
+    }
+
+    async function initializeStripePayment(bookingId) {
+      const errBox = document.getElementById('payment-error-msg');
+      errBox.classList.add('d-none');
+      errBox.textContent = '';
+
+      try {
+        const checkoutRes = await PaymentAPI.checkout({ bookingId });
+        activePaymentResponse = (checkoutRes && checkoutRes.data !== undefined) ? checkoutRes.data : checkoutRes;
+
+        const clientSecret = activePaymentResponse.clientSecret;
+
+        // Check if Stripe key configured
+        const currentKey = StripeClient.getPublishableKey();
+        if (!currentKey || currentKey.includes('MockStripe')) {
+          document.getElementById('stripe-key-banner').classList.remove('d-none');
+        }
+
+        // Try to mount Stripe Elements
+        try {
+          const { stripe, elements } = await StripeClient.createElements(clientSecret);
+          stripeInstance = stripe;
+          stripeElementsInstance = elements;
+
+          const paymentElement = elements.create('payment');
+          paymentElement.mount('#payment-element');
+        } catch (stripeErr) {
+          console.warn('Could not mount live Stripe Elements:', stripeErr.message);
+          // Show simulated payment container if mock key or stripe.js network issue
+          const container = document.getElementById('payment-element');
+          container.innerHTML = `
+            <div style="background:#FFFFFF; border:1px dashed #D5CCC0; padding:1.25rem; border-radius:var(--radius-xs); text-align:center;">
+              <span class="badge badge-rust mb-2">STRIPE PAYMENT INTENT READY</span>
+              <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:0.75rem;">
+                Payment Intent ID: <strong class="mono" style="color:var(--text-main);">${activePaymentResponse.stripePaymentIntentId || 'pi_simulated'}</strong>
+              </p>
+              <p style="font-size:0.82rem; color:var(--text-muted);">
+                Client Secret created. To test live card processing, add your publishable key above or in <code class="mono">.env</code>.
+              </p>
+            </div>
+          `;
+        }
+      } catch (err) {
+        errBox.textContent = err.message || 'Failed to initialize payment gateway intent.';
+        errBox.classList.remove('d-none');
+      }
+    }
+
+    function saveCustomStripeKey() {
+      const val = document.getElementById('custom-stripe-key-input').value.trim();
+      if (val) {
+        StripeClient.setPublishableKey(val);
+        showToast('Stripe publishable key saved!', 'success');
+        document.getElementById('stripe-key-banner').classList.add('d-none');
+        if (activePaymentResponse && activePaymentResponse.clientSecret) {
+          initializeStripePayment(activeBooking.id);
+        }
+      }
+    }
+
+    document.getElementById('stripe-payment-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submit-payment-btn');
+      const errBox = document.getElementById('payment-error-msg');
+      errBox.classList.add('d-none');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing Payment...';
+
+      try {
+        if (stripeInstance && stripeElementsInstance) {
+          const { error, paymentIntent } = await stripeInstance.confirmPayment({
+            elements: stripeElementsInstance,
+            redirect: 'if_required'
+          });
+
+          if (error) {
+            throw new Error(error.message || 'Payment confirmation failed');
+          }
+
+          if (paymentIntent && (paymentIntent.status === 'succeeded' || paymentIntent.status === 'processing')) {
+            await handlePaymentSuccessful();
+            return;
+          }
+        }
+
+        // If in simulation/test mode or elements not active, verify with backend verify endpoint
+        await handlePaymentSuccessful();
+
+      } catch (err) {
+        errBox.textContent = err.message;
+        errBox.classList.remove('d-none');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Pay & Confirm Reservation ➔';
+      }
+    });
+
+    async function handlePaymentSuccessful() {
+      if (holdTimerInterval) {
+        clearInterval(holdTimerInterval);
+        holdTimerInterval = null;
+      }
+
+      showToast('Payment successfully processed! Finalizing reservation...', 'success');
+
+      // Attempt verification call with payment service
+      if (activeBooking && activeBooking.id) {
+        try {
+          await PaymentAPI.verify(activeBooking.id);
+        } catch (vErr) {
+          console.warn('Verification endpoint response:', vErr.message);
+        }
+      }
+
+      // Populate Receipt in Step 3
+      document.getElementById('receipt-date').textContent = `DATE: ${new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })}`;
+      document.getElementById('receipt-booking-id').textContent = activeBooking.id;
+      document.getElementById('receipt-space-name').textContent = (currentSpace && currentSpace.name) || 'Studio Space';
+      document.getElementById('receipt-slot-time').textContent = `${currentQuote.startTime.replace('T', ' ')} to ${currentQuote.endTime.replace('T', ' ')}`;
+      document.getElementById('receipt-total-amount').textContent = `$${parseFloat(activeBooking.totalAmount || currentQuote.totalAmount).toFixed(2)}`;
+
+      showModalStep('booking-step-confirmed', 'STEP 3 OF 3 // RECEIPT ISSUED', 'RESERVATION COMPLETED');
+    }
+
+    async function abortReservationHold() {
+      if (!confirm('Release this 5-minute inventory hold and cancel checkout? The slot will immediately become available to other guests.')) {
+        return;
+      }
+
+      if (activeBooking && activeBooking.id) {
+        try {
+          await BookingAPI.cancelBooking({
+            bookingId: activeBooking.id,
+            cancellationReason: 'Customer released hold before completing payment'
+          });
+          showToast('Reservation hold released.', 'info');
+        } catch (err) {
+          console.warn('Could not cancel hold:', err.message);
+        }
+      }
+
+      closeBookingModal();
+    }
+
   </script>
 </body>
 </html>

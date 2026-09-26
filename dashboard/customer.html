@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MEMBER CONSOLE // BOOKFORGE PLATFORM</title>
   <link rel="stylesheet" href="../css/style.css">
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
+
 <body>
 
   <!-- Global Loader Overlay -->
@@ -96,99 +98,347 @@
 
   <main class="container mt-3 mb-4">
 
-    <!-- Active Selection Crumb Banner -->
-    <div class="selection-banner">
-      <div class="selection-crumb">
-        <span>EXPLORE:</span>
-        <strong id="crumb-venue-name" style="color:var(--accent-rust);">Select a Venue Below</strong>
-        <span style="margin-left:0.5rem;">➔ SPACE:</span>
-        <strong id="crumb-space-name" style="color:var(--text-main);">Select a Space to Calculate Price</strong>
-      </div>
-      <div>
-        <span class="mono" style="font-size:0.8rem; color:var(--text-muted);">LIVE REPUTATION FLYWHEEL ACTIVE</span>
-      </div>
+    <!-- Main Console Navigation Tabs -->
+    <div class="tabs mb-4">
+      <button class="tab-btn active" id="tab-btn-bookings" onclick="switchCustomerTab('bookings')">
+        📑 My Bookings & Reservations (<span id="my-bookings-count">0</span>)
+      </button>
+      <button class="tab-btn" id="tab-btn-explore" onclick="switchCustomerTab('explore')">
+        🏛️ Explore Catalog Venues & Spaces
+      </button>
     </div>
 
-    <!-- VENUES BROWSER -->
-    <div class="action-panel">
-      <div class="action-panel-header">
-        <div>
-          <h3 style="font-family: var(--font-serif);">VERIFIED PLATFORM VENUES</h3>
-          <p style="font-size: 0.86rem; color: var(--text-muted);">Select any architectural or media facility to inspect its available spaces and pricing.</p>
+    <!-- TAB 1: MY BOOKINGS & RESERVATIONS -->
+    <div id="panel-bookings">
+      <!-- KPI Stats Strip -->
+      <div class="grid grid-4 mb-4">
+        <div class="card" style="padding: 1.25rem;">
+          <span class="mono text-muted" style="font-size: 0.78rem;">TOTAL RESERVATIONS</span>
+          <h3 style="font-family: var(--font-serif); font-size: 1.8rem; margin-top: 0.2rem;" id="kpi-total-bookings">0</h3>
         </div>
-        <div>
-          <button onclick="loadVenues()" class="btn btn-sm btn-outline btn-pill">Refresh Catalog ↻</button>
+        <div class="card" style="padding: 1.25rem; border-left: 3px solid #15803D;">
+          <span class="mono text-muted" style="font-size: 0.78rem;">CONFIRMED ACTIVE</span>
+          <h3 style="font-family: var(--font-serif); font-size: 1.8rem; color: #15803D; margin-top: 0.2rem;" id="kpi-confirmed-bookings">0</h3>
+        </div>
+        <div class="card" style="padding: 1.25rem; border-left: 3px solid var(--accent-rust);">
+          <span class="mono text-muted" style="font-size: 0.78rem;">PENDING PAYMENT</span>
+          <h3 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--accent-rust); margin-top: 0.2rem;" id="kpi-pending-bookings">0</h3>
+        </div>
+        <div class="card" style="padding: 1.25rem;">
+          <span class="mono text-muted" style="font-size: 0.78rem;">CANCELLED / REFUNDED</span>
+          <h3 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--text-muted); margin-top: 0.2rem;" id="kpi-cancelled-bookings">0</h3>
         </div>
       </div>
 
-      <div class="action-panel-body">
-        <div id="venues-list-grid" class="grid">
-          <div class="card text-center" style="grid-column: 1/-1;">
-            <div class="vintage-spinner" style="margin: 2rem auto;"></div>
-            <p class="mono text-muted">Retrieving catalog venues...</p>
+      <!-- Cancellation Policy Card -->
+      <div class="cancellation-policy-card">
+        <h4>🛡️ Platform Cancellation & Automated Refund Guarantee</h4>
+        <div class="grid grid-2" style="margin-top: 0.5rem; gap: 1rem;">
+          <div class="cancellation-rule-item">
+            <span style="color: #15803D; font-weight: 700;">✓ 24-Hour Full Refund:</span>
+            <span>Cancellations processed at least <strong>24 hours prior</strong> to the scheduled slot start time qualify for a 100% full refund directly reversed to your Stripe card.</span>
+          </div>
+          <div class="cancellation-rule-item">
+            <span style="color: #B91C1C; font-weight: 700;">✕ Late Cancellation (<24h):</span>
+            <span>Cancellations within 24 hours of start time are non-refundable to protect host availability and studio schedules.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bookings Table Action Panel -->
+      <div class="action-panel">
+        <div class="action-panel-header">
+          <div>
+            <h3 style="font-family: var(--font-serif);">RESERVATION LEDGER</h3>
+            <p style="font-size: 0.86rem; color: var(--text-muted);">Manage your active studio reservations, inspect receipts, or cancel eligible slots.</p>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <select id="booking-status-filter" class="form-input" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" onchange="filterBookingsTable(this.value)">
+              <option value="ALL">All Statuses</option>
+              <option value="CONFIRMED">Confirmed Only</option>
+              <option value="PENDING_PAYMENT">Pending Payment</option>
+              <option value="CANCELLED">Cancelled</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+            <button onclick="loadMyBookings()" class="btn btn-sm btn-outline btn-pill">Refresh History ↻</button>
+          </div>
+        </div>
+
+        <div class="action-panel-body">
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking Reference</th>
+                  <th>Space ID</th>
+                  <th>Created Date</th>
+                  <th>Total Amount</th>
+                  <th>Status</th>
+                  <th>Refund Eligibility</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="my-bookings-table-body">
+                <tr>
+                  <td colspan="7" class="text-center" style="padding: 2rem;">
+                    <div class="vintage-spinner" style="margin: 1rem auto;"></div>
+                    <p class="mono text-muted">Loading your booking history from booking service...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SPACES FOR SELECTED VENUE -->
-    <div id="spaces-master-panel" class="action-panel d-none">
-      <div class="action-panel-header">
+    <!-- TAB 2: EXPLORE VENUES & SPACES -->
+    <div id="panel-explore" class="d-none">
+      <!-- Active Selection Crumb Banner -->
+      <div class="selection-banner">
+        <div class="selection-crumb">
+          <span>EXPLORE:</span>
+          <strong id="crumb-venue-name" style="color:var(--accent-rust);">Select a Venue Below</strong>
+          <span style="margin-left:0.5rem;">➔ SPACE:</span>
+          <strong id="crumb-space-name" style="color:var(--text-main);">Select a Space to Calculate Price</strong>
+        </div>
         <div>
-          <h3 style="font-family: var(--font-serif);" id="spaces-panel-title">AVAILABLE SPACES</h3>
-          <p style="font-size: 0.86rem; color: var(--text-muted);">Select a space below to obtain a dynamic price quote or inspect equipment.</p>
+          <span class="mono" style="font-size:0.8rem; color:var(--text-muted);">LIVE REPUTATION FLYWHEEL ACTIVE</span>
         </div>
       </div>
 
-      <div class="action-panel-body">
-        <div id="spaces-list-grid" class="grid"></div>
-      </div>
-    </div>
-
-    <!-- DYNAMIC PRICING ESTIMATOR WORKBENCH -->
-    <div id="price-calculator-panel" class="action-panel d-none">
-      <div class="action-panel-header" style="background:#1A1816; color:#FAF7F2;">
-        <div>
-          <span class="badge badge-rust">LIVE PRICING ENGINE</span>
-          <h3 style="font-family: var(--font-serif); color:#FAF7F2; margin-top:0.3rem;" id="calc-space-title">ESTIMATE RESERVATION COST</h3>
-          <p style="font-size: 0.85rem; color: #A8A29A;" id="calc-space-details">Calculate exact pricing including peak surges and weekend multipliers via catalog service.</p>
-        </div>
-        <div>
-          <a href="#" id="link-public-space" class="btn btn-sm btn-outline btn-pill" style="border-color:#FAF7F2; color:#FAF7F2;">Full Space Profile ↗</a>
-        </div>
-      </div>
-
-      <div class="action-panel-body">
-        <form id="price-calc-form" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; align-items:flex-end;">
-          <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label">START DATE & TIME</label>
-            <input type="datetime-local" id="calc-start-time" class="form-input" required>
-          </div>
-          <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label">END DATE & TIME</label>
-            <input type="datetime-local" id="calc-end-time" class="form-input" required>
+      <!-- VENUES BROWSER -->
+      <div class="action-panel">
+        <div class="action-panel-header">
+          <div>
+            <h3 style="font-family: var(--font-serif);">VERIFIED PLATFORM VENUES</h3>
+            <p style="font-size: 0.86rem; color: var(--text-muted);">Select any architectural or media facility to inspect its available spaces and pricing.</p>
           </div>
           <div>
-            <button type="submit" class="btn btn-rust btn-block btn-pill" style="height:42px;">
-              Compute Live Price ➔
-            </button>
+            <button onclick="loadVenues()" class="btn btn-sm btn-outline btn-pill">Refresh Catalog ↻</button>
           </div>
-        </form>
+        </div>
 
-        <div id="calc-result-box" class="card mt-3 d-none" style="background:var(--bg-warm); border:1px solid var(--accent-rust);">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-            <div>
-              <span class="badge badge-rust">QUOTE SUMMARY</span>
-              <h3 style="font-family: var(--font-serif); font-size:2rem; color:var(--accent-rust); margin-top:0.3rem;" id="quote-total-amount">$0.00</h3>
-              <p class="mono text-muted" style="font-size:0.85rem;" id="quote-details">Calculated based on base rate and active pricing rules.</p>
+        <div class="action-panel-body">
+          <div id="venues-list-grid" class="grid">
+            <div class="card text-center" style="grid-column: 1/-1;">
+              <div class="vintage-spinner" style="margin: 2rem auto;"></div>
+              <p class="mono text-muted">Retrieving catalog venues...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPACES FOR SELECTED VENUE -->
+      <div id="spaces-master-panel" class="action-panel d-none">
+        <div class="action-panel-header">
+          <div>
+            <h3 style="font-family: var(--font-serif);" id="spaces-panel-title">AVAILABLE SPACES</h3>
+            <p style="font-size: 0.86rem; color: var(--text-muted);">Select a space below to obtain a dynamic price quote or inspect equipment.</p>
+          </div>
+        </div>
+
+        <div class="action-panel-body">
+          <div id="spaces-list-grid" class="grid"></div>
+        </div>
+      </div>
+
+      <!-- DYNAMIC PRICING ESTIMATOR WORKBENCH -->
+      <div id="price-calculator-panel" class="action-panel d-none">
+        <div class="action-panel-header" style="background:#1A1816; color:#FAF7F2;">
+          <div>
+            <span class="badge badge-rust">LIVE PRICING ENGINE</span>
+            <h3 style="font-family: var(--font-serif); color:#FAF7F2; margin-top:0.3rem;" id="calc-space-title">ESTIMATE RESERVATION COST</h3>
+            <p style="font-size: 0.85rem; color: #A8A29A;" id="calc-space-details">Calculate exact pricing including peak surges and weekend multipliers via catalog service.</p>
+          </div>
+          <div>
+            <a href="#" id="link-public-space" class="btn btn-sm btn-outline btn-pill" style="border-color:#FAF7F2; color:#FAF7F2;">Full Space Profile ↗</a>
+          </div>
+        </div>
+
+        <div class="action-panel-body">
+          <form id="price-calc-form" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; align-items:flex-end;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">START DATE & TIME</label>
+              <input type="datetime-local" id="calc-start-time" class="form-input" required>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">END DATE & TIME</label>
+              <input type="datetime-local" id="calc-end-time" class="form-input" required>
             </div>
             <div>
-              <a href="#" id="quote-book-btn" class="btn btn-rust btn-pill">Reserve This Space ➔</a>
+              <button type="submit" class="btn btn-rust btn-block btn-pill" style="height:42px;">
+                Compute Live Price ➔
+              </button>
+            </div>
+          </form>
+
+          <div id="calc-result-box" class="card mt-3 d-none" style="background:var(--bg-warm); border:1px solid var(--accent-rust);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+              <div>
+                <span class="badge badge-rust">QUOTE SUMMARY</span>
+                <h3 style="font-family: var(--font-serif); font-size:2rem; color:var(--accent-rust); margin-top:0.3rem;" id="quote-total-amount">$0.00</h3>
+                <p class="mono text-muted" style="font-size:0.85rem;" id="quote-details">Calculated based on base rate and active pricing rules.</p>
+              </div>
+              <div>
+                <a href="#" id="quote-book-btn" class="btn btn-rust btn-pill">Reserve This Space ➔</a>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- MODAL 1: SINGLE BOOKING DETAILS & RECEIPT -->
+    <div id="cust-booking-details-modal" class="modal-backdrop-custom">
+      <div class="modal-dialog-custom">
+        <div class="modal-header-custom">
+          <div>
+            <span class="badge badge-rust">RESERVATION RECORD</span>
+            <h3 style="margin-top: 0.35rem;">BOOKING RECEIPT & DETAILS</h3>
+          </div>
+          <button type="button" class="modal-close-btn" onclick="closeCustModal('cust-booking-details-modal')">✕</button>
+        </div>
+        <div class="modal-body-custom">
+          <div class="receipt-card" id="customer-view-receipt">
+            <div class="receipt-header">
+              <h3 style="font-family: var(--font-serif); font-size: 1.4rem;">BOOKFORGE PLATFORM RECEIPT</h3>
+              <span class="mono text-muted" style="font-size: 0.8rem;" id="dtl-created-at">DATE: -</span>
+            </div>
+            <div class="receipt-row">
+              <span class="text-muted">Booking Reference:</span>
+              <strong class="mono" id="dtl-booking-id">-</strong>
+            </div>
+            <div class="receipt-row">
+              <span class="text-muted">Venue Reference:</span>
+              <span class="mono" id="dtl-venue-id">-</span>
+            </div>
+            <div class="receipt-row">
+              <span class="text-muted">Space Reference:</span>
+              <span class="mono" id="dtl-space-id">-</span>
+            </div>
+            <div class="receipt-row">
+              <span class="text-muted">Status:</span>
+              <span id="dtl-status-badge" class="badge">-</span>
+            </div>
+
+            <!-- Add-on Items if present -->
+            <div id="dtl-resources-section" style="border-top:1px dashed var(--border-medium); margin-top:0.75rem; padding-top:0.75rem;">
+              <span class="text-muted" style="font-size:0.82rem; font-weight:700;">ATTACHED EQUIPMENT:</span>
+              <div id="dtl-resources-list" style="margin-top:0.35rem;"></div>
+            </div>
+
+            <!-- Cancellation Reason if cancelled -->
+            <div id="dtl-cancellation-section" class="d-none" style="background:#FEF2F2; border:1px solid #FCA5A5; padding:0.75rem; border-radius:var(--radius-xs); margin-top:0.75rem;">
+              <span style="font-size:0.82rem; font-weight:700; color:#B91C1C;">CANCELLATION RECORD:</span>
+              <p style="font-size:0.85rem; color:#991B1B; margin-top:0.25rem;" id="dtl-cancellation-reason">-</p>
+            </div>
+
+            <!-- Financial Breakdown -->
+            <div style="border-top: 1px dashed var(--border-medium); margin-top: 0.75rem; padding-top: 0.75rem;">
+              <div class="receipt-row">
+                <span class="text-muted">Base Price Amount:</span>
+                <span class="mono" id="dtl-base-price">$0.00</span>
+              </div>
+              <div class="receipt-row">
+                <span class="text-muted">Equipment Total:</span>
+                <span class="mono" id="dtl-resource-amount">$0.00</span>
+              </div>
+              <div class="receipt-row">
+                <span class="text-muted">Taxes & Fees:</span>
+                <span class="mono" id="dtl-tax-amount">$0.00</span>
+              </div>
+              <div class="receipt-total-row">
+                <span>Total Amount:</span>
+                <span id="dtl-total-amount">$0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; flex-wrap: wrap;">
+            <button type="button" onclick="window.print()" class="btn btn-outline btn-pill">Print Receipt 🖨️</button>
+            <button type="button" onclick="closeCustModal('cust-booking-details-modal')" class="btn btn-rust btn-pill">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: CANCEL BOOKING & REFUND VERIFICATION -->
+    <div id="cust-cancel-modal" class="modal-backdrop-custom">
+      <div class="modal-dialog-custom">
+        <div class="modal-header-custom">
+          <div>
+            <span class="badge badge-rust">CANCEL RESERVATION</span>
+            <h3 style="margin-top: 0.35rem;">CONFIRM CANCELLATION</h3>
+          </div>
+          <button type="button" class="modal-close-btn" onclick="closeCustModal('cust-cancel-modal')">✕</button>
+        </div>
+        <div class="modal-body-custom">
+          <!-- Policy Alert Message -->
+          <div id="cancel-eligibility-box" class="cancellation-policy-card" style="margin-top: 0;">
+            <h4 id="cancel-eligibility-title">Policy Verification</h4>
+            <p id="cancel-eligibility-desc" style="font-size: 0.88rem; margin-top: 0.35rem;">
+              Checking eligibility based on 24-hour cutoff rule...
+            </p>
+          </div>
+
+          <form id="cancel-booking-form">
+            <input type="hidden" id="cancel-target-booking-id">
+            <div class="form-group">
+              <label class="form-label">REASON FOR CANCELLATION (REQUIRED)</label>
+              <textarea id="cancel-reason-input" class="form-input" rows="3" placeholder="Please let the host know why you are cancelling..." required></textarea>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+              <button type="button" onclick="closeCustModal('cust-cancel-modal')" class="btn btn-outline btn-pill">Keep Reservation</button>
+              <button type="submit" class="btn btn-rust btn-pill" id="confirm-cancel-btn" style="background:#B91C1C; border-color:#B91C1C;">
+                Confirm Cancellation
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 3: RESUME PAYMENT MODAL -->
+    <div id="cust-payment-modal" class="modal-backdrop-custom">
+      <div class="modal-dialog-custom">
+        <div class="modal-header-custom">
+          <div>
+            <span class="badge badge-rust">COMPLETE PAYMENT</span>
+            <h3 style="margin-top: 0.35rem;">STRIPE CHECKOUT</h3>
+          </div>
+          <button type="button" class="modal-close-btn" onclick="closeCustModal('cust-payment-modal')">✕</button>
+        </div>
+        <div class="modal-body-custom">
+          <div style="background: var(--bg-warm); padding: 1.25rem; border-radius: var(--radius-xs); border: var(--border-light); margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span class="mono text-muted" style="font-size: 0.8rem;">TOTAL TO SETTLE</span>
+              <h3 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--accent-rust); margin: 0;" id="resume-pay-amount">$0.00</h3>
+            </div>
+            <span class="badge badge-rust">STRIPE GATEWAY</span>
+          </div>
+
+          <form id="resume-stripe-form">
+            <div class="stripe-box">
+              <label class="form-label" style="margin-bottom: 0.75rem;">CREDIT / DEBIT CARD DETAILS</label>
+              <div id="resume-payment-element">
+                <!-- Stripe Elements mounts here -->
+              </div>
+              <div id="resume-payment-error" class="d-none" style="color: var(--accent-rust); font-size: 0.88rem; margin-top: 0.75rem; font-weight: 600;"></div>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+              <button type="button" onclick="closeCustModal('cust-payment-modal')" class="btn btn-outline btn-pill">Cancel</button>
+              <button type="submit" id="resume-submit-btn" class="btn btn-rust btn-pill">
+                Pay & Confirm Reservation ➔
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
 
   </main>
 
@@ -200,10 +450,35 @@
     let globalVenues = [];
     let selectedVenue = null;
     let selectedSpace = null;
+    let myBookings = [];
+    let activeCancelBooking = null;
+    let resumeStripeElements = null;
+    let resumeStripeInstance = null;
+    let resumeActiveBookingId = null;
 
     function toggleSection(id) {
       const el = document.getElementById(id);
       if (el) el.classList.toggle('d-none');
+    }
+
+    function switchCustomerTab(tabName) {
+      const bookingsPanel = document.getElementById('panel-bookings');
+      const explorePanel = document.getElementById('panel-explore');
+      const btnBookings = document.getElementById('tab-btn-bookings');
+      const btnExplore = document.getElementById('tab-btn-explore');
+
+      if (tabName === 'bookings') {
+        bookingsPanel.classList.remove('d-none');
+        explorePanel.classList.add('d-none');
+        btnBookings.classList.add('active');
+        btnExplore.classList.remove('active');
+        loadMyBookings();
+      } else {
+        bookingsPanel.classList.add('d-none');
+        explorePanel.classList.remove('d-none');
+        btnBookings.classList.remove('active');
+        btnExplore.classList.add('active');
+      }
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -214,9 +489,340 @@
         document.getElementById('user-display-name').textContent = `CUSTOMER // ${(user.username || 'MEMBER').toUpperCase()}`;
       }
 
-      await loadUserProfile();
-      await loadVenues();
+      await Promise.all([
+        loadUserProfile(),
+        loadMyBookings(),
+        loadVenues()
+      ]);
     });
+
+    // -------------------------------------------------------------
+    // BOOKINGS MANAGEMENT
+    // -------------------------------------------------------------
+    async function loadMyBookings() {
+      try {
+        const res = await BookingAPI.getMyBookings();
+        const bookingsList = Array.isArray(res) ? res : ((res && res.data) ? (Array.isArray(res.data) ? res.data : []) : []);
+        myBookings = bookingsList;
+
+        // Update KPIs
+        document.getElementById('my-bookings-count').textContent = myBookings.length;
+        document.getElementById('kpi-total-bookings').textContent = myBookings.length;
+
+        const confirmedCount = myBookings.filter(b => b.status === 'CONFIRMED').length;
+        const pendingCount = myBookings.filter(b => b.status === 'PENDING_PAYMENT').length;
+        const cancelledCount = myBookings.filter(b => b.status === 'CANCELLED' || b.status === 'REFUNDED').length;
+
+        document.getElementById('kpi-confirmed-bookings').textContent = confirmedCount;
+        document.getElementById('kpi-pending-bookings').textContent = pendingCount;
+        document.getElementById('kpi-cancelled-bookings').textContent = cancelledCount;
+
+        const activeFilter = document.getElementById('booking-status-filter') ? document.getElementById('booking-status-filter').value : 'ALL';
+        renderBookingsTable(activeFilter);
+
+      } catch (err) {
+        console.error('Error fetching bookings:', err);
+        const tbody = document.getElementById('my-bookings-table-body');
+        if (tbody) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="text-center" style="padding: 2rem; color: var(--accent-rust);">
+                ${err.message || 'Could not connect to booking service. Please ensure microservices are running.'}
+              </td>
+            </tr>
+          `;
+        }
+      }
+    }
+
+    function filterBookingsTable(status) {
+      renderBookingsTable(status);
+    }
+
+    function renderBookingsTable(filter = 'ALL') {
+      const tbody = document.getElementById('my-bookings-table-body');
+      if (!tbody) return;
+
+      let filtered = myBookings;
+      if (filter && filter !== 'ALL') {
+        filtered = myBookings.filter(b => b.status === filter);
+      }
+
+      if (!filtered || filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center" style="padding: 2.5rem;">
+              <h4 style="font-family: var(--font-serif); margin-bottom: 0.35rem;">NO RESERVATIONS RECORDED</h4>
+              <p class="mono text-muted" style="font-size: 0.85rem;">You do not currently have any bookings under this view.</p>
+              <button onclick="switchCustomerTab('explore')" class="btn btn-sm btn-rust btn-pill mt-2">Explore Spaces & Book ➔</button>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(b => {
+        // Status badge class
+        let statusBadgeClass = 'badge-status-pending';
+        if (b.status === 'CONFIRMED') statusBadgeClass = 'badge-status-confirmed';
+        else if (b.status === 'CANCELLED') statusBadgeClass = 'badge-status-cancelled';
+        else if (b.status === 'EXPIRED') statusBadgeClass = 'badge-status-expired';
+        else if (b.status === 'REFUNDED') statusBadgeClass = 'badge-status-refunded';
+
+        // 24h Policy Assessment
+        let policyEligibilityHtml = '<span class="mono text-muted">-</span>';
+        if (b.status === 'CONFIRMED') {
+          // Check slot start time vs now
+          const startTimeMs = b.slotStartTime ? new Date(b.slotStartTime).getTime() : 0;
+          const cutoffMs = startTimeMs - (24 * 60 * 60 * 1000);
+          const nowMs = Date.now();
+
+          if (nowMs < cutoffMs) {
+            const hoursLeft = Math.round((cutoffMs - nowMs) / (1000 * 60 * 60));
+            policyEligibilityHtml = `<span class="badge" style="background:#F0FDF4; color:#15803D; font-size:0.75rem;" title="${hoursLeft}h left to cancel for full refund">✓ 100% Refundable (${hoursLeft}h left)</span>`;
+          } else {
+            policyEligibilityHtml = `<span class="badge" style="background:#FEF2F2; color:#B91C1C; font-size:0.75rem;">✕ Non-Refundable (Past 24h Cutoff)</span>`;
+          }
+        } else if (b.status === 'PENDING_PAYMENT') {
+          policyEligibilityHtml = `<span class="badge badge-rust" style="font-size:0.75rem;">⏱️ 5-Min Hold Active</span>`;
+        } else if (b.status === 'CANCELLED') {
+          const isRefunded = b.cancellationReason && b.cancellationReason.includes('[FULL REFUND APPROVED]');
+          policyEligibilityHtml = isRefunded 
+            ? `<span class="badge" style="background:#EFF6FF; color:#1D4ED8; font-size:0.75rem;">Refund Credited</span>` 
+            : `<span class="badge" style="background:#F3F4F6; color:#6B7280; font-size:0.75rem;">No Refund</span>`;
+        }
+
+        const dateFormatted = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '-';
+        const totalAmountStr = `$${parseFloat(b.totalAmount || 0).toFixed(2)}`;
+
+        // Actions
+        let actionButtons = `
+          <button onclick="openBookingDetails('${b.id}')" class="btn btn-sm btn-outline btn-pill" style="padding:0.25rem 0.65rem; font-size:0.8rem;">
+            Details
+          </button>
+        `;
+
+        if (b.status === 'CONFIRMED') {
+          actionButtons += `
+            <button onclick="openCancelModal('${b.id}')" class="btn btn-sm btn-outline btn-pill" style="padding:0.25rem 0.65rem; font-size:0.8rem; color:#B91C1C; border-color:#B91C1C; margin-left:0.35rem;">
+              Cancel
+            </button>
+          `;
+        } else if (b.status === 'PENDING_PAYMENT') {
+          actionButtons += `
+            <button onclick="openResumePaymentModal('${b.id}', '${b.totalAmount}')" class="btn btn-sm btn-rust btn-pill" style="padding:0.25rem 0.65rem; font-size:0.8rem; margin-left:0.35rem;">
+              Pay Now ➔
+            </button>
+          `;
+        }
+
+        return `
+          <tr>
+            <td>
+              <strong class="mono" style="font-size:0.84rem; cursor:pointer;" onclick="navigator.clipboard.writeText('${b.id}'); showToast('Booking ID copied!', 'info');" title="Click to copy ID">
+                ${b.id.substring(0, 8)}... 📋
+              </strong>
+            </td>
+            <td>
+              <span class="mono" style="font-size:0.82rem;">Space: ${b.spaceId ? b.spaceId.substring(0, 8) + '...' : '-'}</span>
+            </td>
+            <td class="mono" style="font-size:0.84rem;">${dateFormatted}</td>
+            <td><strong class="mono" style="color:var(--text-main); font-size:0.95rem;">${totalAmountStr}</strong></td>
+            <td><span class="badge ${statusBadgeClass}" style="font-size:0.75rem;">${b.status}</span></td>
+            <td>${policyEligibilityHtml}</td>
+            <td><div style="display:flex; align-items:center;">${actionButtons}</div></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openBookingDetails(bookingId) {
+      const b = myBookings.find(x => x.id === bookingId);
+      if (!b) return;
+
+      document.getElementById('dtl-created-at').textContent = `DATE: ${b.createdAt ? new Date(b.createdAt).toLocaleString() : '-'}`;
+      document.getElementById('dtl-booking-id').textContent = b.id;
+      document.getElementById('dtl-venue-id').textContent = b.venueId || '-';
+      document.getElementById('dtl-space-id').textContent = b.spaceId || '-';
+      
+      const badge = document.getElementById('dtl-status-badge');
+      badge.textContent = b.status;
+      badge.className = `badge badge-status-${b.status.toLowerCase().replace('_', '-')}`;
+
+      document.getElementById('dtl-base-price').textContent = `$${parseFloat(b.basePriceAmount || 0).toFixed(2)}`;
+      document.getElementById('dtl-resource-amount').textContent = `$${parseFloat(b.resourceTotalAmount || 0).toFixed(2)}`;
+      document.getElementById('dtl-tax-amount').textContent = `$${parseFloat(b.taxAmount || 0).toFixed(2)}`;
+      document.getElementById('dtl-total-amount').textContent = `$${parseFloat(b.totalAmount || 0).toFixed(2)}`;
+
+      // Cancellation details
+      const cancelSection = document.getElementById('dtl-cancellation-section');
+      if (b.status === 'CANCELLED' && b.cancellationReason) {
+        cancelSection.classList.remove('d-none');
+        document.getElementById('dtl-cancellation-reason').textContent = b.cancellationReason;
+      } else {
+        cancelSection.classList.add('d-none');
+      }
+
+      // Equipment details
+      const resSection = document.getElementById('dtl-resources-section');
+      const resList = document.getElementById('dtl-resources-list');
+      if (b.resourceItems && b.resourceItems.length > 0) {
+        resSection.classList.remove('d-none');
+        resList.innerHTML = b.resourceItems.map(item => `
+          <div style="display:flex; justify-content:space-between; font-size:0.86rem; margin-bottom:0.2rem;">
+            <span>• ${item.name} (x${item.quantity})</span>
+            <span class="mono">$${(parseFloat(item.pricePerUnit || 0) * item.quantity).toFixed(2)}</span>
+          </div>
+        `).join('');
+      } else {
+        resSection.classList.add('d-none');
+      }
+
+      document.getElementById('cust-booking-details-modal').classList.add('active');
+    }
+
+    function openCancelModal(bookingId) {
+      const b = myBookings.find(x => x.id === bookingId);
+      if (!b) return;
+
+      activeCancelBooking = b;
+      document.getElementById('cancel-target-booking-id').value = b.id;
+      document.getElementById('cancel-reason-input').value = '';
+
+      const titleEl = document.getElementById('cancel-eligibility-title');
+      const descEl = document.getElementById('cancel-eligibility-desc');
+      const boxEl = document.getElementById('cancel-eligibility-box');
+
+      const startTimeMs = b.slotStartTime ? new Date(b.slotStartTime).getTime() : 0;
+      const cutoffMs = startTimeMs - (24 * 60 * 60 * 1000);
+      const nowMs = Date.now();
+
+      if (nowMs < cutoffMs) {
+        const hoursLeft = Math.round((cutoffMs - nowMs) / (1000 * 60 * 60));
+        titleEl.textContent = '✓ 100% AUTOMATED REFUND APPROVED';
+        descEl.innerHTML = `You are cancelling more than 24 hours prior to the slot start time (<strong>${hoursLeft} hours remaining</strong> before cutoff). A 100% full refund of $${parseFloat(b.totalAmount || 0).toFixed(2)} will be automatically reversed to your payment card.`;
+        boxEl.style.borderLeftColor = '#15803D';
+      } else {
+        titleEl.textContent = '⚠️ NON-REFUNDABLE CANCELLATION NOTICE';
+        descEl.innerHTML = `This reservation start time is within 24 hours. Under platform cancellation terms, cancellations within 24 hours of start time are <strong>strictly non-refundable</strong> to protect space host availability.`;
+        boxEl.style.borderLeftColor = '#B91C1C';
+      }
+
+      document.getElementById('cust-cancel-modal').classList.add('active');
+    }
+
+    document.getElementById('cancel-booking-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const bookingId = document.getElementById('cancel-target-booking-id').value;
+      const reason = document.getElementById('cancel-reason-input').value.trim();
+
+      const btn = document.getElementById('confirm-cancel-btn');
+      btn.disabled = true;
+      btn.textContent = 'Processing Cancellation...';
+
+      try {
+        const res = await BookingAPI.cancelBooking({
+          bookingId,
+          cancellationReason: reason
+        });
+
+        const msg = (res && res.message) ? res.message : 'Booking cancellation processed successfully.';
+        showToast(msg, 'success');
+        closeCustModal('cust-cancel-modal');
+        await loadMyBookings();
+      } catch (err) {
+        showToast(err.message || 'Failed to cancel booking.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Confirm Cancellation';
+      }
+    });
+
+    async function openResumePaymentModal(bookingId, totalAmount) {
+      resumeActiveBookingId = bookingId;
+      document.getElementById('resume-pay-amount').textContent = `$${parseFloat(totalAmount || 0).toFixed(2)}`;
+      document.getElementById('cust-payment-modal').classList.add('active');
+
+      const errBox = document.getElementById('resume-payment-error');
+      errBox.classList.add('d-none');
+      errBox.textContent = '';
+
+      try {
+        const checkoutRes = await PaymentAPI.checkout({ bookingId });
+        const data = (checkoutRes && checkoutRes.data !== undefined) ? checkoutRes.data : checkoutRes;
+        const clientSecret = data.clientSecret;
+
+        try {
+          const { stripe, elements } = await StripeClient.createElements(clientSecret);
+          resumeStripeInstance = stripe;
+          resumeStripeElements = elements;
+
+          const paymentElement = elements.create('payment');
+          paymentElement.mount('#resume-payment-element');
+        } catch (stripeErr) {
+          const container = document.getElementById('resume-payment-element');
+          container.innerHTML = `
+            <div style="background:#FFFFFF; border:1px dashed #D5CCC0; padding:1.25rem; border-radius:var(--radius-xs); text-align:center;">
+              <span class="badge badge-rust mb-2">PAYMENT INTENT READY</span>
+              <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:0.5rem;">
+                Payment Intent ID: <strong class="mono">${data.stripePaymentIntentId || 'pi_simulated'}</strong>
+              </p>
+              <p style="font-size:0.82rem; color:var(--text-muted);">
+                Ready to confirm payment settlement for this reservation.
+              </p>
+            </div>
+          `;
+        }
+      } catch (err) {
+        errBox.textContent = err.message || 'Failed to initialize payment checkout.';
+        errBox.classList.remove('d-none');
+      }
+    }
+
+    document.getElementById('resume-stripe-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('resume-submit-btn');
+      const errBox = document.getElementById('resume-payment-error');
+      errBox.classList.add('d-none');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing Payment...';
+
+      try {
+        if (resumeStripeInstance && resumeStripeElements) {
+          const { error, paymentIntent } = await resumeStripeInstance.confirmPayment({
+            elements: resumeStripeElements,
+            redirect: 'if_required'
+          });
+
+          if (error) {
+            throw new Error(error.message || 'Payment confirmation failed');
+          }
+        }
+
+        if (resumeActiveBookingId) {
+          try {
+            await PaymentAPI.verify(resumeActiveBookingId);
+          } catch (vErr) {}
+        }
+
+        showToast('Payment successful! Reservation confirmed.', 'success');
+        closeCustModal('cust-payment-modal');
+        await loadMyBookings();
+
+      } catch (err) {
+        errBox.textContent = err.message;
+        errBox.classList.remove('d-none');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Pay & Confirm Reservation ➔';
+      }
+    });
+
+    function closeCustModal(modalId) {
+      const el = document.getElementById(modalId);
+      if (el) el.classList.remove('active');
+    }
+
 
     async function loadUserProfile() {
       try {

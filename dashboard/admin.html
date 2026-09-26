@@ -125,7 +125,12 @@
           <div class="admin-nav-item" id="nav-btn-venues" onclick="showAdminSection('section-venues', this)">
             <span>🏛️ Platform Venues</span>
           </div>
+
+          <div class="admin-nav-item" id="nav-btn-bookings" onclick="showAdminSection('section-bookings', this)">
+            <span>📑 Bookings Governance</span>
+          </div>
         </nav>
+
 
         <div style="border-top: var(--border-light); padding-top: 1.25rem; margin-top: 1.5rem; padding-left: 0.5rem;">
           <button onclick="loadAllAdminData()" class="btn btn-sm btn-outline btn-pill" style="width: 100%;">
@@ -228,10 +233,49 @@
                 <p class="mono text-muted">Retrieving all network venues...</p>
               </div>
             </div>
+        <!-- 4. SECTION: BOOKINGS GOVERNANCE -->
+        <section id="section-bookings" class="admin-section d-none">
+          <div class="content-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; border-bottom:var(--border-light); padding-bottom:1.25rem;">
+              <div>
+                <span class="badge badge-rust mb-1">TRANSACTION OVERSIGHT</span>
+                <h3 class="section-title">PLATFORM BOOKINGS GOVERNANCE</h3>
+                <p style="font-size: 0.86rem; color: var(--text-muted); margin-top: 0.25rem;">
+                  Lookup any booking or space schedule, override reservation statuses, or execute administrative cancellations.
+                </p>
+              </div>
+            </div>
+
+            <!-- Dual Search Workbench -->
+            <div class="grid grid-2 mb-4">
+              <!-- Search by Booking UUID -->
+              <div class="card" style="background:var(--bg-warm); padding:1.5rem;">
+                <h4 style="font-family:var(--font-serif); font-size:1.15rem; margin-bottom:0.5rem;">LOOKUP BOOKING BY ID</h4>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.75rem;">Inspect single booking ledger, payment settlement, and override status.</p>
+                <form id="admin-search-booking-form" style="display:flex; gap:0.5rem;">
+                  <input type="text" id="admin-booking-id-input" class="form-input" placeholder="Enter Booking UUID..." required>
+                  <button type="submit" class="btn btn-sm btn-rust btn-pill" style="white-space:nowrap;">Search ➔</button>
+                </form>
+              </div>
+
+              <!-- Search by Space UUID -->
+              <div class="card" style="background:var(--bg-warm); padding:1.5rem;">
+                <h4 style="font-family:var(--font-serif); font-size:1.15rem; margin-bottom:0.5rem;">SEARCH SPACE ROSTER</h4>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.75rem;">Query all past and upcoming reservations attached to a creative space.</p>
+                <form id="admin-search-space-form" style="display:flex; gap:0.5rem;">
+                  <input type="text" id="admin-space-id-input" class="form-input" placeholder="Enter Space UUID..." required>
+                  <button type="submit" class="btn btn-sm btn-rust btn-pill" style="white-space:nowrap;">Search ➔</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Search Results Display Area -->
+            <div id="admin-booking-lookup-result" class="d-none"></div>
           </div>
         </section>
 
       </div>
+
 
     </div>
 
@@ -483,6 +527,207 @@
         showToast(err.message, 'error');
       }
     });
+
+    // -------------------------------------------------------------
+    // ADMIN BOOKINGS GOVERNANCE
+    // -------------------------------------------------------------
+    document.getElementById('admin-search-booking-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const bookingId = document.getElementById('admin-booking-id-input').value.trim();
+      const container = document.getElementById('admin-booking-lookup-result');
+
+      container.classList.remove('d-none');
+      container.innerHTML = `
+        <div class="card text-center" style="padding:2rem;">
+          <div class="vintage-spinner" style="margin:1rem auto;"></div>
+          <p class="mono text-muted">Querying booking service ledger for ID: ${bookingId}...</p>
+        </div>
+      `;
+
+      try {
+        const res = await BookingAPI.getById(bookingId);
+        const b = (res && res.data !== undefined) ? res.data : res;
+
+        if (!b || !b.id) {
+          container.innerHTML = `<div class="card text-center"><p style="color:var(--accent-rust);">No booking found with ID: ${bookingId}</p></div>`;
+          return;
+        }
+
+        let statusBadgeClass = 'badge-status-pending';
+        if (b.status === 'CONFIRMED') statusBadgeClass = 'badge-status-confirmed';
+        else if (b.status === 'CANCELLED') statusBadgeClass = 'badge-status-cancelled';
+        else if (b.status === 'EXPIRED') statusBadgeClass = 'badge-status-expired';
+        else if (b.status === 'REFUNDED') statusBadgeClass = 'badge-status-refunded';
+
+        container.innerHTML = `
+          <div class="card" style="border-left: 4px solid var(--accent-rust); padding: 2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; border-bottom:var(--border-light); padding-bottom:1rem;">
+              <div>
+                <span class="badge ${statusBadgeClass}">${b.status}</span>
+                <h3 style="font-family:var(--font-serif); margin-top:0.4rem;">BOOKING: <span class="mono">${b.id}</span></h3>
+                <p class="mono text-muted" style="font-size:0.85rem;">Created: ${b.createdAt ? new Date(b.createdAt).toLocaleString() : '-'}</p>
+              </div>
+              <div style="text-align:right;">
+                <span class="mono text-muted" style="font-size:0.8rem;">TOTAL AMOUNT</span>
+                <h2 style="font-family:var(--font-serif); font-size:2.2rem; color:var(--accent-rust); margin:0;">$${parseFloat(b.totalAmount || 0).toFixed(2)}</h2>
+              </div>
+            </div>
+
+            <div class="grid grid-3 mb-3">
+              <div>
+                <span class="mono text-muted" style="font-size:0.75rem;">CUSTOMER UUID</span>
+                <p class="mono" style="font-size:0.88rem; font-weight:700;">${b.customerId || '-'}</p>
+              </div>
+              <div>
+                <span class="mono text-muted" style="font-size:0.75rem;">SPACE UUID</span>
+                <p class="mono" style="font-size:0.88rem; font-weight:700;">${b.spaceId || '-'}</p>
+              </div>
+              <div>
+                <span class="mono text-muted" style="font-size:0.75rem;">VENUE UUID</span>
+                <p class="mono" style="font-size:0.88rem; font-weight:700;">${b.venueId || '-'}</p>
+              </div>
+            </div>
+
+            ${b.cancellationReason ? `
+              <div style="background:#FEF2F2; border:1px solid #FCA5A5; padding:0.85rem; border-radius:var(--radius-xs); margin-bottom:1.25rem;">
+                <strong style="color:#B91C1C; font-size:0.82rem;">CANCELLATION REASON:</strong>
+                <p style="color:#991B1B; font-size:0.85rem; margin-top:0.2rem;">${b.cancellationReason}</p>
+              </div>
+            ` : ''}
+
+            <!-- Admin Actions Strip -->
+            <div style="background:var(--bg-warm); padding:1.25rem; border-radius:var(--radius-xs); border:var(--border-light); margin-top:1.5rem;">
+              <h4 style="font-family:var(--font-serif); font-size:1.05rem; margin-bottom:0.75rem;">ADMINISTRATIVE INTERVENTION</h4>
+              
+              <div class="grid grid-2" style="gap:1.5rem; align-items:flex-end;">
+                <!-- Status Override -->
+                <div>
+                  <label class="form-label" style="font-size:0.75rem;">OVERRIDE STATUS</label>
+                  <div style="display:flex; gap:0.5rem;">
+                    <select id="admin-new-status-select" class="form-input" style="padding:0.4rem;">
+                      <option value="CONFIRMED" ${b.status === 'CONFIRMED' ? 'selected' : ''}>CONFIRMED</option>
+                      <option value="PENDING_PAYMENT" ${b.status === 'PENDING_PAYMENT' ? 'selected' : ''}>PENDING_PAYMENT</option>
+                      <option value="CANCELLED" ${b.status === 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
+                      <option value="EXPIRED" ${b.status === 'EXPIRED' ? 'selected' : ''}>EXPIRED</option>
+                      <option value="COMPLETED" ${b.status === 'COMPLETED' ? 'selected' : ''}>COMPLETED</option>
+                      <option value="REFUNDED" ${b.status === 'REFUNDED' ? 'selected' : ''}>REFUNDED</option>
+                    </select>
+                    <button type="button" onclick="commitAdminStatusUpdate('${b.id}')" class="btn btn-sm btn-rust btn-pill" style="white-space:nowrap;">
+                      Update ➔
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Force Cancel -->
+                <div>
+                  <label class="form-label" style="font-size:0.75rem;">FORCE CANCEL WITH REASON</label>
+                  <div style="display:flex; gap:0.5rem;">
+                    <input type="text" id="admin-force-cancel-reason" class="form-input" placeholder="Admin reason..." style="padding:0.4rem;">
+                    <button type="button" onclick="commitAdminForceCancel('${b.id}')" class="btn btn-sm btn-outline btn-pill" style="color:#B91C1C; border-color:#B91C1C; white-space:nowrap;">
+                      Cancel ✕
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        container.innerHTML = `<div class="card text-center"><p style="color:var(--accent-rust);">${err.message}</p></div>`;
+      }
+    });
+
+    document.getElementById('admin-search-space-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const spaceId = document.getElementById('admin-space-id-input').value.trim();
+      const container = document.getElementById('admin-booking-lookup-result');
+
+      container.classList.remove('d-none');
+      container.innerHTML = `
+        <div class="card text-center" style="padding:2rem;">
+          <div class="vintage-spinner" style="margin:1rem auto;"></div>
+          <p class="mono text-muted">Retrieving all reservations for Space ID: ${spaceId}...</p>
+        </div>
+      `;
+
+      try {
+        const res = await BookingAPI.getBySpace(spaceId);
+        const list = Array.isArray(res) ? res : ((res && res.data) ? (Array.isArray(res.data) ? res.data : []) : []);
+
+        if (!list || list.length === 0) {
+          container.innerHTML = `<div class="card text-center"><p class="mono text-muted">No reservations attached to space ID: ${spaceId}</p></div>`;
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking ID</th>
+                  <th>Customer ID</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${list.map(b => `
+                  <tr>
+                    <td><strong class="mono" style="font-size:0.84rem;">${b.id.substring(0, 8)}...</strong></td>
+                    <td><span class="mono" style="font-size:0.82rem;">${b.customerId ? b.customerId.substring(0, 8) + '...' : '-'}</span></td>
+                    <td class="mono" style="font-size:0.82rem;">${b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '-'}</td>
+                    <td><strong class="mono">$${parseFloat(b.totalAmount || 0).toFixed(2)}</strong></td>
+                    <td><span class="badge badge-rust" style="font-size:0.75rem;">${b.status}</span></td>
+                    <td>
+                      <button onclick="document.getElementById('admin-booking-id-input').value = '${b.id}'; document.getElementById('admin-search-booking-form').dispatchEvent(new Event('submit'));" class="btn btn-sm btn-outline btn-pill" style="padding:0.2rem 0.6rem; font-size:0.8rem;">
+                        Inspect ➔
+                      </button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } catch (err) {
+        container.innerHTML = `<div class="card text-center"><p style="color:var(--accent-rust);">${err.message}</p></div>`;
+      }
+    });
+
+    async function commitAdminStatusUpdate(bookingId) {
+      const select = document.getElementById('admin-new-status-select');
+      const newStatus = select ? select.value : '';
+      if (!newStatus) return;
+
+      try {
+        await BookingAPI.updateStatus(bookingId, newStatus);
+        showToast(`Booking ${bookingId} transitioned to ${newStatus}!`, 'success');
+        document.getElementById('admin-search-booking-form').dispatchEvent(new Event('submit'));
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function commitAdminForceCancel(bookingId) {
+      const reasonInput = document.getElementById('admin-force-cancel-reason');
+      const reason = reasonInput ? reasonInput.value.trim() : '';
+
+      if (!confirm(`Are you sure you want to force-cancel booking ${bookingId}?`)) return;
+
+      try {
+        const res = await BookingAPI.cancelBooking({
+          bookingId,
+          cancellationReason: '[ADMIN OVERRIDE] ' + (reason || 'Cancelled by Root Administrator')
+        });
+        showToast((res && res.message) ? res.message : 'Booking cancelled successfully.', 'success');
+        document.getElementById('admin-search-booking-form').dispatchEvent(new Event('submit'));
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
   </script>
 </body>
 </html>
