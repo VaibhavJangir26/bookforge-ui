@@ -673,20 +673,29 @@
                 </tr>
               </thead>
               <tbody>
-                ${list.map(b => `
-                  <tr>
-                    <td><strong class="mono" style="font-size:0.84rem;">${b.id.substring(0, 8)}...</strong></td>
-                    <td><span class="mono" style="font-size:0.82rem;">${b.customerId ? b.customerId.substring(0, 8) + '...' : '-'}</span></td>
-                    <td class="mono" style="font-size:0.82rem;">${b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '-'}</td>
-                    <td><strong class="mono">$${parseFloat(b.totalAmount || 0).toFixed(2)}</strong></td>
-                    <td><span class="badge badge-rust" style="font-size:0.75rem;">${b.status}</span></td>
-                    <td>
-                      <button onclick="document.getElementById('admin-booking-id-input').value = '${b.id}'; document.getElementById('admin-search-booking-form').dispatchEvent(new Event('submit'));" class="btn btn-sm btn-outline btn-pill" style="padding:0.2rem 0.6rem; font-size:0.8rem;">
-                        Inspect ➔
-                      </button>
-                    </td>
-                  </tr>
-                `).join('')}
+                ${list.map(b => {
+                  const u = b.userPersonalDetailResponseDTO;
+                  const cName = u && u.fullName ? u.fullName : (u && u.username ? u.username : (b.customerId ? b.customerId.substring(0, 8) + '...' : '-'));
+                  const cSub = u && u.email ? `<div class="mono text-muted" style="font-size:0.75rem;">${u.email}</div>` : '';
+
+                  return `
+                    <tr>
+                      <td><strong class="mono" style="font-size:0.84rem;">${b.id.substring(0, 8)}...</strong></td>
+                      <td>
+                        <strong style="font-size:0.85rem;">${cName}</strong>
+                        ${cSub}
+                      </td>
+                      <td class="mono" style="font-size:0.82rem;">${b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '-'}</td>
+                      <td><strong class="mono">$${parseFloat(b.totalAmount || 0).toFixed(2)}</strong></td>
+                      <td><span class="badge badge-rust" style="font-size:0.75rem;">${b.status}</span></td>
+                      <td>
+                        <button onclick="document.getElementById('admin-booking-id-input').value = '${b.id}'; document.getElementById('admin-search-booking-form').dispatchEvent(new Event('submit'));" class="btn btn-sm btn-outline btn-pill" style="padding:0.2rem 0.6rem; font-size:0.8rem;">
+                          Inspect ➔
+                        </button>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
               </tbody>
             </table>
           </div>

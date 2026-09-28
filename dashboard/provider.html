@@ -681,9 +681,13 @@
               <span class="text-muted">Booking Reference:</span>
               <strong class="mono" id="prov-dtl-booking-id">-</strong>
             </div>
-            <div class="receipt-row">
-              <span class="text-muted">Customer UUID:</span>
-              <span class="mono" id="prov-dtl-customer-id">-</span>
+            <div class="receipt-row" style="align-items: flex-start; padding: 0.4rem 0;">
+              <span class="text-muted">Customer Profile:</span>
+              <div style="text-align: right;">
+                <strong class="mono" id="prov-dtl-customer-name" style="color: var(--text-main);">-</strong>
+                <div class="mono text-muted" style="font-size: 0.78rem;" id="prov-dtl-customer-email">-</div>
+                <div class="mono text-muted" style="font-size: 0.78rem;" id="prov-dtl-customer-phone"></div>
+              </div>
             </div>
             <div class="receipt-row">
               <span class="text-muted">Studio Space:</span>
@@ -1471,10 +1475,17 @@
             `;
           }
 
+          const u = b.userPersonalDetailResponseDTO;
+          const custName = u && u.fullName ? u.fullName : (u && u.username ? u.username : (b.customerId ? b.customerId.substring(0, 8) + '...' : 'Guest'));
+          const custSub = u && u.email ? `<div class="mono text-muted" style="font-size:0.75rem;">${u.email}</div>` : (b.customerId ? `<div class="mono text-muted" style="font-size:0.75rem;">ID: ${b.customerId.substring(0, 8)}...</div>` : '');
+
           return `
             <tr>
               <td><strong class="mono" style="font-size:0.84rem;">${b.id.substring(0, 8)}... 📋</strong></td>
-              <td><span class="mono" style="font-size:0.82rem;">${b.customerId ? b.customerId.substring(0, 8) + '...' : 'Guest'}</span></td>
+              <td>
+                <strong style="font-size:0.88rem; color:var(--text-main);">${custName}</strong>
+                ${custSub}
+              </td>
               <td class="mono" style="font-size:0.84rem;">${dateStr}</td>
               <td><strong class="mono" style="font-size:0.95rem; color:var(--text-main);">${totalStr}</strong></td>
               <td><span class="badge ${statusBadgeClass}" style="font-size:0.75rem;">${b.status}</span></td>
@@ -1498,9 +1509,22 @@
       const b = provSpaceBookings.find(x => x.id === bookingId);
       if (!b) return;
 
+      const u = b.userPersonalDetailResponseDTO;
+      const nameEl = document.getElementById('prov-dtl-customer-name');
+      const emailEl = document.getElementById('prov-dtl-customer-email');
+      const phoneEl = document.getElementById('prov-dtl-customer-phone');
+
+      if (nameEl) nameEl.textContent = u && u.fullName ? u.fullName : (u && u.username ? u.username : (b.customerId || '-'));
+      if (emailEl) emailEl.textContent = u && u.email ? u.email : (b.customerId ? `UUID: ${b.customerId}` : '-');
+      if (phoneEl) {
+        let extra = [];
+        if (u && u.mobileNo) extra.push(`Phone: ${u.mobileNo}`);
+        if (u && u.address && u.address.city) extra.push(`Location: ${u.address.city}, ${u.address.state || ''}`);
+        phoneEl.textContent = extra.join(' • ');
+      }
+
       document.getElementById('prov-dtl-created').textContent = `DATE: ${b.createdAt ? new Date(b.createdAt).toLocaleString() : '-'}`;
       document.getElementById('prov-dtl-booking-id').textContent = b.id;
-      document.getElementById('prov-dtl-customer-id').textContent = b.customerId || '-';
       document.getElementById('prov-dtl-space-id').textContent = b.spaceId || '-';
 
       const statusBadge = document.getElementById('prov-dtl-status');
