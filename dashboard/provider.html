@@ -131,6 +131,10 @@
           <div class="prov-nav-item" id="nav-btn-profile" onclick="showProvSection('sec-profile', this)">
             <span>👤 Operator Profile</span>
           </div>
+
+          <div class="prov-nav-item" id="nav-btn-payouts" onclick="showProvSection('sec-payouts', this)">
+            <span>💳 Payouts & Bank Account</span>
+          </div>
         </nav>
 
 
@@ -607,6 +611,182 @@
           </div>
         </section>
 
+        <!-- 6B. STRIPE CONNECT & BANK PAYOUTS SECTION -->
+        <section id="sec-payouts" class="prov-section d-none">
+          <div class="content-card">
+            <div style="border-bottom:var(--border-light); padding-bottom:1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+              <div>
+                <span class="badge badge-rust mb-1">FINANCIAL DISBURSEMENTS</span>
+                <h2 class="section-title">STRIPE CONNECT & BANK PAYOUTS</h2>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.25rem;">
+                  Configure your receiving bank account or connected Stripe account for automated net revenue settlements.
+                </p>
+              </div>
+              <div id="payout-status-badge-container">
+                <span class="badge badge-approved" id="payout-status-badge">⚡ PAYOUTS READY</span>
+              </div>
+            </div>
+
+            <!-- Commission & Split Policy Summary Banner -->
+            <div style="background:var(--bg-warm); padding:1.25rem; border-radius:var(--radius-xs); border:1px solid var(--border-medium); margin-bottom:1.5rem;">
+              <h4 style="font-family:var(--font-serif); font-size:1.05rem; margin-bottom:0.5rem; color:var(--text-main);">💰 Host Earnings & Cancellation Terms</h4>
+              <div class="grid grid-3" style="gap:1rem; margin-top:0.75rem;">
+                <div style="background:#FFF; padding:0.85rem; border-radius:var(--radius-xs); border:var(--border-light);">
+                  <span class="mono text-muted" style="font-size:0.75rem; display:block;">HOST NET PAYOUT</span>
+                  <strong style="font-size:1.15rem; color:#15803D;">90% Payout Rate</strong>
+                  <p style="font-size:0.78rem; color:var(--text-muted); margin-top:0.25rem;">Standard platform commission is 10%; remaining 90% is settled to your bank.</p>
+                </div>
+                <div style="background:#FFF; padding:0.85rem; border-radius:var(--radius-xs); border:var(--border-light);">
+                  <span class="mono text-muted" style="font-size:0.75rem; display:block;">CANCELLATION COMPENSATION</span>
+                  <strong style="font-size:1.15rem; color:var(--accent-rust);">15% Protection Fee</strong>
+                  <p style="font-size:0.78rem; color:var(--text-muted); margin-top:0.25rem;">If customer cancels >24h prior, host receives 15% guaranteed hold compensation.</p>
+                </div>
+                <div style="background:#FFF; padding:0.85rem; border-radius:var(--radius-xs); border:var(--border-light);">
+                  <span class="mono text-muted" style="font-size:0.75rem; display:block;">SETTLEMENT METHOD</span>
+                  <strong style="font-size:1.15rem; color:#1D4ED8;">Stripe Direct / Express</strong>
+                  <p style="font-size:0.78rem; color:var(--text-muted); margin-top:0.25rem;">Destination charges transfer directly to linked recipient account.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-2" style="gap:2rem; align-items:start;">
+              
+              <!-- Payout Form -->
+              <div>
+                <form id="payout-bank-form" onsubmit="handleSavePayoutSettings(event)">
+                  <div class="form-group mb-2">
+                    <label class="form-label">ACCOUNT HOLDER NAME</label>
+                    <input type="text" id="payout-holder-name" class="form-input" placeholder="e.g. Ram Sharma / Studio Atelier LLC" required>
+                  </div>
+
+                  <div class="form-group mb-2">
+                    <label class="form-label">BANK NAME / FINANCIAL INSTITUTION</label>
+                    <input type="text" id="payout-bank-name" class="form-input" placeholder="e.g. JPMorgan Chase / HDFC Bank / Barclays" required>
+                  </div>
+
+                  <div class="grid grid-2 mb-2">
+                    <div class="form-group">
+                      <label class="form-label">ROUTING / IFSC / SORT CODE</label>
+                      <input type="text" id="payout-routing-no" class="form-input mono" placeholder="e.g. 110000000 or HDFC0001234" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">ACCOUNT NUMBER / IBAN</label>
+                      <input type="text" id="payout-account-no" class="form-input mono" placeholder="e.g. 000123456789" required>
+                    </div>
+                  </div>
+
+                  <div class="form-group mb-3">
+                    <label class="form-label">STRIPE CONNECT ACCOUNT ID (DESTINATION CHARGES)</label>
+                    <div style="display:flex; gap:0.5rem;">
+                      <input type="text" id="payout-stripe-acct-id" class="form-input mono" placeholder="e.g. acct_1MockProviderExpress01" value="acct_1MockProviderExpress01">
+                      <button type="button" onclick="connectStripeExpressOnboarding()" class="btn btn-sm btn-outline btn-pill" style="white-space:nowrap;">
+                        Link Express ↗
+                      </button>
+                    </div>
+                    <small style="color:var(--text-muted); font-size:0.75rem; display:block; margin-top:0.25rem;">
+                      Stripe destination charges automatically route earnings to this account ID during checkout.
+                    </small>
+                  </div>
+
+                  <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+                    <button type="submit" class="btn btn-rust btn-pill" style="padding:0.75rem 1.75rem;">
+                      Save Payout Account ➔
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Test Credentials & Sample Payment Info Toolkit -->
+              <div style="background:var(--bg-primary); border:1px dashed var(--border-medium); border-radius:var(--radius-xs); padding:1.5rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                  <h4 style="font-family:var(--font-serif); font-size:1rem; color:var(--text-main);">
+                    🧪 TESTING TOOLKIT & SAMPLE CREDENTIALS
+                  </h4>
+                  <button type="button" onclick="autofillSampleBankDetails()" class="btn btn-sm btn-outline btn-pill" style="font-size:0.75rem; padding:0.25rem 0.6rem;">
+                    ⚡ Auto-Fill Bank Form
+                  </button>
+                </div>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">
+                  Use these mock bank and payment credentials in test environment for bookings, destination transfers, and partial refunds.
+                </p>
+
+                <!-- Sample Bank Accounts -->
+                <div style="margin-bottom:1.25rem;">
+                  <label class="form-label" style="font-size:0.75rem; margin-bottom:0.4rem; color:var(--accent-rust);">SAMPLE RECEIVING BANK ACCOUNTS</label>
+                  
+                  <div style="background:#FFF; padding:0.6rem 0.8rem; border-radius:var(--radius-xs); border:var(--border-light); margin-bottom:0.5rem; font-size:0.8rem;">
+                    <div style="display:flex; justify-content:space-between;">
+                      <strong>🇺🇸 US ACH Bank (Stripe Test)</strong>
+                      <span class="mono text-muted" style="cursor:pointer;" onclick="navigator.clipboard.writeText('000123456789'); showToast('Copied account number!', 'info');">📋 Copy</span>
+                    </div>
+                    <div class="mono" style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+                      Routing: <strong>110000000</strong> | Acc: <strong>000123456789</strong>
+                    </div>
+                  </div>
+
+                  <div style="background:#FFF; padding:0.6rem 0.8rem; border-radius:var(--radius-xs); border:var(--border-light); margin-bottom:0.5rem; font-size:0.8rem;">
+                    <div style="display:flex; justify-content:space-between;">
+                      <strong>🇮🇳 India Bank (NEFT / IMPS)</strong>
+                      <span class="mono text-muted" style="cursor:pointer;" onclick="navigator.clipboard.writeText('50100234567890'); showToast('Copied account number!', 'info');">📋 Copy</span>
+                    </div>
+                    <div class="mono" style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+                      IFSC: <strong>HDFC0001234</strong> | Acc: <strong>50100234567890</strong>
+                    </div>
+                  </div>
+
+                  <div style="background:#FFF; padding:0.6rem 0.8rem; border-radius:var(--radius-xs); border:var(--border-light); font-size:0.8rem;">
+                    <div style="display:flex; justify-content:space-between;">
+                      <strong>🇬🇧 UK BACS Bank</strong>
+                      <span class="mono text-muted" style="cursor:pointer;" onclick="navigator.clipboard.writeText('00012345'); showToast('Copied account number!', 'info');">📋 Copy</span>
+                    </div>
+                    <div class="mono" style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+                      Sort Code: <strong>108800</strong> | Acc: <strong>00012345</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Sample Stripe Payment Cards -->
+                <div>
+                  <label class="form-label" style="font-size:0.75rem; margin-bottom:0.4rem; color:var(--accent-rust);">SAMPLE STRIPE TEST PAYMENT CARDS</label>
+                  
+                  <div style="background:#FFF; padding:0.6rem 0.8rem; border-radius:var(--radius-xs); border:var(--border-light); margin-bottom:0.5rem; font-size:0.8rem;">
+                    <div style="display:flex; justify-content:space-between;">
+                      <strong>💳 Visa (Success)</strong>
+                      <span class="mono text-muted" style="cursor:pointer;" onclick="navigator.clipboard.writeText('4242424242424242'); showToast('Copied test card 4242...', 'info');">📋 Copy</span>
+                    </div>
+                    <div class="mono" style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+                      Card: <strong>4242 4242 4242 4242</strong> | Exp: <strong>12/28</strong> | CVC: <strong>123</strong>
+                    </div>
+                  </div>
+
+                  <div style="background:#FFF; padding:0.6rem 0.8rem; border-radius:var(--radius-xs); border:var(--border-light); margin-bottom:0.5rem; font-size:0.8rem;">
+                    <div style="display:flex; justify-content:space-between;">
+                      <strong>💳 Mastercard (Success)</strong>
+                      <span class="mono text-muted" style="cursor:pointer;" onclick="navigator.clipboard.writeText('5555555555554444'); showToast('Copied Mastercard test card!', 'info');">📋 Copy</span>
+                    </div>
+                    <div class="mono" style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+                      Card: <strong>5555 5555 5555 4444</strong> | Exp: <strong>12/28</strong> | CVC: <strong>123</strong>
+                    </div>
+                  </div>
+
+                  <div style="background:#FFF; padding:0.6rem 0.8rem; border-radius:var(--radius-xs); border:var(--border-light); font-size:0.8rem;">
+                    <div style="display:flex; justify-content:space-between;">
+                      <strong>💳 3D Secure Verification Card</strong>
+                      <span class="mono text-muted" style="cursor:pointer;" onclick="navigator.clipboard.writeText('4000002760003184'); showToast('Copied 3DS card!', 'info');">📋 Copy</span>
+                    </div>
+                    <div class="mono" style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+                      Card: <strong>4000 0027 6000 3184</strong> | Exp: <strong>12/28</strong> | CVC: <strong>123</strong>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
         <!-- 7. SPACE RESERVATIONS SECTION -->
         <section id="sec-bookings" class="prov-section d-none">
           <div class="content-card">
@@ -817,7 +997,8 @@
       await Promise.all([
         loadUserProfile(),
         loadCategoriesDropdown(),
-        loadMyVenues()
+        loadMyVenues(),
+        loadPayoutDetails()
       ]);
     }
 
@@ -1594,6 +1775,105 @@
     function closeProvModal(modalId) {
       const el = document.getElementById(modalId);
       if (el) el.classList.remove('active');
+    }
+
+    // -------------------------------------------------------------
+    // PAYOUTS & STRIPE CONNECT MANAGEMENT
+    // -------------------------------------------------------------
+    async function loadPayoutDetails() {
+      try {
+        const savedBank = localStorage.getItem('provider_payout_bank');
+        if (savedBank) {
+          const bankData = JSON.parse(savedBank);
+          if (bankData.holderName) document.getElementById('payout-holder-name').value = bankData.holderName;
+          if (bankData.bankName) document.getElementById('payout-bank-name').value = bankData.bankName;
+          if (bankData.routingNo) document.getElementById('payout-routing-no').value = bankData.routingNo;
+          if (bankData.accountNo) document.getElementById('payout-account-no').value = bankData.accountNo;
+          if (bankData.stripeAcctId) document.getElementById('payout-stripe-acct-id').value = bankData.stripeAcctId;
+        }
+
+        const profileRes = await AuthAPI.getProfile();
+        const prof = (profileRes && profileRes.data !== undefined) ? profileRes.data : profileRes;
+        if (prof && prof.stripeAccountId) {
+          document.getElementById('payout-stripe-acct-id').value = prof.stripeAccountId;
+          const badgeEl = document.getElementById('payout-status-badge');
+          if (badgeEl) {
+            badgeEl.className = 'badge badge-approved';
+            badgeEl.textContent = `⚡ CONNECTED (${prof.stripeAccountId})`;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load payout details from backend:', err);
+      }
+    }
+
+    async function handleSavePayoutSettings(e) {
+      e.preventDefault();
+      const holderName = document.getElementById('payout-holder-name').value.trim();
+      const bankName = document.getElementById('payout-bank-name').value.trim();
+      const routingNo = document.getElementById('payout-routing-no').value.trim();
+      const accountNo = document.getElementById('payout-account-no').value.trim();
+      const stripeAcctId = document.getElementById('payout-stripe-acct-id').value.trim() || 'acct_1MockProviderExpress01';
+
+      // Save in local storage for instant dashboard reflection
+      const bankData = { holderName, bankName, routingNo, accountNo, stripeAcctId, updatedAt: new Date().toISOString() };
+      localStorage.setItem('provider_payout_bank', JSON.stringify(bankData));
+
+      try {
+        // Sync stripe account ID with Auth microservice profile
+        await AuthAPI.updateStripeAccount(stripeAcctId);
+        showToast('✓ Bank account and Stripe destination ID saved successfully!', 'success');
+        
+        const badgeEl = document.getElementById('payout-status-badge');
+        if (badgeEl) {
+          badgeEl.className = 'badge badge-approved';
+          badgeEl.textContent = `⚡ ACTIVE: ${stripeAcctId}`;
+        }
+      } catch (err) {
+        console.warn('Stripe backend sync error:', err);
+        showToast('Payout details saved locally. (Backend warning: ' + (err.message || 'Profile sync') + ')', 'info');
+      }
+    }
+
+    async function connectStripeExpressOnboarding() {
+      try {
+        showToast('Initiating Stripe Connect Express onboarding flow...', 'info');
+        const res = await PaymentAPI.getStripeOnboardLink({
+          returnUrl: window.location.href,
+          refreshUrl: window.location.href
+        });
+
+        const url = (res && res.url) || (res && res.data && res.data.url);
+        if (url && url.startsWith('http')) {
+          window.location.href = url;
+        } else {
+          // Fallback in local sandbox / mock mode
+          const mockAcct = 'acct_1MockProviderExpress' + Math.floor(10 + Math.random() * 90);
+          document.getElementById('payout-stripe-acct-id').value = mockAcct;
+          await AuthAPI.updateStripeAccount(mockAcct);
+          showToast(`✓ Mock Stripe Connect Account Generated & Linked: ${mockAcct}`, 'success');
+          
+          const badgeEl = document.getElementById('payout-status-badge');
+          if (badgeEl) {
+            badgeEl.className = 'badge badge-approved';
+            badgeEl.textContent = `⚡ CONNECTED (${mockAcct})`;
+          }
+        }
+      } catch (err) {
+        console.warn('Stripe Onboard API:', err);
+        const fallbackAcct = 'acct_1MockProviderExpress01';
+        document.getElementById('payout-stripe-acct-id').value = fallbackAcct;
+        showToast(`Stripe Onboard: Assigned default test ID ${fallbackAcct}`, 'info');
+      }
+    }
+
+    function autofillSampleBankDetails() {
+      document.getElementById('payout-holder-name').value = 'Ram Sharma (Studio Atelier LLC)';
+      document.getElementById('payout-bank-name').value = 'JPMorgan Chase Bank, N.A.';
+      document.getElementById('payout-routing-no').value = '110000000';
+      document.getElementById('payout-account-no').value = '000123456789';
+      document.getElementById('payout-stripe-acct-id').value = 'acct_1MockProviderExpress01';
+      showToast('⚡ Auto-filled sample US test bank account details!', 'info');
     }
   </script>
 

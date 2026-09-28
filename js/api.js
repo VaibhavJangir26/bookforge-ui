@@ -302,6 +302,19 @@ const AuthAPI = {
     });
   },
 
+  async updateStripeAccount(stripeAccountId) {
+    const isExplicitId = stripeAccountId && typeof stripeAccountId === 'string';
+    const body = isExplicitId 
+      ? { stripeAccountId: stripeAccountId.trim(), stripePayoutsEnabled: true }
+      : (typeof stripeAccountId === 'object' ? stripeAccountId : { stripeAccountId: String(stripeAccountId), stripePayoutsEnabled: true });
+
+    return await apiRequest('/profile/stripe-account', {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+      loaderText: 'SAVING STRIPE PAYOUT ACCOUNT...'
+    });
+  },
+
   logout() {
     localStorage.removeItem('bookforge_token');
     localStorage.removeItem('bookforge_user');
@@ -839,6 +852,16 @@ const PaymentAPI = {
       method: 'POST',
       body: JSON.stringify({ bookingId }),
       loaderText: 'INITIATING REVERSAL TO PAYMENT CARD...'
+    });
+  },
+
+  async getStripeOnboardLink({ returnUrl, refreshUrl } = {}) {
+    const ret = returnUrl || window.location.href;
+    const ref = refreshUrl || window.location.href;
+    const qs = `?returnUrl=${encodeURIComponent(ret)}&refreshUrl=${encodeURIComponent(ref)}`;
+    return await apiRequest(`/payment/connect/onboard${qs}`, {
+      method: 'GET',
+      loaderText: 'GENERATING STRIPE CONNECT ONBOARDING LINK...'
     });
   }
 };

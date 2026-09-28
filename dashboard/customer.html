@@ -132,11 +132,11 @@
 
       <!-- Cancellation Policy Card -->
       <div class="cancellation-policy-card">
-        <h4>🛡️ Platform Cancellation & Automated Refund Guarantee</h4>
+        <h4>🛡️ Platform Cancellation & 80% Automated Refund Split Guarantee</h4>
         <div class="grid grid-2" style="margin-top: 0.5rem; gap: 1rem;">
           <div class="cancellation-rule-item">
-            <span style="color: #15803D; font-weight: 700;">✓ 24-Hour Full Refund:</span>
-            <span>Cancellations processed at least <strong>24 hours prior</strong> to the scheduled slot start time qualify for a 100% full refund directly reversed to your Stripe card.</span>
+            <span style="color: #15803D; font-weight: 700;">✓ 24-Hour Fair Refund Split:</span>
+            <span>Cancellations processed at least <strong>24 hours prior</strong> qualify for an <strong>80% refund</strong> directly reversed to your card, 15% host compensation, and 5% platform fee.</span>
           </div>
           <div class="cancellation-rule-item">
             <span style="color: #B91C1C; font-weight: 700;">✕ Late Cancellation (<24h):</span>
@@ -586,16 +586,16 @@
 
           if (nowMs < cutoffMs) {
             const hoursLeft = Math.round((cutoffMs - nowMs) / (1000 * 60 * 60));
-            policyEligibilityHtml = `<span class="badge" style="background:#F0FDF4; color:#15803D; font-size:0.75rem;" title="${hoursLeft}h left to cancel for full refund">✓ 100% Refundable (${hoursLeft}h left)</span>`;
+            policyEligibilityHtml = `<span class="badge" style="background:#F0FDF4; color:#15803D; font-size:0.75rem;" title="${hoursLeft}h left to cancel for 80% refund">✓ 80% Refundable (${hoursLeft}h left)</span>`;
           } else {
             policyEligibilityHtml = `<span class="badge" style="background:#FEF2F2; color:#B91C1C; font-size:0.75rem;">✕ Non-Refundable (Past 24h Cutoff)</span>`;
           }
         } else if (b.status === 'PENDING_PAYMENT') {
           policyEligibilityHtml = `<span class="badge badge-rust" style="font-size:0.75rem;">⏱️ 5-Min Hold Active</span>`;
         } else if (b.status === 'CANCELLED') {
-          const isRefunded = b.cancellationReason && b.cancellationReason.includes('[FULL REFUND APPROVED]');
+          const isRefunded = b.cancellationReason && (b.cancellationReason.includes('REFUND APPROVED') || b.cancellationReason.includes('80%'));
           policyEligibilityHtml = isRefunded 
-            ? `<span class="badge" style="background:#EFF6FF; color:#1D4ED8; font-size:0.75rem;">Refund Credited</span>` 
+            ? `<span class="badge" style="background:#EFF6FF; color:#1D4ED8; font-size:0.75rem;">80% Refund Credited</span>` 
             : `<span class="badge" style="background:#F3F4F6; color:#6B7280; font-size:0.75rem;">No Refund</span>`;
         }
 
@@ -706,8 +706,17 @@
 
       if (nowMs < cutoffMs) {
         const hoursLeft = Math.round((cutoffMs - nowMs) / (1000 * 60 * 60));
-        titleEl.textContent = '✓ 100% AUTOMATED REFUND APPROVED';
-        descEl.innerHTML = `You are cancelling more than 24 hours prior to the slot start time (<strong>${hoursLeft} hours remaining</strong> before cutoff). A 100% full refund of $${parseFloat(b.totalAmount || 0).toFixed(2)} will be automatically reversed to your payment card.`;
+        const total = parseFloat(b.totalAmount || 0);
+        const refundAmt = (total * 0.80).toFixed(2);
+        const hostComp = (total * 0.15).toFixed(2);
+        const platFee = (total * 0.05).toFixed(2);
+        titleEl.textContent = '✓ 80% AUTOMATED REFUND APPROVED';
+        descEl.innerHTML = `You are cancelling more than 24 hours prior to slot start (<strong>${hoursLeft} hours remaining</strong> before cutoff). Under platform policy:
+          <ul style="margin: 0.5rem 0 0.5rem 1.25rem; font-size: 0.85rem; line-height: 1.5;">
+            <li><strong>$${refundAmt} (80%)</strong> will be automatically refunded to your payment card.</li>
+            <li><strong>$${hostComp} (15%)</strong> will compensate the space provider for the schedule hold.</li>
+            <li><strong>$${platFee} (5%)</strong> covers payment processing and platform handling.</li>
+          </ul>`;
         boxEl.style.borderLeftColor = '#15803D';
       } else {
         titleEl.textContent = '⚠️ NON-REFUNDABLE CANCELLATION NOTICE';
