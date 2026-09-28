@@ -1,310 +1,336 @@
-(() => {
-  const section = document.querySelector(".cinema-scroll");
-  const root = document.documentElement;
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const track = document.querySelector(".sights-track");
-  const sightsControls = document.querySelector(".sights-controls");
-  const sightPrev = document.querySelector(".sight-prev");
-  const sightNext = document.querySelector(".sight-next");
-  const originalCards = Array.from(document.querySelectorAll(".sights-track .sight-card"));
+/**
+ * BOOKFORGE — LUXURY 3D-DIMENSIONAL SPATIAL PLATFORM ENGINE
+ * Volumetric Card Tilt, Rock-Solid Dropdown, Live Revenue Engine & Spatial Filters
+ */
 
-  if (!section || !root) return;
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Initialize Full-Site 3D Perspective Card Tilt with Specular Glare
+  init3DCardTilt();
 
-  // State (Section 7)
-  let targetMouseX = 0;
-  let targetMouseY = 0;
-  let mouseX = 0;
-  let mouseY = 0;
-  let targetScroll = 0;
-  let smoothScroll = 0;
-  let initialized = false;
-  let rafPending = false;
-  let sightCards = [];
-  let originalSightCount = originalCards.length || 5;
-  let activeSight = originalSightCount;
+  // 2. Initialize Robust Navbar Dropdown (Click + Hover, Zero Buffering)
+  initNavbarDropdown();
 
-  // Helpers (Section 7)
-  const clamp = (v, min = 0, max = 1) => Math.min(max, Math.max(min, v));
-  const smoothstep = (e0, e1, v) => {
-    const x = clamp((v - e0) / (e1 - e0));
-    return x * x * (3 - 2 * x);
-  };
-  const lerp = (a, b, t) => a + (b - a) * t;
-  const segmentInOut = (s, a, b, c, d) => {
-    const enter = smoothstep(a, b, s);
-    const exit = smoothstep(c, d, s);
-    return { enter, exit, active: enter * (1 - exit) };
-  };
-  const getScrollDistance = () => {
-    return clamp(-section.getBoundingClientRect().top, 0, section.offsetHeight - window.innerHeight);
-  };
+  // 3. Initialize Interactive Discipline Filter
+  initDisciplineFilter();
 
-  // Infinite Slider Logic (Section 8)
-  function setupSightSlider() {
-    if (!track || !originalCards.length) return;
-    originalSightCount = originalCards.length;
-    track.replaceChildren();
+  // 4. Initialize 3D Scroll Reveal Observer
+  init3DScrollReveal();
 
-    // 3 identical sets = 15 cards
-    for (let setIndex = 0; setIndex < 3; setIndex++) {
-      originalCards.forEach((card, cardIndex) => {
-        const clone = card.cloneNode(true);
-        const idx = setIndex * originalSightCount + cardIndex;
-        clone.dataset.sightIndex = idx.toString();
-        clone.setAttribute("tabindex", "0");
-        clone.setAttribute("role", "button");
+  // 5. Initialize Core Bookforge Features
+  initNavbarScroll();
+  initMobileMenu();
+  initRevenueCalculator();
+  initAuthCheck();
+});
 
-        clone.addEventListener("click", () => selectSightCard(clone));
-        clone.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            selectSightCard(clone);
-          }
-        });
-        track.appendChild(clone);
-      });
+/**
+ * 3D Perspective Card Tilt Engine with Specular Mouse Glare
+ * Transforms cards into physical, reactive dimensional objects across the entire site
+ */
+function init3DCardTilt() {
+  const tiltElements = document.querySelectorAll('.card-3d-dimensional');
+
+  tiltElements.forEach(el => {
+    // Inject specular glare element if not present
+    if (!el.querySelector('.specular-glare')) {
+      const glare = document.createElement('div');
+      glare.className = 'specular-glare';
+      el.appendChild(glare);
     }
 
-    sightCards = Array.from(track.querySelectorAll(".sight-card"));
-    activeSight = originalSightCount; // Start in middle set
-    track.addEventListener("transitionend", normalizeSightSlider);
-    updateSightSlider();
-  }
+    const glareEl = el.querySelector('.specular-glare');
+    let bounds;
+    const maxTilt = parseFloat(el.getAttribute('data-tilt-max') || '8');
 
-  function updateSightSlider() {
-    if (!sightCards.length || !track) return;
-    const cardWidth = sightCards[0].offsetWidth;
-    const computedTrack = window.getComputedStyle(track);
-    const gap = parseFloat(computedTrack.columnGap || computedTrack.gap || "0");
-    root.style.setProperty("--sights-shift", `${(-(cardWidth + gap) * activeSight).toFixed(2)}px`);
+    function updateBounds() {
+      bounds = el.getBoundingClientRect();
+    }
 
-    sightCards.forEach((c) => {
-      const idx = Number(c.dataset.sightIndex);
-      c.classList.toggle("is-active", idx === activeSight);
+    el.addEventListener('mouseenter', () => {
+      updateBounds();
+      if (glareEl) glareEl.style.opacity = '1';
     });
-  }
 
-  function moveSightSlider(dir) {
-    activeSight += dir;
-    updateSightSlider();
-  }
+    el.addEventListener('mousemove', (e) => {
+      if (!bounds) updateBounds();
 
-  function selectSightCard(card) {
-    const idx = Number(card.dataset.sightIndex);
-    if (Number.isFinite(idx)) {
-      activeSight = idx;
-      updateSightSlider();
-    }
-  }
+      const mouseX = e.clientX - bounds.left;
+      const mouseY = e.clientY - bounds.top;
 
-  function jumpSightSlider(i) {
-    if (!track) return;
-    track.classList.add("is-jumping");
-    activeSight = i;
-    updateSightSlider();
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        track.classList.remove("is-jumping");
-      });
+      const xPct = (mouseX / bounds.width - 0.5) * 2; // -1 to 1
+      const yPct = (mouseY / bounds.height - 0.5) * 2; // -1 to 1
+
+      const rotateX = -yPct * maxTilt;
+      const rotateY = xPct * maxTilt;
+
+      el.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`;
+
+      if (glareEl) {
+        const px = (mouseX / bounds.width) * 100;
+        const py = (mouseY / bounds.height) * 100;
+        glareEl.style.setProperty('--mouse-x', `${px}%`);
+        glareEl.style.setProperty('--mouse-y', `${py}%`);
+      }
     });
-  }
 
-  function normalizeSightSlider() {
-    if (activeSight >= originalSightCount * 2) {
-      jumpSightSlider(activeSight - originalSightCount);
-    } else if (activeSight < originalSightCount) {
-      jumpSightSlider(activeSight + originalSightCount);
-    }
-  }
-
-  // Animation Engine (Section 7)
-  function update() {
-    rafPending = false;
-    targetScroll = getScrollDistance();
-
-    if (!initialized || reduceMotion.matches) {
-      smoothScroll = targetScroll;
-      initialized = true;
-    } else {
-      smoothScroll = lerp(smoothScroll, targetScroll, 0.14);
-    }
-
-    if (Math.abs(smoothScroll - targetScroll) < 0.08) {
-      smoothScroll = targetScroll;
-    }
-
-    mouseX = lerp(mouseX, targetMouseX, 0.12);
-    mouseY = lerp(mouseY, targetMouseY, 0.12);
-
-    const frame2 = segmentInOut(smoothScroll, 560, 900, 1300, 1620);
-    const frame3 = segmentInOut(smoothScroll, 1760, 2140, 2540, 2700);
-    const progress = clamp(smoothScroll / 2700);
-    const introExit = smoothstep(90, 650, smoothScroll);
-    const sightsEnterRaw = smoothstep(2760, 3560, smoothScroll);
-    const sightsEnter = Math.pow(sightsEnterRaw, 1.55);
-    const sightsControlsEnter = smoothstep(3360, 3660, smoothScroll);
-    const blurActive = clamp(frame2.active + frame3.active);
-    const frame2Opacity = frame2.active * (1 - frame3.enter);
-    const splitDrift = Math.pow(frame2.enter, 1.5);
-    const panel2Opacity = frame2.active * (1 - frame2.exit);
-    const panel3Opacity = frame3.active * (1 - frame3.exit);
-    const backScale = 0.76 + progress * 0.2 + frame2.enter * 0.18 + frame3.enter * 0.16;
-    const sharedHeroY = progress * -74;
-    const sharedHeroScale = progress * 0.23;
-    const sightsScreenTop = Math.min(220, Math.max(112, window.innerHeight * 0.19)) - 50;
-    const sightsParentTop = window.innerHeight - (window.innerHeight - sightsScreenTop) / backScale;
-
-    // Verbatim variable writes
-    root.style.setProperty("--mx", (reduceMotion.matches ? 0 : mouseX).toFixed(4));
-    root.style.setProperty("--my", (reduceMotion.matches ? 0 : mouseY).toFixed(4));
-
-    root.style.setProperty("--back-opacity", (1 - frame2.active * 0.06).toFixed(4));
-    root.style.setProperty("--back-x", `${(mouseX * -12).toFixed(2)}px`);
-    root.style.setProperty("--back-y", `${(mouseY * -4).toFixed(2)}px`);
-    root.style.setProperty("--back-scale", backScale.toFixed(4));
-    root.style.setProperty("--four-y", `${(10 + progress * 10).toFixed(2)}vh`);
-    root.style.setProperty("--four-scale", (0.78 + progress * 0.16).toFixed(4));
-    root.style.setProperty("--bazaar-y", `${(20 - progress * 8).toFixed(2)}vh`);
-    root.style.setProperty("--blur-px", `${(blurActive * 14).toFixed(2)}px`);
-    root.style.setProperty("--back-brightness", (1 - blurActive * 0.255).toFixed(4));
-    root.style.setProperty("--bazaar-blur-px", `${(frame2.active * 14).toFixed(2)}px`);
-    root.style.setProperty("--bazaar-brightness", (1 - frame2.active * 0.255 - frame3.active * 0.06).toFixed(4));
-    root.style.setProperty("--bazaar-saturation", (1 + frame3.active * 0.18).toFixed(4));
-    root.style.setProperty("--shade-opacity", "1");
-    root.style.setProperty("--shade-z", frame2.active > 0.02 ? "2" : "0");
-    root.style.setProperty("--shade-top-alpha", (blurActive * 0.465).toFixed(4));
-    root.style.setProperty("--shade-mid-alpha", (blurActive * 0.42).toFixed(4));
-    root.style.setProperty("--shade-bottom-alpha", (blurActive * 0.51).toFixed(4));
-
-    root.style.setProperty("--title-y", `${(introExit * -210).toFixed(2)}px`);
-    root.style.setProperty("--title-scale", (1 - introExit * 0.08).toFixed(4));
-    root.style.setProperty("--title-opacity", (1 - introExit).toFixed(4));
-
-    root.style.setProperty("--bridge-x", `calc(-50% + ${(mouseX * 18).toFixed(2)}px)`);
-    root.style.setProperty("--bridge-y", `${(mouseY * 8 + sharedHeroY - frame2.exit * 760).toFixed(2)}px`);
-    root.style.setProperty("--bridge-bottom", `${(5 - frame2.enter * 13).toFixed(2)}vh`);
-    root.style.setProperty("--bridge-width", `${(67.2 + frame2.enter * 37.8).toFixed(2)}vw`);
-    root.style.setProperty("--bridge-scale", (1.02 + sharedHeroScale + frame2.exit * 0.46).toFixed(4));
-
-    root.style.setProperty("--split-left-x", `calc(-50% + ${(-splitDrift * 46).toFixed(2)}vw + ${(mouseX * 22).toFixed(2)}px)`);
-    root.style.setProperty("--split-left-y", `${(mouseY * 10 + sharedHeroY - splitDrift * 180).toFixed(2)}px`);
-    root.style.setProperty("--split-left-scale", (1 + sharedHeroScale + frame2.enter * 0.74).toFixed(4));
-    root.style.setProperty("--split-right-x", `calc(-50% + ${(splitDrift * 46).toFixed(2)}vw + ${(mouseX * 22).toFixed(2)}px)`);
-    root.style.setProperty("--split-right-y", `${(mouseY * 10 + sharedHeroY - splitDrift * 180).toFixed(2)}px`);
-    root.style.setProperty("--split-right-scale", (1 + sharedHeroScale + frame2.enter * 0.74).toFixed(4));
-
-    root.style.setProperty("--frame2-opacity", frame2Opacity.toFixed(4));
-    root.style.setProperty("--frame2-x", `calc(-50% + ${(mouseX * 10).toFixed(2)}px)`);
-    root.style.setProperty("--frame2-y", `calc(-50% + ${(mouseY * 8 - frame2.exit * 150).toFixed(2)}px)`);
-    root.style.setProperty("--frame2-scale", (1.06 + frame2.enter * 0.08 + frame2.exit * 0.08).toFixed(4));
-
-    root.style.setProperty("--intro-copy-y", `${(introExit * 90).toFixed(2)}px`);
-    root.style.setProperty("--intro-copy-opacity", (1 - introExit).toFixed(4));
-    root.style.setProperty("--panel2-opacity", panel2Opacity.toFixed(4));
-    root.style.setProperty("--panel2-y", `calc(-50% + ${(-frame2.exit * 86 + (1 - frame2.enter) * 58).toFixed(2)}px)`);
-    root.style.setProperty("--panel3-opacity", panel3Opacity.toFixed(4));
-    root.style.setProperty("--panel3-y", `calc(-50% + ${(-frame3.exit * 86 + (1 - frame3.enter) * 58).toFixed(2)}px)`);
-
-    root.style.setProperty("--sights-opacity", sightsEnter.toFixed(4));
-    root.style.setProperty("--sights-controls-opacity", sightsControlsEnter.toFixed(4));
-    if (sightsControls) {
-      sightsControls.classList.toggle("is-ready", sightsControlsEnter > 0.98);
-    }
-    root.style.setProperty("--sights-visibility", sightsEnter > 0.01 ? "visible" : "hidden");
-    root.style.setProperty("--sights-y", "0px");
-    root.style.setProperty("--sights-enter-x", `${((1 - sightsEnter) * 420).toFixed(2)}vw`);
-    root.style.setProperty("--sights-scale", (1 / backScale).toFixed(4));
-    root.style.setProperty("--sights-top", `${sightsParentTop.toFixed(2)}px`);
-    root.style.setProperty("--sights-screen-top", `${sightsScreenTop.toFixed(2)}px`);
-
-    // Re-request frame if moving
-    const needsScrollRaf = Math.abs(smoothScroll - targetScroll) > 0.08;
-    const needsMouseXRaf = Math.abs(mouseX - targetMouseX) > 0.001;
-    const needsMouseYRaf = Math.abs(mouseY - targetMouseY) > 0.001;
-
-    if (needsScrollRaf || needsMouseXRaf || needsMouseYRaf) {
-      requestTick();
-    }
-  }
-
-  function requestTick() {
-    if (!rafPending) {
-      rafPending = true;
-      requestAnimationFrame(update);
-    }
-  }
-
-  // Event Listeners
-  window.addEventListener("scroll", requestTick, { passive: true });
-  window.addEventListener("resize", () => {
-    updateSightSlider();
-    requestTick();
+    el.addEventListener('mouseleave', () => {
+      el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      if (glareEl) glareEl.style.opacity = '0';
+    });
   });
-  window.addEventListener(
-    "pointermove",
-    (e) => {
-      targetMouseX = e.clientX / window.innerWidth - 0.5;
-      targetMouseY = e.clientY / window.innerHeight - 0.5;
-      requestTick();
-    },
-    { passive: true }
-  );
+}
 
-  if (sightPrev) {
-    sightPrev.addEventListener("click", () => moveSightSlider(-1));
+/**
+ * Robust Navbar Dropdown (Click + Hover with zero buffering / clipping)
+ */
+function initNavbarDropdown() {
+  const btn = document.getElementById('platform-dropdown-btn');
+  const menu = document.getElementById('platform-dropdown-menu');
+  const container = document.getElementById('platform-dropdown-container');
+
+  if (!btn || !menu || !container) return;
+
+  let isOpen = false;
+  let closeTimeout = null;
+
+  function openDropdown() {
+    clearTimeout(closeTimeout);
+    isOpen = true;
+    menu.classList.remove('dropdown-closed');
+    menu.classList.add('dropdown-open');
+    btn.setAttribute('aria-expanded', 'true');
   }
-  if (sightNext) {
-    sightNext.addEventListener("click", () => moveSightSlider(1));
+
+  function closeDropdown() {
+    clearTimeout(closeTimeout);
+    closeTimeout = setTimeout(() => {
+      isOpen = false;
+      menu.classList.remove('dropdown-open');
+      menu.classList.add('dropdown-closed');
+      btn.setAttribute('aria-expanded', 'false');
+    }, 120);
   }
 
-  // Downstream Calculator Logic
-  function recalculateEarnings() {
-    const typeEl = document.getElementById("calc-type");
-    const hoursEl = document.getElementById("calc-hours");
-    const labelEl = document.getElementById("calc-hours-label");
-    const resultEl = document.getElementById("calc-revenue-result");
-    if (!typeEl || !hoursEl || !labelEl || !resultEl) return;
+  // Click toggle
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (isOpen) {
+      closeDropdown();
+    } else {
+      openDropdown();
+    }
+  });
 
-    const rate = parseFloat(typeEl.value) || 85;
-    const hours = parseInt(hoursEl.value, 10) || 18;
-    labelEl.textContent = `${hours} Hours / Week`;
+  // Hover support with bridge
+  container.addEventListener('mouseenter', openDropdown);
+  container.addEventListener('mouseleave', closeDropdown);
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (isOpen && !container.contains(e.target)) {
+      isOpen = false;
+      menu.classList.remove('dropdown-open');
+      menu.classList.add('dropdown-closed');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) {
+      isOpen = false;
+      menu.classList.remove('dropdown-open');
+      menu.classList.add('dropdown-closed');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Close when clicking any menu link
+  menu.querySelectorAll('a').forEach(item => {
+    item.addEventListener('click', () => {
+      isOpen = false;
+      menu.classList.remove('dropdown-open');
+      menu.classList.add('dropdown-closed');
+      btn.setAttribute('aria-expanded', 'false');
+    });
+  });
+}
+
+/**
+ * Interactive Discipline Category Filter
+ */
+function initDisciplineFilter() {
+  const filterBtns = document.querySelectorAll('.discipline-filter-btn');
+  const cards = document.querySelectorAll('.discipline-card');
+
+  if (!filterBtns.length || !cards.length) return;
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => {
+        b.classList.remove('bg-brand-rust', 'text-white', 'border-brand-rust', 'shadow-lg');
+        b.classList.add('bg-white/10', 'text-white/70', 'border-white/15');
+      });
+      btn.classList.add('bg-brand-rust', 'text-white', 'border-brand-rust', 'shadow-lg');
+      btn.classList.remove('bg-white/10', 'text-white/70', 'border-white/15');
+
+      const filter = btn.getAttribute('data-filter');
+
+      cards.forEach(card => {
+        const category = card.getAttribute('data-category');
+        if (filter === 'all' || category === filter) {
+          card.style.display = 'flex';
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.96) translateY(12px)';
+          setTimeout(() => {
+            card.style.transition = 'all 0.35s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'scale(1) translateY(0)';
+          }, 40);
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+}
+
+/**
+ * 3D Scroll Reveal Observer
+ */
+function init3DScrollReveal() {
+  const items = document.querySelectorAll('.reveal-3d-item');
+  if (!items.length) return;
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  items.forEach(el => observer.observe(el));
+}
+
+/**
+ * Navbar Scroll State
+ */
+function initNavbarScroll() {
+  const navbar = document.getElementById('navbar');
+  if (!navbar) return;
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 20) {
+      navbar.classList.add('bg-[#0b120d]/95', 'backdrop-blur-xl', 'border-b', 'border-white/10', 'shadow-2xl');
+      navbar.classList.remove('bg-transparent');
+    } else {
+      navbar.classList.remove('bg-[#0b120d]/95', 'shadow-2xl');
+      navbar.classList.add('bg-transparent');
+    }
+  });
+}
+
+/**
+ * Mobile Hamburger Drawer
+ */
+function initMobileMenu() {
+  const mobileToggle = document.getElementById('mobile-toggle');
+  const mobileOverlay = document.getElementById('mobile-overlay');
+  const mobileMenuCol = document.getElementById('mobile-menu-col');
+  const barTop = document.getElementById('bar-top');
+  const barBottom = document.getElementById('bar-bottom');
+  const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+  let isMenuOpen = false;
+
+  if (!mobileToggle || !mobileOverlay || !mobileMenuCol) return;
+
+  function toggleMenu() {
+    isMenuOpen = !isMenuOpen;
+    if (isMenuOpen) {
+      if (barTop) barTop.classList.add('rotate-45', 'translate-y-[4px]');
+      if (barBottom) barBottom.classList.add('-rotate-45', '-translate-y-[4px]');
+      mobileOverlay.classList.remove('opacity-0', 'pointer-events-none');
+      mobileOverlay.classList.add('opacity-100', 'pointer-events-auto');
+      mobileMenuCol.classList.remove('-translate-y-8', 'opacity-0');
+      mobileMenuCol.classList.add('translate-y-0', 'opacity-100');
+      document.body.style.overflow = 'hidden';
+    } else {
+      if (barTop) barTop.classList.remove('rotate-45', 'translate-y-[4px]');
+      if (barBottom) barBottom.classList.remove('-rotate-45', '-translate-y-[4px]');
+      mobileOverlay.classList.remove('opacity-100', 'pointer-events-auto');
+      mobileOverlay.classList.add('opacity-0', 'pointer-events-none');
+      mobileMenuCol.classList.remove('translate-y-0', 'opacity-100');
+      mobileMenuCol.classList.add('-translate-y-8', 'opacity-0');
+      document.body.style.overflow = '';
+    }
+  }
+
+  mobileToggle.addEventListener('click', toggleMenu);
+  mobileNavLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      if (isMenuOpen) toggleMenu();
+    });
+  });
+}
+
+/**
+ * Host Revenue Estimator & Dynamic Slider Fill
+ */
+function initRevenueCalculator() {
+  const calcType = document.getElementById('calc-type');
+  const calcHours = document.getElementById('calc-hours');
+  const calcHoursLabel = document.getElementById('calc-hours-label');
+  const calcRevenueResult = document.getElementById('calc-revenue-result');
+
+  if (!calcType || !calcHours || !calcHoursLabel || !calcRevenueResult) return;
+
+  function updateEarnings() {
+    const rate = parseFloat(calcType.value) || 85;
+    const hours = parseInt(calcHours.value, 10) || 18;
+    calcHoursLabel.textContent = `${hours} Hours / Week`;
+
+    // Dynamic Slider Fill Percentage
+    const pct = ((hours - 5) / (45 - 5)) * 100;
+    calcHours.style.setProperty('--slider-pct', `${pct}%`);
 
     const weekly = rate * hours;
     const monthly = Math.round(weekly * 4);
-    resultEl.textContent = `$${monthly.toLocaleString()}`;
+    calcRevenueResult.textContent = `$${monthly.toLocaleString()}`;
+
+    // Pop scale animation
+    calcRevenueResult.style.transform = 'scale(1.08)';
+    setTimeout(() => {
+      calcRevenueResult.style.transform = 'scale(1)';
+    }, 180);
   }
 
-  // Auth & Session Check
-  function checkAuth() {
-    if (typeof Auth !== "undefined" && Auth.isAuthenticated()) {
-      const user = Auth.getUser();
-      const uname = (user && user.username) ? user.username : "Host";
-      const signinLink = document.getElementById("nav-signin-link");
-      if (signinLink) {
-        signinLink.innerHTML = `👋 ${uname}`;
-        signinLink.href = "javascript:void(0)";
-        signinLink.onclick = () => Auth.redirectBasedOnRole();
-      }
+  calcType.addEventListener('change', updateEarnings);
+  calcHours.addEventListener('input', updateEarnings);
+  updateEarnings();
+}
+
+/**
+ * Check Auth session
+ */
+function initAuthCheck() {
+  if (typeof Auth !== "undefined" && Auth.isAuthenticated()) {
+    const user = Auth.getUser();
+    const uname = (user && user.username) ? user.username : "Host";
+    const signinLink = document.getElementById('nav-signin-link');
+    const ctaBtn = document.getElementById('nav-cta');
+    if (signinLink) {
+      signinLink.textContent = `👋 ${uname}`;
+      signinLink.href = "javascript:void(0)";
+      signinLink.onclick = () => Auth.redirectBasedOnRole();
+    }
+    if (ctaBtn) {
+      ctaBtn.textContent = "My Dashboard ➔";
+      ctaBtn.onclick = () => Auth.redirectBasedOnRole();
     }
   }
-
-  // Initialization
-  function initAll() {
-    setupSightSlider();
-    requestTick();
-
-    const calcType = document.getElementById("calc-type");
-    const calcHours = document.getElementById("calc-hours");
-    if (calcType) calcType.addEventListener("change", recalculateEarnings);
-    if (calcHours) calcHours.addEventListener("input", recalculateEarnings);
-    recalculateEarnings();
-
-    checkAuth();
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initAll);
-  } else {
-    initAll();
-  }
-})();
+}
