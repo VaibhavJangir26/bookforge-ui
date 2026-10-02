@@ -1,4 +1,4 @@
-# 🏛️ BookForge UI — Enterprise Luxury Venue & Creative Studio Marketplace
+# BookForge UI — Enterprise Luxury Venue & Creative Studio Marketplace
 
 [![Version](https://img.shields.io/badge/version-1.0.0-E25C37.svg?style=for-the-badge)](https://github.com/VaibhavJangir26/bookforge-ui)
 [![License](https://img.shields.io/badge/license-MIT-101812.svg?style=for-the-badge)](LICENSE)
